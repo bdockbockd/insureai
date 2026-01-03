@@ -1,27 +1,29 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Shield, Heart, Users, Sparkles, ArrowRight, Star } from "lucide-react";
+import { LeadCaptureForm } from "@/components/forms/lead-capture-form";
 import { Button } from "@/components/ui/button";
 import { Modal, ModalContent, ModalHeader } from "@/components/ui/modal";
-import { LeadCaptureForm } from "@/components/forms/lead-capture-form";
+import { useLanguage } from "@/contexts/language-context";
+import { motion } from "framer-motion";
+import { ArrowRight, Heart, Shield, Sparkles, Star, Users } from "lucide-react";
 import Link from "next/link";
-
-const stats = [
-  { value: "50K+", label: "Customers Protected" },
-  { value: "4.9", label: "Rating", icon: Star },
-  { value: "24/7", label: "Support" },
-];
-
-const insuranceTypes = [
-  { icon: Shield, label: "Health", color: "from-blue-500 to-cyan-500" },
-  { icon: Heart, label: "Life", color: "from-pink-500 to-rose-500" },
-  { icon: Users, label: "Family", color: "from-purple-500 to-indigo-500" },
-];
+import { useState } from "react";
 
 export function HeroSection() {
   const [showLeadModal, setShowLeadModal] = useState(false);
+  const { t } = useLanguage();
+
+  const stats = [
+    { value: "50K+", labelKey: "common.customersProtected" },
+    { value: "4.9", labelKey: "common.rating", icon: Star },
+    { value: "24/7", labelKey: "common.support" },
+  ];
+
+  const insuranceTypes = [
+    { icon: Shield, labelKey: "hero.health", color: "from-blue-500 to-cyan-500" },
+    { icon: Heart, labelKey: "hero.life", color: "from-pink-500 to-rose-500" },
+    { icon: Users, labelKey: "hero.family", color: "from-purple-500 to-indigo-500" },
+  ];
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -54,7 +56,9 @@ export function HeroSection() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-700">
             <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-medium">Powered by Allianz - World&apos;s #1 Insurer</span>
+            <span className="text-sm font-medium">
+              {t("hero.badge")}
+            </span>
           </div>
         </motion.div>
 
@@ -66,15 +70,16 @@ export function HeroSection() {
           className="text-center mb-12"
         >
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
-            Find Your Perfect
+            {t("hero.title1")}
             <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Insurance Plan
+              {t("hero.title2")}
             </span>
-            <span className="text-3xl sm:text-4xl lg:text-5xl">in 60 Seconds</span>
+            <span className="text-3xl sm:text-4xl lg:text-5xl">
+              {t("hero.title3")}
+            </span>
           </h1>
           <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
-            AI-powered recommendations for you, your family, and loved ones.
-            Compare your existing plan and discover better protection.
+            {t("hero.subtitle")}
           </p>
         </motion.div>
 
@@ -83,21 +88,21 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="flex justify-center gap-4 sm:gap-6 mb-14"
+          className="flex justify-center gap-4 sm:gap-6 lg:gap-10 mb-14"
         >
-          {insuranceTypes.map(({ icon: Icon, label, color }) => (
+          {insuranceTypes.map(({ icon: Icon, labelKey, color }) => (
             <motion.div
-              key={label}
+              key={labelKey}
               whileHover={{ scale: 1.05, y: -5 }}
               whileTap={{ scale: 0.95 }}
               className={`
-                flex flex-col items-center gap-3 p-5 sm:p-8 rounded-2xl cursor-pointer
+                flex flex-col items-center gap-3 p-5 sm:p-8 lg:p-12 rounded-2xl cursor-pointer
                 bg-gradient-to-br ${color} text-white shadow-lg
-                hover:shadow-xl transition-shadow
+                hover:shadow-xl transition-shadow min-w-[100px] sm:min-w-[140px] lg:min-w-[200px]
               `}
             >
-              <Icon className="w-10 h-10" />
-              <span className="font-semibold">{label}</span>
+              <Icon className="w-10 h-10 lg:w-14 lg:h-14" />
+              <span className="font-semibold lg:text-xl">{t(labelKey)}</span>
             </motion.div>
           ))}
         </motion.div>
@@ -109,15 +114,19 @@ export function HeroSection() {
           transition={{ delay: 0.3 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5 mb-16 px-4"
         >
-          <Link href="/wizard" className="w-full sm:w-auto">
-            <Button size="lg" variant="gradient" className="group w-full sm:w-auto">
-              Find My Plan
+          <Link href="/wizard" className="w-full sm:w-auto mt-2">
+            <Button
+              size="lg"
+              variant="gradient"
+              className="group w-full sm:w-auto"
+            >
+              {t("common.findMyPlan")}
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
           <Link href="/compare" className="w-full sm:w-auto">
             <Button size="lg" variant="outline" className="w-full sm:w-auto">
-              Compare My Current Plan
+              {t("common.compareMyCurrentPlan")}
             </Button>
           </Link>
         </motion.div>
@@ -127,15 +136,19 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="flex justify-center gap-10 sm:gap-20"
+          className="flex justify-center gap-10 sm:gap-20 lg:gap-32"
         >
-          {stats.map(({ value, label, icon: Icon }) => (
-            <div key={label} className="text-center">
-              <div className="flex items-center justify-center gap-1">
-                {Icon && <Icon className="w-5 h-5 text-yellow-500 fill-yellow-500" />}
-                <span className="text-2xl sm:text-3xl font-bold text-gray-900">{value}</span>
+          {stats.map(({ value, labelKey, icon: Icon }) => (
+            <div key={labelKey} className="text-center">
+              <div className="flex items-center justify-center gap-1 lg:gap-2">
+                {Icon && (
+                  <Icon className="w-5 h-5 lg:w-7 lg:h-7 text-yellow-500 fill-yellow-500" />
+                )}
+                <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
+                  {value}
+                </span>
               </div>
-              <span className="text-sm text-gray-500">{label}</span>
+              <span className="text-sm lg:text-base text-gray-500">{t(labelKey)}</span>
             </div>
           ))}
         </motion.div>
@@ -153,7 +166,7 @@ export function HeroSection() {
             className="w-full"
             onClick={() => setShowLeadModal(true)}
           >
-            Get Free Quote Now
+            {t("common.getFreeQuoteNow")}
             <ArrowRight className="w-5 h-5" />
           </Button>
         </motion.div>
@@ -162,7 +175,9 @@ export function HeroSection() {
       {/* Lead Capture Modal */}
       <Modal isOpen={showLeadModal} onClose={() => setShowLeadModal(false)}>
         <ModalHeader>
-          <h2 className="text-2xl font-bold text-gray-900">Get Your Free Quote</h2>
+          <h2 className="text-2xl font-bold text-gray-900">
+            {t("common.getFreeQuoteNow")}
+          </h2>
           <p className="text-gray-600 mt-1">Tell us how to reach you</p>
         </ModalHeader>
         <ModalContent>

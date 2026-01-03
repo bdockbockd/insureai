@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Modal, ModalContent, ModalHeader } from "@/components/ui/modal";
 import { LeadCaptureForm } from "@/components/forms/lead-capture-form";
@@ -30,6 +31,50 @@ interface ComparisonItem {
   winner: "yours" | "allianz" | "tie";
   importance: "high" | "medium" | "low";
 }
+
+// Thai Insurance Providers and Plans Data
+const insuranceProviders = [
+  {
+    name: "Allianz Ayudhya",
+    plans: ["Basic Care", "Max Care", "Care Anywhere", "Beyond Care", "UltraCare"],
+  },
+  {
+    name: "AIA Thailand",
+    plans: ["AIA Health Happy", "AIA Comprehensive Health", "AIA Critical Illness Cover", "AIA Med Excess", "AIA Premier Care"],
+  },
+  {
+    name: "Bangkok Life Assurance",
+    plans: ["Prestige Health", "Prestige Health Unlock", "Value Health", "Health Care Plus"],
+  },
+  {
+    name: "Muang Thai Life",
+    plans: ["Elite Health Rider", "Elite Health Plus", "Smart Health Rider", "MTL Health Care"],
+  },
+  {
+    name: "Thai Life Insurance",
+    plans: ["Thai Life Medicare", "Thai Life Health Plus", "Health Saver", "Health Protection"],
+  },
+  {
+    name: "Prudential Thailand",
+    plans: ["PRUSuper Health Guard", "PRUHealthcare Plus", "PRUFirst Health", "PRUMy Care"],
+  },
+  {
+    name: "FWD Thailand",
+    plans: ["E-Health Eco", "Easy E-Health", "Precious Care", "Health First", "Cancer Care"],
+  },
+  {
+    name: "AXA Thailand",
+    plans: ["SmartCare Essential", "EasyCare Visa", "SwitchCare", "Health Max", "iCare"],
+  },
+  {
+    name: "Generali Thailand",
+    plans: ["Gen Health Hero", "Generali Comprehensive Health", "Health Guardian", "Vitality Plan"],
+  },
+  {
+    name: "Cigna Thailand",
+    plans: ["Cigna Close Care Silver", "Cigna Close Care Gold", "Cigna Close Care Platinum", "Global Health Access"],
+  },
+];
 
 const mockComparison: ComparisonItem[] = [
   {
@@ -95,11 +140,20 @@ export default function ComparePage() {
   const [planDetails, setPlanDetails] = useState({
     provider: "",
     planName: "",
+    customPlanName: "",
     monthlyPremium: "",
     roomBoard: "",
     outpatient: "",
   });
   const [showLeadModal, setShowLeadModal] = useState(false);
+
+  // Get plans for the selected provider
+  const selectedProvider = insuranceProviders.find(p => p.name === planDetails.provider);
+  const planOptions = selectedProvider
+    ? [...selectedProvider.plans.map(plan => ({ value: plan, label: plan })), { value: "custom", label: "Other (Enter manually)" }]
+    : [];
+
+  const providerOptions = insuranceProviders.map(p => ({ value: p.name, label: p.name }));
 
   const handleAnalyze = () => {
     setStep("analyzing");
@@ -147,23 +201,40 @@ export default function ComparePage() {
                       <label className="block text-sm font-medium text-gray-700 mb-2.5">
                         Insurance Provider
                       </label>
-                      <Input
-                        placeholder="e.g., AIA, Bangkok Life"
+                      <Select
+                        options={providerOptions}
                         value={planDetails.provider}
-                        onChange={(e) => setPlanDetails({ ...planDetails, provider: e.target.value })}
+                        onChange={(value) => setPlanDetails({ ...planDetails, provider: value, planName: "", customPlanName: "" })}
+                        placeholder="Select your insurance provider"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2.5">
                         Plan Name
                       </label>
-                      <Input
-                        placeholder="e.g., Health Shield Plus"
+                      <Select
+                        options={planOptions}
                         value={planDetails.planName}
-                        onChange={(e) => setPlanDetails({ ...planDetails, planName: e.target.value })}
+                        onChange={(value) => setPlanDetails({ ...planDetails, planName: value })}
+                        placeholder={planDetails.provider ? "Select your plan" : "Select provider first"}
+                        disabled={!planDetails.provider}
                       />
                     </div>
                   </div>
+
+                  {/* Custom Plan Name Input */}
+                  {planDetails.planName === "custom" && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2.5">
+                        Enter Your Plan Name
+                      </label>
+                      <Input
+                        placeholder="Enter your plan name"
+                        value={planDetails.customPlanName}
+                        onChange={(e) => setPlanDetails({ ...planDetails, customPlanName: e.target.value })}
+                      />
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
                     <div>
@@ -321,13 +392,13 @@ export default function ComparePage() {
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b bg-gray-50">
-                          <th className="text-left p-4 font-semibold">Category</th>
-                          <th className="text-center p-4 font-semibold">Your Plan</th>
-                          <th className="text-center p-4 font-semibold text-blue-600">
+                        <tr className="border-b bg-gray-100">
+                          <th className="text-left p-4 font-semibold text-gray-900">Category</th>
+                          <th className="text-center p-4 font-semibold text-gray-900">Your Plan</th>
+                          <th className="text-center p-4 font-semibold text-blue-700">
                             Allianz Health Plus
                           </th>
-                          <th className="text-center p-4 font-semibold">Winner</th>
+                          <th className="text-center p-4 font-semibold text-gray-900">Winner</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -341,17 +412,17 @@ export default function ComparePage() {
                           >
                             <td className="p-4">
                               <div className="flex items-center gap-2">
-                                <item.icon className="w-4 h-4 text-gray-400" />
-                                <span className="font-medium">{item.category}</span>
+                                <item.icon className="w-4 h-4 text-gray-500" />
+                                <span className="font-medium text-gray-900">{item.category}</span>
                                 {item.importance === "high" && (
-                                  <span className="px-2 py-0.5 bg-red-100 text-red-600 text-xs rounded-full">
+                                  <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full">
                                     Important
                                   </span>
                                 )}
                               </div>
                             </td>
-                            <td className="p-4 text-center text-gray-600">{item.yourPlan}</td>
-                            <td className="p-4 text-center font-medium text-blue-600">
+                            <td className="p-4 text-center text-gray-700 font-medium">{item.yourPlan}</td>
+                            <td className="p-4 text-center font-semibold text-blue-700">
                               {item.allianzPlan}
                             </td>
                             <td className="p-4 text-center">

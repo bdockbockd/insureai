@@ -2,9 +2,10 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Calendar, Clock, ArrowRight, Tag } from "lucide-react";
+import { Calendar, Clock, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/language-context";
 
 const blogPosts = [
   {
@@ -100,17 +101,18 @@ const blogPosts = [
   },
 ];
 
-const categories = [
-  "All",
-  "Health Insurance",
-  "Life Insurance",
-  "News",
-  "Technology",
-  "Family Planning",
-  "Expat Guide",
+const categoryKeys = [
+  { key: "blog.all", value: "All" },
+  { key: "blog.healthInsurance", value: "Health Insurance" },
+  { key: "blog.lifeInsurance", value: "Life Insurance" },
+  { key: "blog.news", value: "News" },
+  { key: "blog.technology", value: "Technology" },
+  { key: "blog.familyPlanning", value: "Family Planning" },
+  { key: "blog.expatGuide", value: "Expat Guide" },
 ];
 
 export default function BlogPage() {
+  const { t, language } = useLanguage();
   const featuredPost = blogPosts.find((post) => post.featured);
   const regularPosts = blogPosts.filter((post) => !post.featured);
 
@@ -124,7 +126,7 @@ export default function BlogPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl sm:text-5xl font-bold mb-5"
           >
-            Insurance Insights Blog
+            {t("blog.title")}
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -132,7 +134,7 @@ export default function BlogPage() {
             transition={{ delay: 0.1 }}
             className="text-lg text-white/80 max-w-2xl mx-auto leading-relaxed"
           >
-            Expert advice, industry news, and tips to help you make better insurance decisions.
+            {t("blog.subtitle")}
           </motion.p>
         </div>
       </div>
@@ -144,16 +146,16 @@ export default function BlogPage() {
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-wrap gap-3 mb-12"
         >
-          {categories.map((category) => (
+          {categoryKeys.map((category) => (
             <button
-              key={category}
+              key={category.key}
               className={`px-5 py-2.5 rounded-full text-sm font-medium transition-colors ${
-                category === "All"
+                category.value === "All"
                   ? "bg-blue-600 text-white"
                   : "bg-white text-gray-600 hover:bg-gray-100 border"
               }`}
             >
-              {category}
+              {t(category.key)}
             </button>
           ))}
         </motion.div>
@@ -175,7 +177,7 @@ export default function BlogPage() {
                   <CardContent className="p-6 sm:p-10 flex flex-col justify-center">
                     <div className="flex items-center gap-3 mb-4">
                       <span className="px-3 py-1.5 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
-                        Featured
+                        {t("blog.featured")}
                       </span>
                       <span className="px-3 py-1.5 bg-gray-100 text-gray-600 text-sm rounded-full">
                         {featuredPost.category}
@@ -194,7 +196,7 @@ export default function BlogPage() {
                       </div>
                       <div className="flex items-center gap-1.5">
                         <Calendar className="w-4 h-4" />
-                        {new Date(featuredPost.publishedAt).toLocaleDateString("en-US", {
+                        {new Date(featuredPost.publishedAt).toLocaleDateString(language === "th" ? "th-TH" : "en-US", {
                           month: "short",
                           day: "numeric",
                           year: "numeric",
@@ -202,7 +204,7 @@ export default function BlogPage() {
                       </div>
                       <div className="flex items-center gap-1.5">
                         <Clock className="w-4 h-4" />
-                        {featuredPost.readTime} min read
+                        {featuredPost.readTime} {t("blog.minRead")}
                       </div>
                     </div>
                   </CardContent>
@@ -213,16 +215,17 @@ export default function BlogPage() {
         )}
 
         {/* Regular Posts Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-7 sm:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {regularPosts.map((post, index) => (
             <motion.div
               key={post.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
+              className="mb-2 sm:mb-0"
             >
               <Link href={`/blog/${post.slug}`}>
-                <Card hover className="h-full overflow-hidden">
+                <Card hover className="h-full overflow-hidden shadow-md">
                   <div
                     className="h-48 bg-cover bg-center"
                     style={{ backgroundImage: `url(${post.coverImage})` }}
@@ -242,7 +245,7 @@ export default function BlogPage() {
                         </div>
                         <span>{post.author.name}</span>
                       </div>
-                      <span>{post.readTime} min read</span>
+                      <span>{post.readTime} {t("blog.minRead")}</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -252,9 +255,9 @@ export default function BlogPage() {
         </div>
 
         {/* Load More */}
-        <div className="text-center mt-14">
-          <Button variant="outline" size="lg" className="w-full sm:w-auto py-3">
-            Load More Articles
+        <div className="text-center mt-16 mb-8">
+          <Button variant="outline" size="lg" className="w-full sm:w-auto py-3 px-8">
+            {t("blog.loadMore")}
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </div>
@@ -264,20 +267,20 @@ export default function BlogPage() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 sm:p-12 text-center text-white"
+          className="mt-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-10 sm:p-14 text-center text-white"
         >
-          <h2 className="text-2xl sm:text-3xl font-bold mb-4">Stay Updated</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4">{t("blog.stayUpdated")}</h2>
           <p className="text-white/80 mb-8 max-w-lg mx-auto leading-relaxed">
-            Get the latest insurance tips, news, and exclusive offers delivered to your inbox.
+            {t("blog.newsletterText")}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
             <input
               type="email"
-              placeholder="Enter your email"
+              placeholder={t("blog.enterEmail")}
               className="w-full px-5 py-3.5 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
             />
             <Button className="w-full sm:w-auto bg-white text-blue-600 hover:bg-gray-100 py-3">
-              Subscribe
+              {t("common.subscribe")}
             </Button>
           </div>
         </motion.div>

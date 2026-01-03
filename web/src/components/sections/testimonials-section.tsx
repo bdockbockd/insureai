@@ -44,23 +44,23 @@ const testimonials = [
 
 export function TestimonialsSection() {
   return (
-    <section className="py-24 bg-white">
+    <section className="py-16 sm:py-24 lg:py-32 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-20"
+          className="text-center mb-12 sm:mb-16 lg:mb-20"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">
             Loved by Thousands of Families
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
             See what our customers have to say about their experience with InsureAI.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
           {testimonials.map((testimonial, index) => (
             <motion.div
               key={testimonial.id}
@@ -68,29 +68,29 @@ export function TestimonialsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-8 relative"
+              className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 sm:p-8 lg:p-10 relative"
             >
-              <Quote className="absolute top-8 right-8 w-10 h-10 text-blue-200" />
+              <Quote className="absolute top-6 right-6 sm:top-8 sm:right-8 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 text-blue-200" />
 
-              <div className="flex items-center gap-4 mb-5">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-lg">
+              <div className="flex items-center gap-4 mb-5 lg:mb-6">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-base sm:text-lg lg:text-xl">
                   {testimonial.avatar}
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900 text-lg">{testimonial.name}</h4>
-                  <p className="text-sm text-gray-500">{testimonial.role}</p>
+                  <h4 className="font-semibold text-gray-900 text-base sm:text-lg lg:text-xl">{testimonial.name}</h4>
+                  <p className="text-xs sm:text-sm lg:text-base text-gray-500">{testimonial.role}</p>
                 </div>
               </div>
 
-              <div className="flex gap-1 mb-4">
+              <div className="flex gap-1 mb-4 lg:mb-5">
                 {Array.from({ length: testimonial.rating }).map((_, i) => (
-                  <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                  <Star key={i} className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-yellow-400 fill-yellow-400" />
                 ))}
               </div>
 
-              <p className="text-gray-700 mb-5 leading-relaxed">{testimonial.text}</p>
+              <p className="text-gray-700 mb-5 lg:mb-6 leading-relaxed text-sm sm:text-base lg:text-lg">{testimonial.text}</p>
 
-              <span className="inline-block px-4 py-1.5 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
+              <span className="inline-block px-3 py-1 sm:px-4 sm:py-1.5 lg:px-5 lg:py-2 bg-blue-100 text-blue-700 text-xs sm:text-sm lg:text-base font-medium rounded-full">
                 {testimonial.planType}
               </span>
             </motion.div>
