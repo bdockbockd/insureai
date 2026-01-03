@@ -113,7 +113,7 @@ export default function ComparePage() {
   const savingsPercent = 17; // Mock savings calculation
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <AnimatePresence mode="wait">
           {/* Input Step */}
@@ -124,8 +124,8 @@ export default function ComparePage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <div className="text-center mb-8">
-                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              <div className="text-center mb-10">
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-5">
                   Compare Your Current Plan
                 </h1>
                 <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -134,17 +134,17 @@ export default function ComparePage() {
                 </p>
               </div>
 
-              <Card className="mb-8">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+              <Card className="mb-10">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-3">
                     <FileText className="w-5 h-5" />
                     Your Current Plan Details
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <CardContent className="space-y-6 pt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2.5">
                         Insurance Provider
                       </label>
                       <Input
@@ -154,7 +154,7 @@ export default function ComparePage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2.5">
                         Plan Name
                       </label>
                       <Input
@@ -165,9 +165,9 @@ export default function ComparePage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2.5">
                         Monthly Premium (THB)
                       </label>
                       <Input
@@ -178,7 +178,7 @@ export default function ComparePage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2.5">
                         Room & Board (per day)
                       </label>
                       <Input
@@ -189,7 +189,7 @@ export default function ComparePage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2.5">
                         Outpatient (per year)
                       </label>
                       <Input
@@ -201,8 +201,8 @@ export default function ComparePage() {
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div className="pt-6 border-t mt-2">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
                       <div className="flex-1">
                         <p className="text-sm text-gray-600">
                           Or upload your policy document and our AI will extract the details
@@ -220,13 +220,13 @@ export default function ComparePage() {
                 </CardContent>
               </Card>
 
-              <div className="text-center">
+              <div className="text-center mt-8">
                 <Button
                   size="lg"
                   variant="gradient"
                   onClick={handleAnalyze}
                   disabled={!planDetails.provider}
-                  className="w-full sm:w-auto gap-2"
+                  className="w-full sm:w-auto gap-2 py-3"
                 >
                   Analyze My Plan
                   <ArrowRight className="w-5 h-5" />
@@ -288,33 +288,33 @@ export default function ComparePage() {
               exit={{ opacity: 0, y: -20 }}
             >
               {/* Summary Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6 mb-12">
                 <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
-                  <CardContent className="p-6 text-center">
-                    <TrendingUp className="w-10 h-10 text-green-600 mx-auto mb-3" />
+                  <CardContent className="p-7 sm:p-8 text-center">
+                    <TrendingUp className="w-10 h-10 text-green-600 mx-auto mb-4" />
                     <div className="text-3xl font-bold text-green-600">{savingsPercent}%</div>
-                    <p className="text-sm text-gray-600">Potential Savings</p>
+                    <p className="text-sm text-gray-600 mt-1">Potential Savings</p>
                   </CardContent>
                 </Card>
                 <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
-                  <CardContent className="p-6 text-center">
-                    <Shield className="w-10 h-10 text-blue-600 mx-auto mb-3" />
+                  <CardContent className="p-7 sm:p-8 text-center">
+                    <Shield className="w-10 h-10 text-blue-600 mx-auto mb-4" />
                     <div className="text-3xl font-bold text-blue-600">{allianzWins}/{mockComparison.length}</div>
-                    <p className="text-sm text-gray-600">Categories Better</p>
+                    <p className="text-sm text-gray-600 mt-1">Categories Better</p>
                   </CardContent>
                 </Card>
                 <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200">
-                  <CardContent className="p-6 text-center">
-                    <AlertTriangle className="w-10 h-10 text-orange-600 mx-auto mb-3" />
+                  <CardContent className="p-7 sm:p-8 text-center">
+                    <AlertTriangle className="w-10 h-10 text-orange-600 mx-auto mb-4" />
                     <div className="text-3xl font-bold text-orange-600">2</div>
-                    <p className="text-sm text-gray-600">Coverage Gaps Found</p>
+                    <p className="text-sm text-gray-600 mt-1">Coverage Gaps Found</p>
                   </CardContent>
                 </Card>
               </div>
 
               {/* Comparison Table */}
-              <Card className="mb-8 overflow-hidden">
-                <CardHeader className="bg-gray-50">
+              <Card className="mb-12 overflow-hidden">
+                <CardHeader className="bg-gray-50 py-5">
                   <CardTitle>Detailed Comparison</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
@@ -378,15 +378,15 @@ export default function ComparePage() {
               </Card>
 
               {/* CTA */}
-              <div className="text-center space-y-4">
+              <div className="text-center space-y-5">
                 <h2 className="text-2xl font-bold text-gray-900">
                   Ready to Upgrade Your Coverage?
                 </h2>
-                <p className="text-gray-600 max-w-lg mx-auto">
+                <p className="text-gray-600 max-w-lg mx-auto leading-relaxed">
                   Switch to Allianz Health Plus and get better coverage at a lower price.
                   Our advisor will help you make the transition seamless.
                 </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5 px-4 pt-2">
                   <Button size="lg" variant="gradient" onClick={() => setShowLeadModal(true)} className="w-full sm:w-auto">
                     Get My Upgrade
                     <ArrowRight className="w-5 h-5 ml-2" />

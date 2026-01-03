@@ -19,7 +19,7 @@ export function CTASection() {
   const [showLeadModal, setShowLeadModal] = useState(false);
 
   return (
-    <section className="relative py-20 overflow-hidden">
+    <section className="relative py-24 overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600" />
 
@@ -47,7 +47,7 @@ export function CTASection() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 text-white mb-6"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/20 text-white mb-8"
           >
             <Shield className="w-5 h-5" />
             <span className="font-medium">Start protecting your family today</span>
@@ -58,10 +58,10 @@ export function CTASection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6"
+            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-8 leading-tight"
           >
             Ready to Find Your
-            <span className="block">Perfect Insurance Plan?</span>
+            <span className="block mt-2">Perfect Insurance Plan?</span>
           </motion.h2>
 
           <motion.div
@@ -69,7 +69,7 @@ export function CTASection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="flex flex-wrap justify-center gap-4 mb-10"
+            className="flex flex-wrap justify-center gap-x-6 gap-y-3 mb-12"
           >
             {benefits.map((benefit) => (
               <div
@@ -87,7 +87,7 @@ export function CTASection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5 px-4"
           >
             <Link href="/wizard" className="w-full sm:w-auto">
               <Button
@@ -113,7 +113,7 @@ export function CTASection() {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.4 }}
-            className="mt-8 text-white/70 text-sm"
+            className="mt-10 text-white/70 text-sm"
           >
             Join 50,000+ families who found better protection with InsureAI
           </motion.p>

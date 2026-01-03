@@ -424,7 +424,7 @@ export default function WizardPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-3 gap-4 mt-4">
                     {[
                       { label: "Basic", min: 500, max: 2000 },
                       { label: "Standard", min: 2000, max: 5000 },
@@ -434,13 +434,13 @@ export default function WizardPage() {
                         key={label}
                         hover
                         onClick={() => setBudget(min, max)}
-                        className={`cursor-pointer ${
-                          budgetMin === min && budgetMax === max ? "ring-2 ring-blue-500" : ""
+                        className={`cursor-pointer border-2 border-gray-200 bg-gradient-to-br from-gray-50 to-white shadow-sm hover:shadow-md transition-all ${
+                          budgetMin === min && budgetMax === max ? "ring-2 ring-blue-500 border-blue-300 bg-gradient-to-br from-blue-50 to-white" : ""
                         }`}
                       >
-                        <CardContent className="p-4 text-center">
-                          <span className="font-medium">{label}</span>
-                          <p className="text-xs text-gray-500">{min.toLocaleString()}-{max.toLocaleString()}/mo</p>
+                        <CardContent className="p-5 text-center">
+                          <span className="font-semibold text-gray-900">{label}</span>
+                          <p className="text-sm text-gray-500 mt-1">{min.toLocaleString()}-{max.toLocaleString()}/mo</p>
                         </CardContent>
                       </Card>
                     ))}
@@ -452,7 +452,7 @@ export default function WizardPage() {
         </AnimatePresence>
 
         {/* Navigation Buttons */}
-        <div className="flex flex-col-reverse sm:flex-row items-center justify-between mt-8 gap-3">
+        <div className="flex flex-col-reverse sm:flex-row items-center justify-between mt-12 gap-4">
           <Button
             variant="outline"
             onClick={prevStep}
@@ -524,7 +524,7 @@ function ResultsPage({ onBack }: { onBack: () => void }) {
           </p>
         </motion.div>
 
-        <div className="space-y-4 mb-8">
+        <div className="space-y-6 mb-10">
           {recommendedPlans.map((plan, index) => (
             <motion.div
               key={plan.id}
@@ -532,25 +532,25 @@ function ResultsPage({ onBack }: { onBack: () => void }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card className={`relative overflow-hidden ${plan.isRecommended ? "ring-2 ring-blue-500" : ""}`}>
+              <Card className={`relative overflow-hidden border-2 shadow-md ${plan.isRecommended ? "ring-2 ring-blue-500 border-blue-200" : "border-gray-200"}`}>
                 {plan.isRecommended && (
-                  <div className="absolute top-0 right-0 bg-blue-500 text-white px-3 py-1 text-xs font-semibold rounded-bl-lg">
+                  <div className="absolute top-0 right-0 bg-blue-500 text-white px-4 py-1.5 text-xs font-semibold rounded-bl-lg">
                     RECOMMENDED
                   </div>
                 )}
                 {plan.isBestValue && (
-                  <div className="absolute top-0 right-0 bg-green-500 text-white px-3 py-1 text-xs font-semibold rounded-bl-lg">
+                  <div className="absolute top-0 right-0 bg-green-500 text-white px-4 py-1.5 text-xs font-semibold rounded-bl-lg">
                     BEST VALUE
                   </div>
                 )}
-                <CardContent className="p-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <CardContent className="p-8">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                      <ul className="space-y-1">
+                      <h3 className="text-xl font-bold text-gray-900 mb-3">{plan.name}</h3>
+                      <ul className="space-y-2">
                         {plan.highlights.map((highlight) => (
                           <li key={highlight} className="flex items-center gap-2 text-sm text-gray-600">
-                            <Check className="w-4 h-4 text-green-500" />
+                            <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
                             {highlight}
                           </li>
                         ))}
@@ -561,7 +561,7 @@ function ResultsPage({ onBack }: { onBack: () => void }) {
                         {plan.premium.toLocaleString()}
                         <span className="text-sm font-normal text-gray-500">/mo</span>
                       </div>
-                      <Button className="mt-3 w-full sm:w-auto" onClick={() => setShowLeadForm(true)}>
+                      <Button className="mt-4 w-full sm:w-auto" onClick={() => setShowLeadForm(true)}>
                         Get This Plan
                       </Button>
                     </div>

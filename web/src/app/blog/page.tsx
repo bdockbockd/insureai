@@ -117,12 +117,12 @@ export default function BlogPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white py-16 px-4 sm:px-6 lg:px-8">
+      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white py-20 sm:py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto text-center">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl sm:text-5xl font-bold mb-4"
+            className="text-4xl sm:text-5xl font-bold mb-5"
           >
             Insurance Insights Blog
           </motion.h1>
@@ -130,24 +130,24 @@ export default function BlogPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-lg text-white/80 max-w-2xl mx-auto"
+            className="text-lg text-white/80 max-w-2xl mx-auto leading-relaxed"
           >
             Expert advice, industry news, and tips to help you make better insurance decisions.
           </motion.p>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
         {/* Categories */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-wrap gap-2 mb-10"
+          className="flex flex-wrap gap-3 mb-12"
         >
           {categories.map((category) => (
             <button
               key={category}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-colors ${
                 category === "All"
                   ? "bg-blue-600 text-white"
                   : "bg-white text-gray-600 hover:bg-gray-100 border"
@@ -163,7 +163,7 @@ export default function BlogPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-12"
+            className="mb-14"
           >
             <Link href={`/blog/${featuredPost.slug}`}>
               <Card hover className="overflow-hidden">
@@ -172,27 +172,27 @@ export default function BlogPage() {
                     className="h-64 md:h-auto bg-cover bg-center"
                     style={{ backgroundImage: `url(${featuredPost.coverImage})` }}
                   />
-                  <CardContent className="p-5 sm:p-8 flex flex-col justify-center">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
+                  <CardContent className="p-6 sm:p-10 flex flex-col justify-center">
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="px-3 py-1.5 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
                         Featured
                       </span>
-                      <span className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full">
+                      <span className="px-3 py-1.5 bg-gray-100 text-gray-600 text-sm rounded-full">
                         {featuredPost.category}
                       </span>
                     </div>
-                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
                       {featuredPost.title}
                     </h2>
-                    <p className="text-gray-600 mb-4">{featuredPost.excerpt}</p>
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <p className="text-gray-600 mb-5 leading-relaxed">{featuredPost.excerpt}</p>
+                    <div className="flex items-center gap-5 text-sm text-gray-500">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-semibold">
                           {featuredPost.author.avatar}
                         </div>
                         <span>{featuredPost.author.name}</span>
                       </div>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1.5">
                         <Calendar className="w-4 h-4" />
                         {new Date(featuredPost.publishedAt).toLocaleDateString("en-US", {
                           month: "short",
@@ -200,7 +200,7 @@ export default function BlogPage() {
                           year: "numeric",
                         })}
                       </div>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1.5">
                         <Clock className="w-4 h-4" />
                         {featuredPost.readTime} min read
                       </div>
@@ -213,7 +213,7 @@ export default function BlogPage() {
         )}
 
         {/* Regular Posts Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-7 sm:gap-8">
           {regularPosts.map((post, index) => (
             <motion.div
               key={post.id}
@@ -227,16 +227,16 @@ export default function BlogPage() {
                     className="h-48 bg-cover bg-center"
                     style={{ backgroundImage: `url(${post.coverImage})` }}
                   />
-                  <CardContent className="p-5">
-                    <span className="inline-block px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full mb-3">
+                  <CardContent className="p-6">
+                    <span className="inline-block px-3 py-1.5 bg-gray-100 text-gray-600 text-xs rounded-full mb-4">
                       {post.category}
                     </span>
-                    <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">
+                    <h3 className="font-bold text-lg text-gray-900 mb-3 line-clamp-2">
                       {post.title}
                     </h3>
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">{post.excerpt}</p>
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <div className="flex items-center gap-2">
+                    <p className="text-gray-600 text-sm mb-5 line-clamp-2 leading-relaxed">{post.excerpt}</p>
+                    <div className="flex items-center justify-between text-xs text-gray-500 pt-1">
+                      <div className="flex items-center gap-2.5">
                         <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-[10px] font-semibold">
                           {post.author.avatar}
                         </div>
@@ -252,8 +252,8 @@ export default function BlogPage() {
         </div>
 
         {/* Load More */}
-        <div className="text-center mt-12">
-          <Button variant="outline" size="lg" className="w-full sm:w-auto">
+        <div className="text-center mt-14">
+          <Button variant="outline" size="lg" className="w-full sm:w-auto py-3">
             Load More Articles
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
@@ -264,19 +264,19 @@ export default function BlogPage() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 sm:p-8 text-center text-white"
+          className="mt-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 sm:p-12 text-center text-white"
         >
-          <h2 className="text-2xl font-bold mb-3">Stay Updated</h2>
-          <p className="text-white/80 mb-6 max-w-lg mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4">Stay Updated</h2>
+          <p className="text-white/80 mb-8 max-w-lg mx-auto leading-relaxed">
             Get the latest insurance tips, news, and exclusive offers delivered to your inbox.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
             <input
               type="email"
               placeholder="Enter your email"
-              className="w-full px-4 py-3 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
+              className="w-full px-5 py-3.5 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
             />
-            <Button className="w-full sm:w-auto bg-white text-blue-600 hover:bg-gray-100">
+            <Button className="w-full sm:w-auto bg-white text-blue-600 hover:bg-gray-100 py-3">
               Subscribe
             </Button>
           </div>

@@ -45,12 +45,12 @@ export function HeroSection() {
         />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
         {/* Trust Badge */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex justify-center mb-8"
+          className="flex justify-center mb-10"
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-700">
             <Sparkles className="w-4 h-4" />
@@ -63,7 +63,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-center mb-8"
+          className="text-center mb-12"
         >
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
             Find Your Perfect
@@ -83,7 +83,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="flex justify-center gap-4 mb-10"
+          className="flex justify-center gap-4 sm:gap-6 mb-14"
         >
           {insuranceTypes.map(({ icon: Icon, label, color }) => (
             <motion.div
@@ -91,12 +91,12 @@ export function HeroSection() {
               whileHover={{ scale: 1.05, y: -5 }}
               whileTap={{ scale: 0.95 }}
               className={`
-                flex flex-col items-center gap-2 p-4 sm:p-6 rounded-2xl cursor-pointer
+                flex flex-col items-center gap-3 p-5 sm:p-8 rounded-2xl cursor-pointer
                 bg-gradient-to-br ${color} text-white shadow-lg
                 hover:shadow-xl transition-shadow
               `}
             >
-              <Icon className="w-8 h-8" />
+              <Icon className="w-10 h-10" />
               <span className="font-semibold">{label}</span>
             </motion.div>
           ))}
@@ -107,7 +107,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-12 px-4"
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5 mb-16 px-4"
         >
           <Link href="/wizard" className="w-full sm:w-auto">
             <Button size="lg" variant="gradient" className="group w-full sm:w-auto">
@@ -127,7 +127,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="flex justify-center gap-8 sm:gap-16"
+          className="flex justify-center gap-10 sm:gap-20"
         >
           {stats.map(({ value, label, icon: Icon }) => (
             <div key={label} className="text-center">
