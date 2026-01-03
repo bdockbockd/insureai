@@ -4,8 +4,8 @@ export function OrganizationSchema() {
     "@type": "Organization",
     name: "InsureAI",
     alternateName: "InsureAI Thailand",
-    url: "https://insureai-nine.vercel.app",
-    logo: "https://insureai-nine.vercel.app/logo.png",
+    url: "https://www.xn--q3cxxb8a4e.life",
+    logo: "https://www.xn--q3cxxb8a4e.life/logo.png",
     description:
       "AI-powered insurance comparison platform in Thailand. Compare health insurance, life insurance, and savings plans.",
     foundingDate: "2024",
@@ -46,7 +46,7 @@ export function WebsiteSchema() {
     "@type": "WebSite",
     name: "InsureAI",
     alternateName: ["InsureAI Thailand", "อินชัวร์เอไอ"],
-    url: "https://insureai-nine.vercel.app",
+    url: "https://www.xn--q3cxxb8a4e.life",
     description:
       "AI-powered insurance comparison platform - ค้นหาประกันที่ใช่ด้วย AI",
     inLanguage: ["en", "th"],
@@ -55,7 +55,7 @@ export function WebsiteSchema() {
       target: {
         "@type": "EntryPoint",
         urlTemplate:
-          "https://insureai-nine.vercel.app/blog?search={search_term_string}",
+          "https://www.xn--q3cxxb8a4e.life/blog?search={search_term_string}",
       },
       "query-input": "required name=search_term_string",
     },

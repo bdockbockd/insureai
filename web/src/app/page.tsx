@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { HomeContent } from "./home-content";
 import { FAQSchema, insuranceFAQs } from "@/components/seo/faq-schema";
 
-const baseUrl = "https://insureai-nine.vercel.app";
+const baseUrl = "https://www.xn--q3cxxb8a4e.life";
 
 type Props = {
   searchParams: Promise<{ lang?: string }>;

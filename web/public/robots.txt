@@ -1,5 +1,5 @@
 # InsureAI Robots.txt
-# https://insureai-nine.vercel.app
+# https://www.xn--q3cxxb8a4e.life
 
 User-agent: *
 Allow: /
@@ -10,4 +10,4 @@ Disallow: /api/
 Disallow: /_next/
 
 # Sitemaps
-Sitemap: https://insureai-nine.vercel.app/sitemap.xml
+Sitemap: https://www.xn--q3cxxb8a4e.life/sitemap.xml

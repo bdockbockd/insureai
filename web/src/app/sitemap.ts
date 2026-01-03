@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { blogPosts } from '@/data/blog-posts';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://insureai-nine.vercel.app';
+  const baseUrl = 'https://www.xn--q3cxxb8a4e.life';
 
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [

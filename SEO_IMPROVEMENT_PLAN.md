@@ -101,8 +101,8 @@ Disallow: /admin/
 Disallow: /api/
 
 # Sitemaps
-Sitemap: https://insureai-nine.vercel.app/sitemap.xml
-Sitemap: https://insureai-nine.vercel.app/sitemap-th.xml
+Sitemap: https://www.xn--q3cxxb8a4e.life/sitemap.xml
+Sitemap: https://www.xn--q3cxxb8a4e.life/sitemap-th.xml
 ```
 
 ### 2. Dynamic Sitemap Generation
@@ -114,7 +114,7 @@ import { MetadataRoute } from 'next';
 import { blogPosts } from '@/data/blog-posts';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://insureai-nine.vercel.app';
+  const baseUrl = 'https://www.xn--q3cxxb8a4e.life';
 
   // Static pages
   const staticPages = [
@@ -175,7 +175,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
   const title = lang === 'th' ? post.titleTh : post.title;
   const description = lang === 'th' ? post.excerptTh : post.excerpt;
-  const baseUrl = 'https://insureai-nine.vercel.app';
+  const baseUrl = 'https://www.xn--q3cxxb8a4e.life';
 
   return {
     title: `${title} | InsureAI`,
@@ -222,7 +222,7 @@ export async function generateStaticParams() {
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://insureai-nine.vercel.app'),
+  metadataBase: new URL('https://www.xn--q3cxxb8a4e.life'),
   title: {
     default: 'InsureAI - ค้นหาประกันที่ใช่ใน 60 วินาที | Find Your Perfect Insurance',
     template: '%s | InsureAI',
@@ -236,7 +236,7 @@ export const metadata: Metadata = {
     'ประกันภัย', 'ประกันสุขภาพ', 'ประกันชีวิต', 'เปรียบเทียบประกัน',
     'ประกันออมทรัพย์', 'ประกันบำนาญ', 'ประกันอุบัติเหตุ',
   ],
-  authors: [{ name: 'InsureAI', url: 'https://insureai-nine.vercel.app' }],
+  authors: [{ name: 'InsureAI', url: 'https://www.xn--q3cxxb8a4e.life' }],
   creator: 'InsureAI',
   publisher: 'InsureAI',
   formatDetection: {
@@ -248,7 +248,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     alternateLocale: 'th_TH',
-    url: 'https://insureai-nine.vercel.app',
+    url: 'https://www.xn--q3cxxb8a4e.life',
     siteName: 'InsureAI',
     title: 'InsureAI - AI-Powered Insurance Comparison',
     description: 'Find your perfect insurance plan in 60 seconds with AI recommendations',
@@ -283,10 +283,10 @@ export const metadata: Metadata = {
     google: 'YOUR_GOOGLE_VERIFICATION_CODE',
   },
   alternates: {
-    canonical: 'https://insureai-nine.vercel.app',
+    canonical: 'https://www.xn--q3cxxb8a4e.life',
     languages: {
-      'en': 'https://insureai-nine.vercel.app?lang=en',
-      'th': 'https://insureai-nine.vercel.app?lang=th',
+      'en': 'https://www.xn--q3cxxb8a4e.life?lang=en',
+      'th': 'https://www.xn--q3cxxb8a4e.life?lang=th',
     },
   },
 };
@@ -322,9 +322,9 @@ Since refactoring to `[lang]` directory structure is complex, implement:
 // In layout.tsx metadata
 alternates: {
   languages: {
-    'en': 'https://insureai-nine.vercel.app?lang=en',
-    'th': 'https://insureai-nine.vercel.app?lang=th',
-    'x-default': 'https://insureai-nine.vercel.app',
+    'en': 'https://www.xn--q3cxxb8a4e.life?lang=en',
+    'th': 'https://www.xn--q3cxxb8a4e.life?lang=th',
+    'x-default': 'https://www.xn--q3cxxb8a4e.life',
   },
 }
 ```
@@ -372,11 +372,11 @@ Add to each page's metadata:
 
 ```typescript
 alternates: {
-  canonical: 'https://insureai-nine.vercel.app/blog/health-insurance-guide',
+  canonical: 'https://www.xn--q3cxxb8a4e.life/blog/health-insurance-guide',
   languages: {
-    'en': 'https://insureai-nine.vercel.app/blog/health-insurance-guide?lang=en',
-    'th': 'https://insureai-nine.vercel.app/blog/health-insurance-guide?lang=th',
-    'x-default': 'https://insureai-nine.vercel.app/blog/health-insurance-guide',
+    'en': 'https://www.xn--q3cxxb8a4e.life/blog/health-insurance-guide?lang=en',
+    'th': 'https://www.xn--q3cxxb8a4e.life/blog/health-insurance-guide?lang=th',
+    'x-default': 'https://www.xn--q3cxxb8a4e.life/blog/health-insurance-guide',
   },
 }
 ```
@@ -535,8 +535,8 @@ export function OrganizationSchema() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'InsureAI',
-    url: 'https://insureai-nine.vercel.app',
-    logo: 'https://insureai-nine.vercel.app/logo.png',
+    url: 'https://www.xn--q3cxxb8a4e.life',
+    logo: 'https://www.xn--q3cxxb8a4e.life/logo.png',
     description: 'AI-powered insurance comparison platform in Thailand',
     address: {
       '@type': 'PostalAddress',
@@ -606,12 +606,12 @@ export function BlogPostSchema({ post, lang }: BlogPostSchemaProps) {
       name: 'InsureAI',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://insureai-nine.vercel.app/logo.png',
+        url: 'https://www.xn--q3cxxb8a4e.life/logo.png',
       },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://insureai-nine.vercel.app/blog/${post.slug}`,
+      '@id': `https://www.xn--q3cxxb8a4e.life/blog/${post.slug}`,
     },
     keywords: post.tags.join(', '),
     inLanguage: lang === 'th' ? 'th-TH' : 'en-US',

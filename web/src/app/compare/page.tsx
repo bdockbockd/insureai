@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { CompareContent } from "./compare-content";
 
-const baseUrl = "https://insureai-nine.vercel.app";
+const baseUrl = "https://www.xn--q3cxxb8a4e.life";
 
 type Props = {
   searchParams: Promise<{ lang?: string }>;

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { blogPosts, getPostBySlug } from "@/data/blog-posts";
 import { BlogPostContent } from "./blog-post-content";
 
-const baseUrl = "https://insureai-nine.vercel.app";
+const baseUrl = "https://www.xn--q3cxxb8a4e.life";
 
 type Props = {
   params: Promise<{ slug: string }>;

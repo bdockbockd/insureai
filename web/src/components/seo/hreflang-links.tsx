@@ -3,7 +3,7 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
-const baseUrl = "https://insureai-nine.vercel.app";
+const baseUrl = "https://www.xn--q3cxxb8a4e.life";
 
 function HreflangLinksInner() {
   const pathname = usePathname();

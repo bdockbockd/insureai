@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { BlogListContent } from "./blog-list-content";
 import { blogPosts } from "@/data/blog-posts";
 
-const baseUrl = "https://insureai-nine.vercel.app";
+const baseUrl = "https://www.xn--q3cxxb8a4e.life";
 
 type Props = {
   searchParams: Promise<{ lang?: string }>;

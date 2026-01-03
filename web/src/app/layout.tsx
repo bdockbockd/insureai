@@ -32,7 +32,7 @@ const notoSansThai = Noto_Sans_Thai({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://insureai-nine.vercel.app"),
+  metadataBase: new URL("https://www.xn--q3cxxb8a4e.life"),
   title: {
     default:
       "InsureAI - ค้นหาประกันที่ใช่ใน 60 วินาที | Find Your Perfect Insurance",
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     "ประกันโรคร้ายแรง",
     "ประกันสุขภาพที่ดีที่สุด",
   ],
-  authors: [{ name: "InsureAI", url: "https://insureai-nine.vercel.app" }],
+  authors: [{ name: "InsureAI", url: "https://www.xn--q3cxxb8a4e.life" }],
   creator: "InsureAI",
   publisher: "InsureAI",
   formatDetection: {
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     alternateLocale: "th_TH",
-    url: "https://insureai-nine.vercel.app",
+    url: "https://www.xn--q3cxxb8a4e.life",
     siteName: "InsureAI",
     title: "InsureAI - AI-Powered Insurance Comparison Thailand",
     description:
@@ -106,11 +106,11 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://insureai-nine.vercel.app",
+    canonical: "https://www.xn--q3cxxb8a4e.life",
     languages: {
-      en: "https://insureai-nine.vercel.app?lang=en",
-      th: "https://insureai-nine.vercel.app?lang=th",
-      "x-default": "https://insureai-nine.vercel.app",
+      en: "https://www.xn--q3cxxb8a4e.life?lang=en",
+      th: "https://www.xn--q3cxxb8a4e.life?lang=th",
+      "x-default": "https://www.xn--q3cxxb8a4e.life",
     },
   },
 };
