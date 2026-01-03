@@ -325,7 +325,7 @@ export default function AIAssistPage() {
                   >
                     <button
                       onClick={() => handlePresetClick(question)}
-                      className="w-full text-left"
+                      className="w-full text-left outline-none"
                       disabled={isLoading}
                     >
                       <Card className="h-full hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-2 border-transparent hover:border-blue-200 cursor-pointer group">

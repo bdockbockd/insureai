@@ -50,10 +50,10 @@ export function PlanSelector({ selectedPlan, onSelectPlan, disabled }: PlanSelec
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
         className={`
-          flex items-center gap-2 px-3 py-2 rounded-lg border transition-all
+          flex items-center gap-2 px-3 py-2 rounded-lg border transition-all outline-none
           ${disabled ? "opacity-50 cursor-not-allowed" : "hover:border-blue-400 cursor-pointer"}
           ${selectedPlan ? "bg-blue-50 border-blue-300" : "bg-white border-gray-300"}
-          ${isOpen ? "border-blue-500 ring-2 ring-blue-200" : ""}
+          ${isOpen ? "border-blue-500" : ""}
         `}
       >
         <FileText className={`w-4 h-4 ${selectedPlan ? "text-blue-600" : "text-gray-400"}`} />
@@ -65,7 +65,7 @@ export function PlanSelector({ selectedPlan, onSelectPlan, disabled }: PlanSelec
         {selectedPlan ? (
           <button
             onClick={handleClear}
-            className="ml-1 p-0.5 hover:bg-blue-100 rounded"
+            className="ml-1 p-0.5 hover:bg-blue-100 rounded outline-none"
           >
             <X className="w-3 h-3 text-blue-600" />
           </button>
@@ -90,7 +90,7 @@ export function PlanSelector({ selectedPlan, onSelectPlan, disabled }: PlanSelec
                 <button
                   onClick={() => handleCategoryClick(category.id)}
                   className={`
-                    w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors
+                    w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors outline-none
                     ${expandedCategory === category.id ? "bg-gray-50" : ""}
                   `}
                 >
@@ -124,7 +124,7 @@ export function PlanSelector({ selectedPlan, onSelectPlan, disabled }: PlanSelec
                         key={plan.id}
                         onClick={() => handlePlanSelect(plan)}
                         className={`
-                          w-full text-left px-4 py-2.5 hover:bg-blue-50 transition-colors
+                          w-full text-left px-4 py-2.5 hover:bg-blue-50 transition-colors outline-none
                           ${selectedPlan?.id === plan.id ? "bg-blue-100" : ""}
                         `}
                       >
@@ -159,7 +159,7 @@ export function PlanSelector({ selectedPlan, onSelectPlan, disabled }: PlanSelec
                 onSelectPlan(null);
                 setIsOpen(false);
               }}
-              className="w-full text-center text-xs text-gray-500 hover:text-gray-700 py-1"
+              className="w-full text-center text-xs text-gray-500 hover:text-gray-700 py-1 outline-none"
             >
               {language === "th" ? "ไม่เลือกแผน (ถามทั่วไป)" : "No plan (general questions)"}
             </button>
