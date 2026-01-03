@@ -1,0 +1,13 @@
+# InsureAI Robots.txt
+# https://insureai-nine.vercel.app
+
+User-agent: *
+Allow: /
+
+# Block admin and API routes
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+
+# Sitemaps
+Sitemap: https://insureai-nine.vercel.app/sitemap.xml

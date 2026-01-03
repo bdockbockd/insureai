@@ -3,6 +3,12 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Header } from "@/components/sections/header";
 import { Footer } from "@/components/sections/footer";
 import { Providers } from "@/components/providers";
+import { LanguageHtmlUpdater } from "@/components/seo/language-html-updater";
+import { HreflangLinks } from "@/components/seo/hreflang-links";
+import {
+  OrganizationSchema,
+  WebsiteSchema,
+} from "@/components/seo/organization-schema";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,25 +22,86 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "InsureAI - Find Your Perfect Insurance Plan in 60 Seconds",
-  description: "AI-powered insurance recommendations. Compare plans, find better coverage, and protect your family today.",
-  keywords: ["insurance", "health insurance", "life insurance", "Thailand", "insurance comparison", "AI"],
-  authors: [{ name: "InsureAI" }],
+  metadataBase: new URL("https://insureai-nine.vercel.app"),
+  title: {
+    default:
+      "InsureAI - ค้นหาประกันที่ใช่ใน 60 วินาที | Find Your Perfect Insurance",
+    template: "%s | InsureAI",
+  },
+  description:
+    "AI-powered insurance recommendations. Compare health insurance, life insurance plans in Thailand. ค้นหาประกันสุขภาพ ประกันชีวิต เปรียบเทียบแผนประกันที่เหมาะกับคุณ",
+  keywords: [
+    // English keywords
+    "insurance",
+    "health insurance",
+    "life insurance",
+    "Thailand insurance",
+    "insurance comparison",
+    "AI insurance",
+    "best health insurance Thailand",
+    "expat health insurance Thailand",
+    // Thai keywords
+    "ประกันภัย",
+    "ประกันสุขภาพ",
+    "ประกันชีวิต",
+    "เปรียบเทียบประกัน",
+    "ประกันออมทรัพย์",
+    "ประกันบำนาญ",
+    "ประกันอุบัติเหตุ",
+    "ประกันโรคร้ายแรง",
+    "ประกันสุขภาพที่ดีที่สุด",
+  ],
+  authors: [{ name: "InsureAI", url: "https://insureai-nine.vercel.app" }],
+  creator: "InsureAI",
+  publisher: "InsureAI",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
-    title: "InsureAI - Find Your Perfect Insurance Plan",
-    description: "AI-powered insurance recommendations to find your perfect plan",
     type: "website",
     locale: "en_US",
+    alternateLocale: "th_TH",
+    url: "https://insureai-nine.vercel.app",
     siteName: "InsureAI",
+    title: "InsureAI - AI-Powered Insurance Comparison Thailand",
+    description:
+      "Find your perfect insurance plan in 60 seconds with AI recommendations. Compare health, life, and savings insurance.",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "InsureAI - Smart Insurance Comparison",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "InsureAI - Find Your Perfect Insurance Plan",
-    description: "AI-powered insurance recommendations to find your perfect plan",
+    title: "InsureAI - AI-Powered Insurance Comparison",
+    description: "Find your perfect insurance plan in 60 seconds",
+    images: ["/og-image.jpg"],
+    creator: "@insureai",
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: "https://insureai-nine.vercel.app",
+    languages: {
+      en: "https://insureai-nine.vercel.app?lang=en",
+      th: "https://insureai-nine.vercel.app?lang=th",
+      "x-default": "https://insureai-nine.vercel.app",
+    },
   },
 };
 
@@ -44,13 +111,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <HreflangLinks />
+        <OrganizationSchema />
+        <WebsiteSchema />
+      </head>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <Providers>
+          <LanguageHtmlUpdater />
           <Header />
-          <main className="pt-16 pb-24 sm:pb-0 min-h-screen">
-            {children}
-          </main>
+          <main className="pt-16 pb-24 sm:pb-0 min-h-screen">{children}</main>
           <Footer />
         </Providers>
       </body>
