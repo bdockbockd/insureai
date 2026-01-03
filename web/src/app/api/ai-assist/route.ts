@@ -56,7 +56,7 @@ async function tryGeminiModel(
   stream: boolean = false
 ): Promise<Response | null> {
   const endpoint = stream ? "streamGenerateContent" : "generateContent";
-  const url = `${GEMINI_BASE_URL}/${model}:${endpoint}?key=${GEMINI_API_KEY}${stream ? "&alt=sse" : ""}`;
+  const url = `${GEMINI_BASE_URL}/${model}:${endpoint}?key=${GEMINI_API_KEY}`;
 
   try {
     const response = await fetch(url, {
@@ -148,35 +148,68 @@ export async function POST(request: NextRequest) {
       throw new Error("All models failed");
     }
 
-    // Create a TransformStream to process SSE data
+    // Create a TransformStream to process JSON array chunks and convert to SSE
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
 
+    let buffer = "";
+
     const transformStream = new TransformStream({
       async transform(chunk, controller) {
-        const text = decoder.decode(chunk);
-        const lines = text.split("\n");
+        buffer += decoder.decode(chunk, { stream: true });
 
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            try {
-              const jsonStr = line.slice(6);
-              if (jsonStr.trim() === "[DONE]") continue;
+        // Try to extract complete JSON objects from the buffer
+        // Gemini streaming returns: [{...},\n{...},\n{...}]
+        // We need to parse each chunk individually
 
-              const data = JSON.parse(jsonStr);
-              const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        // Remove leading [ and trailing ] if present
+        let cleanBuffer = buffer.replace(/^\[/, "").replace(/\]$/, "");
 
-              if (content) {
-                // Send as SSE format
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: content, model: usedModel })}\n\n`));
-              }
-            } catch {
-              // Skip invalid JSON lines
+        // Split by },{ pattern to find complete objects
+        const parts = cleanBuffer.split(/\},\s*\{/);
+
+        for (let i = 0; i < parts.length - 1; i++) {
+          let jsonStr = parts[i];
+          // Add back the braces that were removed by split
+          if (i > 0) jsonStr = "{" + jsonStr;
+          jsonStr = jsonStr + "}";
+
+          try {
+            const data = JSON.parse(jsonStr);
+            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text) {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text, model: usedModel })}\n\n`));
             }
+          } catch {
+            // Not a complete JSON yet, continue
           }
+        }
+
+        // Keep the last incomplete part in the buffer
+        if (parts.length > 0) {
+          let lastPart = parts[parts.length - 1];
+          if (parts.length > 1) lastPart = "{" + lastPart;
+          buffer = lastPart;
         }
       },
       flush(controller) {
+        // Try to parse any remaining data in buffer
+        if (buffer.trim()) {
+          try {
+            // Clean up the buffer
+            let jsonStr = buffer.replace(/^\[/, "").replace(/\]$/, "").trim();
+            if (!jsonStr.startsWith("{")) jsonStr = "{" + jsonStr;
+            if (!jsonStr.endsWith("}")) jsonStr = jsonStr + "}";
+
+            const data = JSON.parse(jsonStr);
+            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text) {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text, model: usedModel })}\n\n`));
+            }
+          } catch {
+            // Ignore parse errors on flush
+          }
+        }
         controller.enqueue(encoder.encode("data: [DONE]\n\n"));
       },
     });
