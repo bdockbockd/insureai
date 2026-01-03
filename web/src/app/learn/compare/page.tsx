@@ -10,7 +10,8 @@ import {
   PiggyBank,
   Landmark,
   Check,
-  X,
+  Search,
+  Sparkles,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -155,12 +156,19 @@ export default function CompareInsurancePage() {
                       ))}
                     </div>
 
-                    <Link href={`/wizard/${product.type}`} className="block mt-4">
-                      <Button className="w-full gap-2">
-                        {language === "th" ? "ค้นหาแผน" : "Find Plan"}
-                        <ArrowRight className="w-4 h-4" />
-                      </Button>
-                    </Link>
+                    <div className="flex gap-2 mt-4">
+                      <Link href={`/wizard/${product.type}`}>
+                        <Button size="icon" variant="outline" title={language === "th" ? "ค้นหาแผน" : "Find Plan"}>
+                          <Search className="w-4 h-4" />
+                        </Button>
+                      </Link>
+                      <Link href="/ai-assist" className="flex-1">
+                        <Button variant="gradient" className="w-full gap-2">
+                          <Sparkles className="w-4 h-4" />
+                          {language === "th" ? "ถาม AI" : "Ask AI"}
+                        </Button>
+                      </Link>
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -223,12 +231,19 @@ export default function CompareInsurancePage() {
                     <td className="p-4"></td>
                     {comparisonData.products.map((product) => (
                       <td key={product.type} className="p-4 text-center">
-                        <Link href={`/wizard/${product.type}`}>
-                          <Button className="gap-2">
-                            {language === "th" ? "ค้นหาแผน" : "Find Plan"}
-                            <ArrowRight className="w-4 h-4" />
-                          </Button>
-                        </Link>
+                        <div className="flex gap-2 justify-center">
+                          <Link href={`/wizard/${product.type}`}>
+                            <Button size="icon" variant="outline" title={language === "th" ? "ค้นหาแผน" : "Find Plan"}>
+                              <Search className="w-4 h-4" />
+                            </Button>
+                          </Link>
+                          <Link href="/ai-assist">
+                            <Button variant="gradient" className="gap-2">
+                              <Sparkles className="w-4 h-4" />
+                              {language === "th" ? "ถาม AI" : "Ask AI"}
+                            </Button>
+                          </Link>
+                        </div>
                       </td>
                     ))}
                   </tr>

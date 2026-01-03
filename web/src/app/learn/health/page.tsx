@@ -108,7 +108,7 @@ export default function HealthInsuranceLearnPage() {
                 {language === "th" ? "ประกันสุขภาพ" : "Health Insurance"}
               </h1>
               <p className="text-gray-600">
-                {language === "th" ? "โดย Allianz Ayudhya" : "by Allianz Ayudhya"}
+                {language === "th" ? "คำแนะนำจาก InsureAI" : "Insights from InsureAI"}
               </p>
             </div>
           </div>

@@ -73,23 +73,40 @@ export const blogPosts: BlogPost[] = [
     excerptTh:
       "ทุกสิ่งที่คุณต้องรู้เกี่ยวกับประกันสุขภาพในประเทศไทย - ตั้งแต่ระบบประกันสังคมไปจนถึงประกันเอกชน เรียนรู้เรื่อง IPD, OPD, copayment และวิธีเลือกแผนที่เหมาะสม",
     content: `
-## Understanding Thailand's Health Insurance Landscape
+## ประกันสุขภาพในประเทศไทย - Understanding Thailand's Health Insurance
 
-Thailand offers one of the most comprehensive healthcare systems in Southeast Asia, with options ranging from government social security to premium private insurance plans. This guide covers everything you need to know about choosing the right health coverage in 2026.
+Thailand offers comprehensive healthcare coverage through both government social security and private insurance. With options ranging from basic welfare plans to premium coverage exceeding 100 million baht, understanding your choices is essential.
 
-### Types of Health Insurance Available
+### แผนประกันสุขภาพแบบเหมาจ่าย (Lump Sum Health Insurance Plans)
 
-**1. Social Security (ประกันสังคม)**
-For employed individuals, Thailand's Social Security Office (SSO) provides basic health coverage at just 750 THB per month maximum. This covers:
-- All pre-existing conditions
-- Hospitalization and outpatient treatment
-- Maternity benefits (15,000 THB lump sum)
-- No co-payment or deductible required
+According to Allianz Ayudhya, lump sum health insurance (ประกันสุขภาพเหมาจ่าย) pays actual medical expenses incurred, with coverage tiers designed for different needs and budgets.
 
-However, SSO coverage comes with trade-offs: long wait times, limited hospital choice, and basic medication options.
+**แผนพรีเมี่ยม - Premium Plans (50-100+ Million Baht)**
+For those seeking the highest level of care:
+- **แผนเฟิร์สคลาส @บีดีเอ็มเอส** (First Class @BDMS) - Coverage at 59 BDMS network hospitals
+- **แผนอัลตราแคร์** (UltraCare) - Up to 100 million baht annual coverage
+- **แผนแพลทินัม** (Platinum 80MB) and **แผนบียอนด์ แพลทินัม** (Beyond Platinum 100MB)
 
-**2. Private Health Insurance**
-Private insurance offers superior service, shorter wait times, and access to premium hospitals. Major providers like Allianz Ayudhya offer coverage ranging from 1 million to 200 million THB per year.
+**แผนมาตรฐาน - Standard Plans (10-50 Million Baht)**
+Balanced coverage for comprehensive protection:
+- **แผนปลดล็อค ดับเบิล แคร์** (Double Care) - Doubles coverage for 10 critical illnesses
+- **แผนซูพีเรีย เฮลท์** (Superior Health) - 2-10 million baht options
+
+**แผนสุดคุ้ม - Value Plans (Under 5 Million Baht)**
+Affordable protection for budget-conscious consumers:
+- **แผนซิมเพิล เฮลท์** (Simple Health) - NEW entry-level option
+- **แผนสมาร์ทเตอร์ เฮลท์** (Smarter Health) - Up to 750,000 baht coverage
+- **แผน Exclusive Care @BDMS** - Partnership with BDMS hospitals
+- **แผนปลดล็อค สบายกระเป๋า** (Sabai Kapao) - Budget-friendly with OPD
+- **แผนแซฟวี่ เฮลท์** (Savvy Health) - Designed for young professionals
+
+### ประกันสุขภาพไม่มีส่วนร่วมจ่าย (No Co-payment Plans)
+
+Many Allianz plans now offer options without co-payment requirements, meaning the insurance covers actual expenses up to your coverage limit without requiring you to share costs.
+
+### บริการพบแพทย์ออนไลน์ (Telemedicine)
+
+Modern health insurance includes telemedicine services like **My Doctor** for online consultations, adding convenience to your coverage.
 
 ### Key Terms You Need to Know
 
@@ -115,14 +132,39 @@ Starting March 2025, Thailand introduced a co-payment system for new health insu
 - Policies purchased before March 2025 are not affected
 - Helps control rising premium costs
 
+### แผนประกันสุขภาพสำหรับเด็ก (Kids Health Insurance)
+
+Allianz Ayudhya offers specialized coverage for children from 15 days old:
+- **แผนแมกซ์แคร์** (MaxCare) - Comprehensive pediatric coverage
+- **แผนเบสิกแคร์** (Basic Care) - Essential protection
+- **แผนบียอนด์แคร์** (Beyond Care) - Premium international coverage
+- **แผนแคร์เอนีแวร์** (Care Anywhere) - Worldwide coverage
+- **แผนซูพีเรีย เฮลท์** (Superior Health) - High coverage limits
+
+Note: Children under 11 years old may have a 30% co-payment on certain plans.
+
+### แผนประกันคุ้มครองโรคร้าย (Critical Illness Coverage)
+
+Critical illness insurance provides lump-sum payments upon diagnosis:
+- **ประกันคุ้มครองโรคร้าย 48 บียอนด์** - Covers 48 critical conditions
+- **ประกันโรคร้าย มัลติ แคร์** (Multi Care) - Multiple claim options
+- **ประกันภัยคุ้มครองมะเร็ง** - Cancer-specific coverage
+- **ประกันมะเร็ง แผนเอ็กซ์ตร้าแวลู** (Extra Value) - Cancer protection
+- **ประกันมะเร็งหายห่วง** - Cancer worry-free plan
+- **ประกันโรคร้ายได้คุ้ม** - Value critical illness plan
+
 ### Coverage Levels Comparison
 
-| Plan Type | Annual Coverage | Best For |
-|-----------|-----------------|----------|
-| Basic Care | Up to 750,000 THB | Young, healthy individuals |
-| Savvy Health | 250,000-750,000 THB | Working professionals |
-| Superior Health | 2-10 million THB | Families with comprehensive needs |
-| Beyond Care | Up to 30 million THB | Expats and executives |
+| Plan Type | Thai Name | Annual Coverage | Best For |
+|-----------|-----------|-----------------|----------|
+| Savvy Health | แซฟวี่ เฮลท์ | 250,000-750,000 THB | Young professionals |
+| Smarter Health | สมาร์ทเตอร์ เฮลท์ | Up to 750,000 THB | Budget-conscious |
+| Simple Health | ซิมเพิล เฮลท์ | Entry level | First-time buyers |
+| Superior Health | ซูพีเรีย เฮลท์ | 2-10 million THB | Families |
+| Double Care | ดับเบิล แคร์ | 8-30 million THB | Comprehensive needs |
+| Beyond Care | บียอนด์แคร์ | Up to 30 million THB | Expats and executives |
+| First Class @BDMS | เฟิร์สคลาส @บีดีเอ็มเอส | 60-120 million THB | Premium care |
+| Platinum | แพลทินัม | 80-100 million THB | Ultimate coverage |
 
 ### How to Choose the Right Plan
 

@@ -1,5 +1,5 @@
 // Health Insurance Wizard Data
-// Products: Platinum 80MB/100MB, All Hos Platinum, BDMS First Class
+// Products: First Class All Hospital 80/100 MB, Double Care All Hospital (8-30 MB), First Class BDMS 60/120 MB
 
 export interface WizardQuestion {
   id: string;
@@ -349,20 +349,22 @@ export const healthInsuranceLongHook: WizardQuestion[] = [
 export const healthInsuranceProducts = {
   platinum: {
     id: "platinum",
-    name_th: "Platinum 80MB/100MB",
-    name_en: "Platinum 80MB/100MB",
+    name_th: "First Class All Hospital 80/100 MB",
+    name_en: "First Class All Hospital 80/100 MB",
+    brochure_path: "/brochures/health/first-class-all-hospital.pdf",
     coverage_limit: "80-100M THB/year",
-    key_features_th: ["IPD สูงสุด 80-100 ล้านบาท/ปี", "OPD ครอบคลุม", "วัคซีน", "ตรวจสุขภาพประจำปี"],
-    key_features_en: ["IPD up to 80-100M THB/year", "Comprehensive OPD", "Vaccines", "Annual checkup"],
+    key_features_th: ["IPD สูงสุด 80-100 ล้านบาท/ปี", "OPD ครอบคลุม", "วัคซีน", "ตรวจสุขภาพประจำปี", "ทันตกรรม"],
+    key_features_en: ["IPD up to 80-100M THB/year", "Comprehensive OPD", "Vaccines", "Annual checkup", "Dental"],
     ideal_for_th: ["ต้องการความคุ้มครองสูงสุด", "ใช้บริการโรงพยาบาลบ่อย", "ครอบครัว"],
     ideal_for_en: ["High coverage seekers", "Frequent hospital users", "Families"],
     premium_base: 60000
   },
   all_hos: {
     id: "all_hos",
-    name_th: "All Hos Platinum",
-    name_en: "All Hos Platinum",
-    coverage_limit: "Varies by plan",
+    name_th: "Double Care All Hospital (8-30 MB)",
+    name_en: "Double Care All Hospital (8-30 MB)",
+    brochure_path: "/brochures/health/double-care-all-hospital.pdf",
+    coverage_limit: "8-30M THB/year",
     key_features_th: ["เลือกโรงพยาบาลได้ทุกแห่ง", "IPD ครอบคลุม", "เบี้ยประหยัด", "ยืดหยุ่นสูง"],
     key_features_en: ["Flexible hospital choice", "IPD focused", "Cost-effective", "High flexibility"],
     ideal_for_th: ["คนรักความคุ้มค่า", "ต้องการความยืดหยุ่น", "งบประมาณจำกัด"],
@@ -371,8 +373,9 @@ export const healthInsuranceProducts = {
   },
   bdms: {
     id: "bdms",
-    name_th: "BDMS First Class",
-    name_en: "BDMS First Class",
+    name_th: "First Class BDMS 60/120 MB",
+    name_en: "First Class BDMS 60/120 MB",
+    brochure_path: "/brochures/health/first-class-bdms.pdf",
     coverage_limit: "60-120M THB/year",
     key_features_th: ["โรงพยาบาลเครือ BDMS", "วงเงิน 60-120 ล้านบาท/ปี", "OPD รวม", "บริการ VIP"],
     key_features_en: ["BDMS network exclusive", "60-120M THB/year", "OPD included", "VIP benefits"],

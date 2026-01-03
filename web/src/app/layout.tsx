@@ -17,12 +17,12 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "InsureAI - Find Your Perfect Insurance Plan in 60 Seconds",
-  description: "AI-powered insurance recommendations backed by Allianz. Compare plans, find better coverage, and protect your family today.",
-  keywords: ["insurance", "health insurance", "life insurance", "Allianz", "Thailand", "insurance comparison"],
+  description: "AI-powered insurance recommendations. Compare plans, find better coverage, and protect your family today.",
+  keywords: ["insurance", "health insurance", "life insurance", "Thailand", "insurance comparison", "AI"],
   authors: [{ name: "InsureAI" }],
   openGraph: {
     title: "InsureAI - Find Your Perfect Insurance Plan",
-    description: "AI-powered insurance recommendations backed by Allianz",
+    description: "AI-powered insurance recommendations to find your perfect plan",
     type: "website",
     locale: "en_US",
     siteName: "InsureAI",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "InsureAI - Find Your Perfect Insurance Plan",
-    description: "AI-powered insurance recommendations backed by Allianz",
+    description: "AI-powered insurance recommendations to find your perfect plan",
   },
   robots: {
     index: true,

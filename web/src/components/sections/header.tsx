@@ -18,6 +18,7 @@ export function Header() {
     { href: "/wizard", labelKey: "nav.findPlan", resetOnClick: true },
     { href: "/compare", labelKey: "nav.analyze" },
     { href: "/learn/compare", labelKey: "nav.compareTypes" },
+    { href: "/ai-assist", labelKey: "nav.aiAssist" },
     { href: "/blog", labelKey: "nav.blog" },
   ];
 
@@ -35,10 +36,7 @@ export function Header() {
               <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
                 <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-lg sm:text-xl text-gray-900 leading-tight">InsureAI</span>
-                <span className="text-[10px] sm:text-xs text-gray-500 leading-tight">{t("common.poweredByAllianz")}</span>
-              </div>
+              <span className="font-bold text-lg sm:text-xl text-gray-900">InsureAI</span>
             </Link>
 
             {/* Desktop Navigation - centered in remaining space */}

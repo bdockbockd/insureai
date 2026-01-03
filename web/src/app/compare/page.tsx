@@ -28,17 +28,32 @@ interface ComparisonItem {
   category: string;
   icon: React.ElementType;
   yourPlan: string | number;
-  allianzPlan: string | number;
-  winner: "yours" | "allianz" | "tie";
+  recommendedPlan: string | number;
+  winner: "yours" | "recommended" | "tie";
   importance: "high" | "medium" | "low";
 }
 
-// Thai Insurance Providers and Plans Data
+// Our actual plans from insureai/data folder
+const ourPlans = {
+  health: [
+    { id: "platinum-80mb", name: "Platinum 80MB/100MB", coverage: "80-100M THB/year" },
+    { id: "all-hos", name: "All Hos Platinum", coverage: "Flexible" },
+    { id: "bdms-first", name: "BDMS First Class", coverage: "60-120M THB/year" },
+  ],
+  criticalIllness: [
+    { id: "multi-care", name: "Multi Care", coverage: "Comprehensive CI" },
+    { id: "ci-48-beyond", name: "CI 48 Beyond", coverage: "48 Critical Illnesses" },
+  ],
+  savings: [
+    { id: "my-double-plus", name: "My Double Plus", coverage: "Savings + Protection" },
+  ],
+  pension: [
+    { id: "pension-plus", name: "Pension Plus 85A55", coverage: "Retirement Income" },
+  ],
+};
+
+// Thai Insurance Providers and Plans Data (competitors)
 const insuranceProviders = [
-  {
-    name: "Allianz Ayudhya",
-    plans: ["Basic Care", "Max Care", "Care Anywhere", "Beyond Care", "UltraCare"],
-  },
   {
     name: "AIA Thailand",
     plans: ["AIA Health Happy", "AIA Comprehensive Health", "AIA Critical Illness Cover", "AIA Med Excess", "AIA Premier Care"],
@@ -80,52 +95,55 @@ const insuranceProviders = [
 export default function ComparePage() {
   const { t, language } = useLanguage();
 
+  // Selected recommended plan for comparison (default to Platinum 80MB)
+  const [selectedRecommendedPlan] = useState(ourPlans.health[0]);
+
   const mockComparison: ComparisonItem[] = [
     {
       category: t("compare.roomBoard"),
       icon: Heart,
       yourPlan: "3,000 THB",
-      allianzPlan: "5,000 THB",
-      winner: "allianz",
+      recommendedPlan: "5,000 THB",
+      winner: "recommended",
       importance: "high",
     },
     {
       category: t("compare.outpatient"),
       icon: Activity,
       yourPlan: "20,000 THB",
-      allianzPlan: "30,000 THB",
-      winner: "allianz",
+      recommendedPlan: "30,000 THB",
+      winner: "recommended",
       importance: "high",
     },
     {
       category: language === "th" ? "เบี้ยประกันรายเดือน" : "Monthly Premium",
       icon: DollarSign,
       yourPlan: "1,800 THB",
-      allianzPlan: "1,500 THB",
-      winner: "allianz",
+      recommendedPlan: "1,500 THB",
+      winner: "recommended",
       importance: "high",
     },
     {
       category: t("compare.criticalIllness"),
       icon: Shield,
       yourPlan: t("compare.notIncluded"),
-      allianzPlan: "500,000 THB",
-      winner: "allianz",
+      recommendedPlan: "500,000 THB",
+      winner: "recommended",
       importance: "high",
     },
     {
       category: t("compare.dentalCoverage"),
       icon: Activity,
       yourPlan: "5,000 THB",
-      allianzPlan: "10,000 THB",
-      winner: "allianz",
+      recommendedPlan: "10,000 THB",
+      winner: "recommended",
       importance: "medium",
     },
     {
       category: t("compare.waitingPeriod"),
       icon: Activity,
       yourPlan: language === "th" ? "30 วัน" : "30 days",
-      allianzPlan: language === "th" ? "30 วัน" : "30 days",
+      recommendedPlan: language === "th" ? "30 วัน" : "30 days",
       winner: "tie",
       importance: "medium",
     },
@@ -133,8 +151,8 @@ export default function ComparePage() {
       category: t("compare.worldwideCoverage"),
       icon: Shield,
       yourPlan: t("compare.no"),
-      allianzPlan: t("compare.yes"),
-      winner: "allianz",
+      recommendedPlan: t("compare.yes"),
+      winner: "recommended",
       importance: "medium",
     },
   ];
@@ -166,7 +184,7 @@ export default function ComparePage() {
     }, 2500);
   };
 
-  const allianzWins = mockComparison.filter(c => c.winner === "allianz").length;
+  const recommendedWins = mockComparison.filter(c => c.winner === "recommended").length;
   const savingsPercent = 17; // Mock savings calculation
 
   return (
@@ -376,7 +394,7 @@ export default function ComparePage() {
                 <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
                   <CardContent className="p-7 sm:p-8 text-center">
                     <Shield className="w-10 h-10 text-blue-600 mx-auto mb-4" />
-                    <div className="text-3xl font-bold text-blue-600">{allianzWins}/{mockComparison.length}</div>
+                    <div className="text-3xl font-bold text-blue-600">{recommendedWins}/{mockComparison.length}</div>
                     <p className="text-sm text-gray-600 mt-1">{t("compare.categoriesBetter")}</p>
                   </CardContent>
                 </Card>
@@ -402,7 +420,7 @@ export default function ComparePage() {
                           <th className="text-left p-4 font-semibold text-gray-900">{t("compare.category")}</th>
                           <th className="text-center p-4 font-semibold text-gray-900">{t("compare.yourPlan")}</th>
                           <th className="text-center p-4 font-semibold text-blue-700">
-                            Allianz Health Plus
+                            {selectedRecommendedPlan.name}
                           </th>
                           <th className="text-center p-4 font-semibold text-gray-900">{t("compare.winner")}</th>
                         </tr>
@@ -429,10 +447,10 @@ export default function ComparePage() {
                             </td>
                             <td className="p-4 text-center text-gray-700 font-medium">{item.yourPlan}</td>
                             <td className="p-4 text-center font-semibold text-blue-700">
-                              {item.allianzPlan}
+                              {item.recommendedPlan}
                             </td>
                             <td className="p-4 text-center">
-                              {item.winner === "allianz" ? (
+                              {item.winner === "recommended" ? (
                                 <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-sm rounded-full">
                                   <Check className="w-3 h-3" /> {t("compare.allianz")}
                                 </span>
