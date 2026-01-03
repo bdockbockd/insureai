@@ -41,7 +41,7 @@ export function CTASection() {
         className="absolute bottom-20 right-10 w-48 h-48 bg-white/10 rounded-full blur-2xl"
       />
 
-      <div className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -87,21 +87,21 @@ export function CTASection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-2"
           >
-            <Link href="/wizard">
+            <Link href="/wizard" className="w-full sm:w-auto">
               <Button
-                size="xl"
-                className="bg-white text-blue-600 hover:bg-gray-100 shadow-xl group"
+                size="lg"
+                className="w-full sm:w-auto bg-white text-blue-600 hover:bg-gray-100 shadow-xl group"
               >
                 Get Started - It&apos;s Free
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
             <Button
-              size="xl"
+              size="lg"
               variant="outline"
-              className="border-white text-white hover:bg-white/20"
+              className="w-full sm:w-auto border-white text-white hover:bg-white/20"
               onClick={() => setShowLeadModal(true)}
             >
               Request a Callback
