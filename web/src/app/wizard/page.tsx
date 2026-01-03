@@ -135,7 +135,7 @@ export default function WizardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 sm:py-12 px-5 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 sm:py-12 px-5 sm:px-6 lg:px-8 pb-32 sm:pb-12">
       <div className="max-w-2xl mx-auto">
         {/* Progress Bar */}
         <div className="mb-10">
@@ -472,13 +472,13 @@ export default function WizardPage() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Navigation Buttons */}
-        <div className="flex flex-col-reverse sm:flex-row items-center justify-between mt-14 gap-5 pt-6 border-t border-gray-100">
+        {/* Navigation Buttons - Desktop */}
+        <div className="hidden sm:flex items-center justify-between mt-14 gap-5 pt-6 border-t border-gray-100">
           <Button
             variant="outline"
             onClick={prevStep}
             disabled={currentStep === 0}
-            className="gap-2 w-full sm:w-auto h-14"
+            className="gap-2 w-auto h-14"
           >
             <ArrowLeft className="w-5 h-5" />
             Back
@@ -487,7 +487,31 @@ export default function WizardPage() {
           <Button
             onClick={handleNext}
             disabled={!canProceed()}
-            className="gap-2 w-full sm:w-auto h-14"
+            className="gap-2 w-auto h-14"
+          >
+            {currentStep === totalSteps - 1 ? "See My Plans" : "Continue"}
+            <ArrowRight className="w-5 h-5" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Navigation Buttons - Mobile Fixed */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-lg border-t border-gray-200 sm:hidden z-40">
+        <div className="flex items-center gap-3 max-w-2xl mx-auto">
+          <Button
+            variant="outline"
+            onClick={prevStep}
+            disabled={currentStep === 0}
+            className="gap-2 flex-1 h-14"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Back
+          </Button>
+
+          <Button
+            onClick={handleNext}
+            disabled={!canProceed()}
+            className="gap-2 flex-1 h-14"
           >
             {currentStep === totalSteps - 1 ? "See My Plans" : "Continue"}
             <ArrowRight className="w-5 h-5" />
