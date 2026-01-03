@@ -26,6 +26,7 @@ import { useWizardStore } from "@/store/wizard-store";
 import { LeadCaptureForm } from "@/components/forms/lead-capture-form";
 import type { InsuranceType, InsuranceFor } from "@/types/insurance";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/contexts/language-context";
 
 const insuranceTypes: { type: InsuranceType; icon: React.ElementType; label: string; description: string; color: string }[] = [
   { type: "health", icon: Shield, label: "Health", description: "Medical expenses, hospital stays", color: "from-blue-500 to-cyan-500" },
@@ -69,6 +70,7 @@ const occupations = [
 
 export default function WizardPage() {
   const router = useRouter();
+  const { language } = useLanguage();
   const {
     currentStep,
     setStep,
@@ -450,14 +452,16 @@ export default function WizardPage() {
 
                   <div className="grid grid-cols-3 gap-3 sm:gap-5">
                     {[
-                      { label: "Basic", min: 500, max: 2000 },
-                      { label: "Standard", min: 2000, max: 5000 },
-                      { label: "Premium", min: 5000, max: 15000 },
-                    ].map(({ label, min, max }) => {
+                      { labelEn: "Basic", labelTh: "พื้นฐาน", min: 500, max: 2000 },
+                      { labelEn: "Standard", labelTh: "มาตรฐาน", min: 2000, max: 5000 },
+                      { labelEn: "Premium", labelTh: "พรีเมียม", min: 5000, max: 15000 },
+                    ].map(({ labelEn, labelTh, min, max }) => {
                       const formatK = (n: number) => n >= 1000 ? `${n / 1000}K` : n.toString();
+                      const label = language === "th" ? labelTh : labelEn;
+                      const currencyUnit = language === "th" ? "บาท/เดือน" : "THB/mo";
                       return (
                         <Card
-                          key={label}
+                          key={labelEn}
                           hover
                           onClick={() => setBudget(min, max)}
                           className={`cursor-pointer border-2 shadow-sm hover:shadow-md transition-all ${
@@ -470,7 +474,7 @@ export default function WizardPage() {
                             <span className="font-bold text-gray-900 text-base sm:text-lg block mb-1">{label}</span>
                             <p className="text-xs sm:text-sm text-gray-500">
                               <span className="block">{formatK(min)}-{formatK(max)}</span>
-                              <span className="block">THB/mo</span>
+                              <span className="block">{currencyUnit}</span>
                             </p>
                           </CardContent>
                         </Card>
