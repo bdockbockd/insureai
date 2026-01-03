@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/language-context";
 import { getPostBySlug, getRelatedPosts, BlogPost } from "@/data/blog-posts";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function BlogPostPage() {
   const params = useParams();
@@ -147,6 +148,7 @@ export default function BlogPostPage() {
           className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-600 prose-a:text-blue-600 prose-strong:text-gray-900 prose-table:text-sm prose-th:bg-gray-100 prose-th:p-3 prose-td:p-3 prose-td:border prose-th:border"
         >
           <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
             components={{
               h2: ({ children }) => (
                 <h2 className="text-2xl font-bold mt-10 mb-4 text-gray-900">

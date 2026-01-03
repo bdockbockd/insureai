@@ -1,21 +1,18 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
   ArrowLeft,
   Send,
   Sparkles,
-  MessageCircle,
   Loader2,
   BookOpen,
   RefreshCw,
   AlertCircle,
   Stethoscope,
   HelpCircle,
-  TrendingUp,
-  Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,6 +23,7 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  isStreaming?: boolean;
 }
 
 interface PresetQuestion {
@@ -93,17 +91,24 @@ export default function AIAssistPage() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim() || isLoading) return;
+
+    // Cancel any ongoing request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -112,9 +117,23 @@ export default function AIAssistPage() {
       timestamp: new Date(),
     };
 
+    const assistantMessageId = (Date.now() + 1).toString();
+
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
     setIsLoading(true);
+
+    // Add empty assistant message for streaming
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: assistantMessageId,
+        role: "assistant",
+        content: "",
+        timestamp: new Date(),
+        isStreaming: true,
+      },
+    ]);
 
     try {
       const response = await fetch("/api/ai-assist", {
@@ -124,30 +143,98 @@ export default function AIAssistPage() {
           message: content,
           history: messages.map((m) => ({ role: m.role, content: m.content })),
         }),
+        signal: abortControllerRef.current.signal,
       });
 
-      const data = await response.json();
+      // Check if response is JSON (demo mode or error)
+      const contentType = response.headers.get("content-type");
+      if (contentType?.includes("application/json")) {
+        const data = await response.json();
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantMessageId
+              ? { ...m, content: data.response || data.error, isStreaming: false }
+              : m
+          )
+        );
+        setIsLoading(false);
+        return;
+      }
 
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: data.response || (language === "th" ? "ขออภัย เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง" : "Sorry, an error occurred. Please try again."),
-        timestamp: new Date(),
-      };
+      // Handle streaming SSE response
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      if (!reader) {
+        throw new Error("No response body");
+      }
+
+      let fullContent = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split("\n");
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6);
+            if (data === "[DONE]") continue;
+
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.text) {
+                fullContent += parsed.text;
+                // Update message with accumulated content
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantMessageId
+                      ? { ...m, content: fullContent }
+                      : m
+                  )
+                );
+              }
+            } catch {
+              // Skip invalid JSON
+            }
+          }
+        }
+      }
+
+      // Mark streaming as complete
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantMessageId
+            ? { ...m, isStreaming: false }
+            : m
+        )
+      );
     } catch (error) {
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: language === "th"
-          ? "ขออภัย ไม่สามารถเชื่อมต่อกับ AI ได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง"
-          : "Sorry, unable to connect to AI at the moment. Please try again.",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      if ((error as Error).name === "AbortError") {
+        // Request was cancelled, clean up
+        setMessages((prev) => prev.filter((m) => m.id !== assistantMessageId));
+      } else {
+        // Update message with error
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantMessageId
+              ? {
+                  ...m,
+                  content:
+                    language === "th"
+                      ? "ขออภัย ไม่สามารถเชื่อมต่อกับ AI ได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง"
+                      : "Sorry, unable to connect to AI at the moment. Please try again.",
+                  isStreaming: false,
+                }
+              : m
+          )
+        );
+      }
     } finally {
       setIsLoading(false);
+      abortControllerRef.current = null;
     }
   };
 
@@ -164,8 +251,13 @@ export default function AIAssistPage() {
   };
 
   const resetChat = () => {
+    // Cancel any ongoing request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
     setMessages([]);
     setInputValue("");
+    setIsLoading(false);
   };
 
   return (
@@ -229,6 +321,7 @@ export default function AIAssistPage() {
                     <button
                       onClick={() => handlePresetClick(question)}
                       className="w-full text-left"
+                      disabled={isLoading}
                     >
                       <Card className="h-full hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-2 border-transparent hover:border-blue-200 cursor-pointer group">
                         <CardContent className="p-5">
@@ -276,27 +369,25 @@ export default function AIAssistPage() {
                       <div className="flex items-center gap-2 mb-2 text-blue-600">
                         <Sparkles className="w-4 h-4" />
                         <span className="text-xs font-medium">AI Assistant</span>
+                        {message.isStreaming && (
+                          <span className="flex items-center gap-1 text-xs text-gray-400">
+                            <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
+                          </span>
+                        )}
                       </div>
                     )}
-                    <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
+                    <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                      {message.content || (
+                        <span className="flex items-center gap-2 text-gray-400">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          {language === "th" ? "กำลังคิด..." : "Thinking..."}
+                        </span>
+                      )}
+                    </p>
                   </div>
                 </motion.div>
               ))}
             </AnimatePresence>
-            {isLoading && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex justify-start"
-              >
-                <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
-                  <div className="flex items-center gap-2 text-blue-600">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span className="text-sm">{language === "th" ? "กำลังคิด..." : "Thinking..."}</span>
-                  </div>
-                </div>
-              </motion.div>
-            )}
             <div ref={messagesEndRef} />
           </div>
         )}

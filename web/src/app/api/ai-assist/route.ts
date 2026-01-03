@@ -1,7 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
+
+// Model fallback chain: 2.5 flash-lite → 3 flash → 3 pro
+// Starting with cheapest/fastest, falling back to more capable models
+const MODEL_FALLBACK_CHAIN = [
+  "gemini-2.5-flash-lite",  // Most cost-effective, 1.5x faster than 2.0
+  "gemini-3-flash",         // Fast, outperforms 2.5 series
+  "gemini-3-pro",           // Most capable reasoning model
+];
 
 const SYSTEM_PROMPT = `คุณคือผู้เชี่ยวชาญด้านประกันภัยของ InsureAI ประเทศไทย ชื่อ "ไอ้หนูประกัน" (Insurance AI Assistant)
 
@@ -34,58 +42,81 @@ const SYSTEM_PROMPT = `คุณคือผู้เชี่ยวชาญด
 4. ไม่ให้คำแนะนำทางการแพทย์หรือกฎหมาย
 5. ตอบกระชับ ตรงประเด็น ไม่ยาวเกินไป
 6. ใช้ emoji บ้างเพื่อให้อ่านง่าย 😊
-7. ถ้าเป็นคำถามซับซ้อน แนะนำให้ลงทะเบียนรับคำปรึกษาฟรี
-
-ตัวอย่างการตอบ:
-Q: Copay คืออะไร?
-A: Copay หรือ "ร่วมจ่าย" คือส่วนที่คุณต้องจ่ายเองเมื่อเคลมประกัน 💰
-
-มี 2 แบบหลักๆ:
-1. **Copay แบบ %** เช่น 20% - ถ้าค่ารักษา 100,000 บาท คุณจ่าย 20,000 บาท
-2. **Copay แบบวงเงิน** เช่น 30,000 บาทแรก - คุณจ่าย 30,000 บาทแรก ส่วนเกินประกันจ่าย
-
-ข้อดี: เบี้ยประกันถูกลง 30-50%
-ข้อเสีย: ต้องมีเงินสำรองจ่ายเอง
-
-แนะนำ: เหมาะกับคนมีเงินสำรอง และไม่ค่อยเจ็บป่วย 😊`;
+7. ถ้าเป็นคำถามซับซ้อน แนะนำให้ลงทะเบียนรับคำปรึกษาฟรี`;
 
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
 }
 
+// Try calling Gemini with a specific model
+async function tryGeminiModel(
+  model: string,
+  contents: Array<{ role: string; parts: Array<{ text: string }> }>,
+  stream: boolean = false
+): Promise<Response | null> {
+  const endpoint = stream ? "streamGenerateContent" : "generateContent";
+  const url = `${GEMINI_BASE_URL}/${model}:${endpoint}?key=${GEMINI_API_KEY}${stream ? "&alt=sse" : ""}`;
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents,
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 1024,
+        },
+        safetySettings: [
+          { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+          { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+          { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+          { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+        ],
+      }),
+    });
+
+    if (response.ok) {
+      return response;
+    }
+
+    // Log the error but don't throw - we'll try the next model
+    const errorData = await response.json().catch(() => ({}));
+    console.log(`Model ${model} failed:`, response.status, errorData);
+    return null;
+  } catch (error) {
+    console.log(`Model ${model} error:`, error);
+    return null;
+  }
+}
+
+// Streaming response handler
 export async function POST(request: NextRequest) {
   try {
     const { message, history } = await request.json();
 
     if (!message) {
-      return NextResponse.json(
-        { error: "Message is required" },
-        { status: 400 }
-      );
+      return new Response(JSON.stringify({ error: "Message is required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     // Check if API key is configured
     if (!GEMINI_API_KEY) {
-      // Return a helpful demo response when API key is not configured
-      return NextResponse.json({
-        response: getDemoResponse(message),
-        demo: true,
+      return new Response(JSON.stringify({ response: getDemoResponse(message), demo: true }), {
+        headers: { "Content-Type": "application/json" },
       });
     }
 
     // Build conversation history for Gemini
-    const contents = [];
-
-    // Add system instruction as first user message (Gemini doesn't have system role)
-    contents.push({
-      role: "user",
-      parts: [{ text: SYSTEM_PROMPT }],
-    });
-    contents.push({
-      role: "model",
-      parts: [{ text: "เข้าใจแล้วครับ ผมพร้อมให้คำปรึกษาเรื่องประกันภัยแล้ว 😊 ถามมาได้เลยครับ!" }],
-    });
+    const contents = [
+      { role: "user", parts: [{ text: SYSTEM_PROMPT }] },
+      { role: "model", parts: [{ text: "เข้าใจแล้วครับ ผมพร้อมให้คำปรึกษาเรื่องประกันภัยแล้ว 😊 ถามมาได้เลยครับ!" }] },
+    ];
 
     // Add conversation history
     if (history && Array.isArray(history)) {
@@ -98,70 +129,77 @@ export async function POST(request: NextRequest) {
     }
 
     // Add current message
-    contents.push({
-      role: "user",
-      parts: [{ text: message }],
-    });
+    contents.push({ role: "user", parts: [{ text: message }] });
 
-    // Call Gemini API
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    // Try models with fallback - use streaming
+    let geminiResponse: Response | null = null;
+    let usedModel = "";
+
+    for (const model of MODEL_FALLBACK_CHAIN) {
+      geminiResponse = await tryGeminiModel(model, contents, true);
+      if (geminiResponse) {
+        usedModel = model;
+        console.log(`Using model: ${model}`);
+        break;
+      }
+    }
+
+    if (!geminiResponse) {
+      throw new Error("All models failed");
+    }
+
+    // Create a TransformStream to process SSE data
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+
+    const transformStream = new TransformStream({
+      async transform(chunk, controller) {
+        const text = decoder.decode(chunk);
+        const lines = text.split("\n");
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const jsonStr = line.slice(6);
+              if (jsonStr.trim() === "[DONE]") continue;
+
+              const data = JSON.parse(jsonStr);
+              const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+              if (content) {
+                // Send as SSE format
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: content, model: usedModel })}\n\n`));
+              }
+            } catch {
+              // Skip invalid JSON lines
+            }
+          }
+        }
       },
-      body: JSON.stringify({
-        contents,
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 1024,
-        },
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE",
-          },
-          {
-            category: "HARM_CATEGORY_HATE_SPEECH",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE",
-          },
-          {
-            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE",
-          },
-          {
-            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE",
-          },
-        ],
-      }),
+      flush(controller) {
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+      },
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Gemini API error:", errorData);
-      throw new Error("Failed to get response from Gemini");
-    }
+    // Pipe the Gemini response through our transform
+    const readable = geminiResponse.body?.pipeThrough(transformStream);
 
-    const data = await response.json();
-    const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (!aiResponse) {
-      throw new Error("No response from Gemini");
-    }
-
-    return NextResponse.json({
-      response: aiResponse,
+    return new Response(readable, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "X-Model-Used": usedModel,
+      },
     });
   } catch (error) {
     console.error("AI Assist error:", error);
-    return NextResponse.json(
-      {
+    return new Response(
+      JSON.stringify({
         error: "Failed to process request",
         response: "ขออภัยครับ เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง หรือติดต่อเราทาง LINE: @insureai",
-      },
-      { status: 500 }
+      }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }
