@@ -121,6 +121,7 @@ interface ChatMessage {
 interface GeminiResult {
   response: Response | null;
   keyExhausted: boolean;  // True if 429 rate limit hit
+  contextTooLong: boolean; // True if context length exceeded
 }
 
 // Try calling Gemini with a specific model and API key
@@ -155,28 +156,37 @@ async function tryGeminiModel(
     });
 
     if (response.ok) {
-      return { response, keyExhausted: false };
+      return { response, keyExhausted: false, contextTooLong: false };
     }
+
+    const errorData = await response.json().catch(() => ({}));
+    const errorMessage = JSON.stringify(errorData).toLowerCase();
 
     // Check for rate limit / quota exhausted
     if (response.status === 429 || response.status === 403) {
-      const errorData = await response.json().catch(() => ({}));
-      const errorMessage = JSON.stringify(errorData).toLowerCase();
-
       // Check if it's a quota/rate limit issue
       if (errorMessage.includes("quota") || errorMessage.includes("rate") || errorMessage.includes("limit")) {
         console.log(`API key ${apiKey.slice(0, 10)}... hit rate limit for model ${model}`);
-        return { response: null, keyExhausted: true };
+        return { response: null, keyExhausted: true, contextTooLong: false };
+      }
+    }
+
+    // Check for context length / token limit errors
+    if (response.status === 400) {
+      if (errorMessage.includes("token") || errorMessage.includes("context") ||
+          errorMessage.includes("length") || errorMessage.includes("too long") ||
+          errorMessage.includes("maximum") || errorMessage.includes("exceed")) {
+        console.log(`Model ${model} context too long`);
+        return { response: null, keyExhausted: false, contextTooLong: true };
       }
     }
 
     // Log other errors but don't throw - we'll try the next model
-    const errorData = await response.json().catch(() => ({}));
     console.log(`Model ${model} failed:`, response.status, errorData);
-    return { response: null, keyExhausted: false };
+    return { response: null, keyExhausted: false, contextTooLong: false };
   } catch (error) {
     console.log(`Model ${model} error:`, error);
-    return { response: null, keyExhausted: false };
+    return { response: null, keyExhausted: false, contextTooLong: false };
   }
 }
 
@@ -230,65 +240,106 @@ ${truncatedMarkdown}
       }
     }
 
-    // Build conversation history for Gemini
-    const contents = [
+    // Build base context (system prompt + acknowledgment)
+    const baseContext = [
       { role: "user", parts: [{ text: systemPrompt }] },
       { role: "model", parts: [{ text: "เข้าใจแล้วครับ ผมพร้อมให้คำปรึกษาเรื่องประกันภัยแล้ว 😊 ถามมาได้เลยครับ!" }] },
     ];
 
-    // Add conversation history
+    // Build conversation history array
+    const historyMessages: Array<{ role: string; parts: Array<{ text: string }> }> = [];
     if (history && Array.isArray(history)) {
       for (const msg of history as ChatMessage[]) {
-        contents.push({
+        historyMessages.push({
           role: msg.role === "user" ? "user" : "model",
           parts: [{ text: msg.content }],
         });
       }
     }
 
-    // Add current message
-    contents.push({ role: "user", parts: [{ text: message }] });
+    // Current message (always included)
+    const currentMessage = { role: "user", parts: [{ text: message }] };
 
-    // Try models with fallback and key rotation
+    // Try with full context first, then progressively reduce if context too long
     let geminiResponse: Response | null = null;
     let usedModel = "";
     let usedKey = "";
-    let allKeysExhausted = false;
+    let historyStartIndex = 0; // Start from beginning of history
+    const maxRetries = Math.ceil(historyMessages.length / 2) + 1; // Remove pairs each time
+    let contextReduced = false;
 
-    // Outer loop: try each API key
-    keyLoop: while (!allKeysExhausted) {
-      const currentKey = getNextAvailableKey();
-      if (!currentKey) {
-        allKeysExhausted = true;
+    for (let contextTry = 0; contextTry < maxRetries; contextTry++) {
+      // Build contents with current window of history
+      const windowedHistory = historyMessages.slice(historyStartIndex);
+      const contents = [...baseContext, ...windowedHistory, currentMessage];
+
+      if (contextTry > 0) {
+        console.log(`Retrying with reduced context: removed ${historyStartIndex} oldest messages`);
+        contextReduced = true;
+      }
+
+      let allKeysExhausted = false;
+      let contextTooLong = false;
+
+      // Outer loop: try each API key
+      keyLoop: while (!allKeysExhausted) {
+        const currentKey = getNextAvailableKey();
+        if (!currentKey) {
+          allKeysExhausted = true;
+          break;
+        }
+
+        // Inner loop: try each model with current key
+        for (const model of MODEL_FALLBACK_CHAIN) {
+          const result = await tryGeminiModel(model, currentKey, contents, true);
+
+          if (result.contextTooLong) {
+            contextTooLong = true;
+            break keyLoop; // Exit to reduce context
+          }
+
+          if (result.keyExhausted) {
+            // Key hit rate limit, mark it and try next key
+            markKeyExhausted(currentKey);
+            continue keyLoop;
+          }
+
+          if (result.response) {
+            geminiResponse = result.response;
+            usedModel = model;
+            usedKey = currentKey;
+            console.log(`Using model: ${model} with key: ${currentKey.slice(0, 10)}...`);
+            break keyLoop;
+          }
+          // Model failed but not due to rate limit, try next model
+        }
+
+        // All models failed for this key (not rate limit), try next key
+        markKeyExhausted(currentKey);
+      }
+
+      // If we got a response, we're done
+      if (geminiResponse) {
         break;
       }
 
-      // Inner loop: try each model with current key
-      for (const model of MODEL_FALLBACK_CHAIN) {
-        const result = await tryGeminiModel(model, currentKey, contents, true);
-
-        if (result.keyExhausted) {
-          // Key hit rate limit, mark it and try next key
-          markKeyExhausted(currentKey);
-          continue keyLoop;
-        }
-
-        if (result.response) {
-          geminiResponse = result.response;
-          usedModel = model;
-          usedKey = currentKey;
-          console.log(`Using model: ${model} with key: ${currentKey.slice(0, 10)}...`);
-          break keyLoop;
-        }
-        // Model failed but not due to rate limit, try next model
+      // If context was too long, reduce it and retry
+      if (contextTooLong && historyStartIndex < historyMessages.length) {
+        // Remove 2 messages (1 user-model pair) from the beginning
+        historyStartIndex += 2;
+        // Reset exhausted keys for retry with smaller context
+        exhaustedKeys.clear();
+        continue;
       }
 
-      // All models failed for this key (not rate limit), try next key
-      markKeyExhausted(currentKey);
+      // All keys exhausted with current context size
+      if (allKeysExhausted) {
+        throw new Error("All models and API keys exhausted");
+      }
     }
 
     if (!geminiResponse) {
-      throw new Error("All models and API keys exhausted");
+      throw new Error("Failed to get response after context reduction");
     }
 
     // Create a TransformStream to process JSON array chunks and convert to SSE
@@ -370,6 +421,8 @@ ${truncatedMarkdown}
         "Connection": "keep-alive",
         "X-Model-Used": usedModel,
         "X-Key-Index": `${keyIndex}/${apiKeys.length}`,
+        "X-Context-Reduced": contextReduced ? "true" : "false",
+        "X-History-Trimmed": historyStartIndex > 0 ? `${historyStartIndex}` : "0",
       },
     });
   } catch (error) {
