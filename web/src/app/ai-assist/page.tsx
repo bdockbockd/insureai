@@ -17,6 +17,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/language-context";
+import { PlanSelector } from "@/components/plan-selector";
+import type { InsurancePlan } from "@/data/plans-config";
 
 interface Message {
   id: string;
@@ -24,6 +26,7 @@ interface Message {
   content: string;
   timestamp: Date;
   isStreaming?: boolean;
+  planContext?: string;
 }
 
 interface PresetQuestion {
@@ -89,6 +92,7 @@ export default function AIAssistPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<InsurancePlan | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -142,6 +146,7 @@ export default function AIAssistPage() {
         body: JSON.stringify({
           message: content,
           history: messages.map((m) => ({ role: m.role, content: m.content })),
+          planId: selectedPlan?.id || null,
         }),
         signal: abortControllerRef.current.signal,
       });
@@ -401,6 +406,23 @@ export default function AIAssistPage() {
         >
           <Card className="border-2 border-gray-200 shadow-lg">
             <CardContent className="p-3">
+              {/* Plan Selector Row */}
+              <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-100">
+                <PlanSelector
+                  selectedPlan={selectedPlan}
+                  onSelectPlan={setSelectedPlan}
+                  disabled={isLoading}
+                />
+                {selectedPlan && (
+                  <span className="text-xs text-gray-500">
+                    {language === "th"
+                      ? "AI จะตอบโดยอิงจากข้อมูลแผนนี้"
+                      : "AI will answer based on this plan"}
+                  </span>
+                )}
+              </div>
+
+              {/* Input Row */}
               <div className="flex items-end gap-3">
                 <div className="flex-1 relative">
                   <textarea
@@ -408,7 +430,13 @@ export default function AIAssistPage() {
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder={language === "th" ? "พิมพ์คำถามของคุณ..." : "Type your question..."}
+                    placeholder={
+                      selectedPlan
+                        ? (language === "th"
+                            ? `ถามเกี่ยวกับ ${selectedPlan.short_name_th}...`
+                            : `Ask about ${selectedPlan.short_name_en}...`)
+                        : (language === "th" ? "พิมพ์คำถามของคุณ..." : "Type your question...")
+                    }
                     className="w-full resize-none border-0 focus:ring-0 focus:outline-none bg-transparent text-gray-800 placeholder-gray-400 text-sm min-h-[44px] max-h-[120px] py-2"
                     rows={1}
                     disabled={isLoading}

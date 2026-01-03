@@ -46,14 +46,11 @@ function markKeyExhausted(key: string) {
   console.log(`API key exhausted: ${key.slice(0, 10)}... (${exhaustedKeys.size} keys exhausted)`);
 }
 
-// Model fallback chain: cheapest → balanced → newest
-// Starting with cheapest/fastest, falling back to more capable models
+// Model fallback chain: 2.5+ only (2.0 models exhausted on free tier)
 const MODEL_FALLBACK_CHAIN = [
-  "gemini-2.0-flash-lite",    // Cheapest, fastest (free tier friendly)
-  "gemini-2.0-flash",         // Stable 2.0 baseline
-  "gemini-2.5-flash-lite",    // Newer lite, 1.5x faster than 2.0
+  "gemini-2.5-flash-lite",    // Cheapest, fastest - best for free tier
   "gemini-2.5-flash",         // Balanced speed & intelligence
-  "gemini-3-flash-preview",   // Newest, outperforms 2.5 series
+  "gemini-3-flash-preview",   // Newest, most capable
 ];
 
 const SYSTEM_PROMPT = `คุณคือผู้เชี่ยวชาญด้านประกันภัยของ InsureAI ประเทศไทย ชื่อ "ไอ้หนูประกัน" (Insurance AI Assistant)
