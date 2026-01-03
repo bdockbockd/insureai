@@ -185,19 +185,28 @@ export default function BlogPostPage() {
                 </blockquote>
               ),
               table: ({ children }) => (
-                <div className="overflow-x-auto my-6">
-                  <table className="min-w-full border-collapse border border-gray-200 rounded-lg overflow-hidden">
+                <div className="overflow-x-auto my-6 rounded-lg border border-gray-200 shadow-sm">
+                  <table className="min-w-full divide-y divide-gray-200">
                     {children}
                   </table>
                 </div>
               ),
+              thead: ({ children }) => (
+                <thead className="bg-gray-50">{children}</thead>
+              ),
+              tbody: ({ children }) => (
+                <tbody className="bg-white divide-y divide-gray-200">{children}</tbody>
+              ),
+              tr: ({ children }) => (
+                <tr className="hover:bg-gray-50 transition-colors">{children}</tr>
+              ),
               th: ({ children }) => (
-                <th className="bg-gray-100 px-4 py-3 text-left font-semibold text-gray-900 border border-gray-200">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-b border-gray-200">
                   {children}
                 </th>
               ),
               td: ({ children }) => (
-                <td className="px-4 py-3 border border-gray-200 text-gray-600">
+                <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
                   {children}
                 </td>
               ),
