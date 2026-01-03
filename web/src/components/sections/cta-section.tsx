@@ -41,7 +41,7 @@ export function CTASection() {
         className="absolute bottom-20 right-10 w-48 h-48 bg-white/10 rounded-full blur-2xl"
       />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         <div className="text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

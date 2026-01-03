@@ -45,7 +45,7 @@ export function HeroSection() {
         />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+      <div className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pt-20 pb-16">
         {/* Trust Badge */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
