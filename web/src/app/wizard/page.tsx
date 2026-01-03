@@ -25,55 +25,52 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useWizardStore } from "@/store/wizard-store";
 import { LeadCaptureForm } from "@/components/forms/lead-capture-form";
 import type { InsuranceType, InsuranceFor } from "@/types/insurance";
-import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/language-context";
 
-const insuranceTypes: { type: InsuranceType; icon: React.ElementType; label: string; description: string; color: string }[] = [
-  { type: "health", icon: Shield, label: "Health", description: "Medical expenses, hospital stays", color: "from-blue-500 to-cyan-500" },
-  { type: "life", icon: Heart, label: "Life", description: "Protect your loved ones", color: "from-pink-500 to-rose-500" },
-  { type: "critical-illness", icon: Activity, label: "Critical Illness", description: "Cancer, heart disease, stroke", color: "from-purple-500 to-indigo-500" },
-  { type: "motor", icon: Car, label: "Motor", description: "Car and motorcycle", color: "from-orange-500 to-red-500" },
-  { type: "travel", icon: Plane, label: "Travel", description: "Trip protection", color: "from-teal-500 to-emerald-500" },
-  { type: "home", icon: Home, label: "Home", description: "Property protection", color: "from-amber-500 to-yellow-500" },
+const insuranceTypeData: { type: InsuranceType; icon: React.ElementType; labelKey: string; descKey: string; color: string }[] = [
+  { type: "health", icon: Shield, labelKey: "wizard.insurance.health", descKey: "wizard.insurance.health.desc", color: "from-blue-500 to-cyan-500" },
+  { type: "life", icon: Heart, labelKey: "wizard.insurance.life", descKey: "wizard.insurance.life.desc", color: "from-pink-500 to-rose-500" },
+  { type: "critical-illness", icon: Activity, labelKey: "wizard.insurance.criticalIllness", descKey: "wizard.insurance.criticalIllness.desc", color: "from-purple-500 to-indigo-500" },
+  { type: "motor", icon: Car, labelKey: "wizard.insurance.motor", descKey: "wizard.insurance.motor.desc", color: "from-orange-500 to-red-500" },
+  { type: "travel", icon: Plane, labelKey: "wizard.insurance.travel", descKey: "wizard.insurance.travel.desc", color: "from-teal-500 to-emerald-500" },
+  { type: "home", icon: Home, labelKey: "wizard.insurance.home", descKey: "wizard.insurance.home.desc", color: "from-amber-500 to-yellow-500" },
 ];
 
-const insuredFor: { type: InsuranceFor; icon: React.ElementType; label: string }[] = [
-  { type: "self", icon: User, label: "Myself" },
-  { type: "spouse", icon: Heart, label: "My Spouse/Partner" },
-  { type: "child", icon: Baby, label: "My Child" },
-  { type: "parent", icon: UserCircle, label: "My Parent" },
-  { type: "friend", icon: Users, label: "A Friend" },
+const insuredForData: { type: InsuranceFor; icon: React.ElementType; labelKey: string }[] = [
+  { type: "self", icon: User, labelKey: "wizard.for.myself" },
+  { type: "spouse", icon: Heart, labelKey: "wizard.for.spouse" },
+  { type: "child", icon: Baby, labelKey: "wizard.for.child" },
+  { type: "parent", icon: UserCircle, labelKey: "wizard.for.parent" },
+  { type: "friend", icon: Users, labelKey: "wizard.for.friend" },
 ];
 
-const healthConditions = [
-  "Diabetes",
-  "High Blood Pressure",
-  "Heart Disease",
-  "Cancer (past or current)",
-  "Asthma",
-  "Obesity",
-  "None of the above",
+const healthConditionKeys = [
+  "wizard.condition.diabetes",
+  "wizard.condition.highBloodPressure",
+  "wizard.condition.heartDisease",
+  "wizard.condition.cancer",
+  "wizard.condition.asthma",
+  "wizard.condition.obesity",
+  "wizard.condition.none",
 ];
 
-const occupations = [
-  "Office Worker",
-  "Business Owner",
-  "Healthcare Professional",
-  "Engineer",
-  "Teacher/Educator",
-  "Self-Employed",
-  "Freelancer",
-  "Student",
-  "Retired",
-  "Other",
+const occupationKeys = [
+  "wizard.occupation.officeWorker",
+  "wizard.occupation.businessOwner",
+  "wizard.occupation.healthcarePro",
+  "wizard.occupation.engineer",
+  "wizard.occupation.teacher",
+  "wizard.occupation.selfEmployed",
+  "wizard.occupation.freelancer",
+  "wizard.occupation.student",
+  "wizard.occupation.retired",
+  "wizard.occupation.other",
 ];
 
 export default function WizardPage() {
-  const router = useRouter();
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   const {
     currentStep,
-    setStep,
     nextStep,
     prevStep,
     insuranceType,
@@ -121,13 +118,13 @@ export default function WizardPage() {
     }
   };
 
-  const toggleCondition = (condition: string) => {
-    if (condition === "None of the above") {
-      setHealthConditions(["None of the above"]);
+  const toggleCondition = (conditionKey: string) => {
+    if (conditionKey === "wizard.condition.none") {
+      setHealthConditions(["wizard.condition.none"]);
     } else {
-      const newConditions = selectedConditions.includes(condition)
-        ? selectedConditions.filter(c => c !== condition)
-        : [...selectedConditions.filter(c => c !== "None of the above"), condition];
+      const newConditions = selectedConditions.includes(conditionKey)
+        ? selectedConditions.filter(c => c !== conditionKey)
+        : [...selectedConditions.filter(c => c !== "wizard.condition.none"), conditionKey];
       setHealthConditions(newConditions);
     }
   };
@@ -143,10 +140,10 @@ export default function WizardPage() {
         <div className="mb-10">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-600">
-              Step {currentStep + 1} of {totalSteps}
+              {t("common.step")} {currentStep + 1} / {totalSteps}
             </span>
             <span className="text-sm font-medium text-blue-600">
-              {Math.round(progress)}% Complete
+              {Math.round(progress)}% {t("common.complete")}
             </span>
           </div>
           <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -172,13 +169,13 @@ export default function WizardPage() {
               <div className="space-y-8">
                 <div className="text-center mb-10">
                   <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
-                    What type of insurance are you looking for?
+                    {t("wizard.step0.title")}
                   </h1>
-                  <p className="text-gray-600">Select the coverage that matters most to you</p>
+                  <p className="text-gray-600">{t("wizard.step0.subtitle")}</p>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5">
-                  {insuranceTypes.map(({ type, icon: Icon, label, description, color }) => (
+                  {insuranceTypeData.map(({ type, icon: Icon, labelKey, descKey, color }) => (
                     <Card
                       key={type}
                       hover
@@ -193,8 +190,8 @@ export default function WizardPage() {
                         <div className={`w-14 h-14 mx-auto mb-4 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg`}>
                           <Icon className="w-7 h-7 text-white" />
                         </div>
-                        <h3 className="font-semibold text-gray-900 text-base">{label}</h3>
-                        <p className="text-xs text-gray-500 mt-2 leading-relaxed">{description}</p>
+                        <h3 className="font-semibold text-gray-900 text-base">{t(labelKey)}</h3>
+                        <p className="text-xs text-gray-500 mt-2 leading-relaxed">{t(descKey)}</p>
                       </CardContent>
                     </Card>
                   ))}
@@ -207,13 +204,13 @@ export default function WizardPage() {
               <div className="space-y-8">
                 <div className="text-center mb-10">
                   <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
-                    Who is this insurance for?
+                    {t("wizard.step1.title")}
                   </h1>
-                  <p className="text-gray-600">Tell us who you want to protect</p>
+                  <p className="text-gray-600">{t("wizard.step1.subtitle")}</p>
                 </div>
 
                 <div className="space-y-4">
-                  {insuredFor.map(({ type, icon: Icon, label }) => (
+                  {insuredForData.map(({ type, icon: Icon, labelKey }) => (
                     <Card
                       key={type}
                       hover
@@ -228,7 +225,7 @@ export default function WizardPage() {
                         <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
                           <Icon className="w-7 h-7 text-blue-600" />
                         </div>
-                        <span className="font-semibold text-gray-900 text-lg">{label}</span>
+                        <span className="font-semibold text-gray-900 text-lg">{t(labelKey)}</span>
                         {insuranceFor === type && (
                           <Check className="w-6 h-6 text-blue-600 ml-auto" />
                         )}
@@ -244,19 +241,19 @@ export default function WizardPage() {
               <div className="space-y-8">
                 <div className="text-center mb-10">
                   <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
-                    {insuranceFor === "self" ? "Tell us about yourself" : "Tell us about them"}
+                    {insuranceFor === "self" ? t("wizard.step2.titleSelf") : t("wizard.step2.titleOther")}
                   </h1>
-                  <p className="text-gray-600">This helps us find the right plan</p>
+                  <p className="text-gray-600">{t("wizard.step2.subtitle")}</p>
                 </div>
 
                 <div className="space-y-8">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">Age</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">{t("wizard.age")}</label>
                     <Input
                       type="text"
                       inputMode="numeric"
                       pattern="[0-9]*"
-                      placeholder="Enter age (1-100)"
+                      placeholder={t("wizard.agePlaceholder")}
                       value={age || ""}
                       onChange={(e) => {
                         const val = e.target.value.replace(/\D/g, "");
@@ -269,7 +266,7 @@ export default function WizardPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">Gender</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">{t("wizard.gender")}</label>
                     <div className="grid grid-cols-3 gap-4">
                       {(["male", "female", "other"] as const).map((g) => (
                         <Card
@@ -281,7 +278,9 @@ export default function WizardPage() {
                           }`}
                         >
                           <CardContent className="p-5 text-center">
-                            <span className="font-semibold capitalize text-gray-900">{g}</span>
+                            <span className="font-semibold text-gray-900">
+                              {t(`wizard.gender.${g}`)}
+                            </span>
                           </CardContent>
                         </Card>
                       ))}
@@ -296,23 +295,23 @@ export default function WizardPage() {
               <div className="space-y-8">
                 <div className="text-center mb-10">
                   <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
-                    What is {insuranceFor === "self" ? "your" : "their"} occupation?
+                    {insuranceFor === "self" ? t("wizard.step3.titleSelf") : t("wizard.step3.titleOther")}
                   </h1>
-                  <p className="text-gray-600">This affects plan eligibility and pricing</p>
+                  <p className="text-gray-600">{t("wizard.step3.subtitle")}</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  {occupations.map((occ) => (
+                  {occupationKeys.map((occKey) => (
                     <Card
-                      key={occ}
+                      key={occKey}
                       hover
-                      onClick={() => setOccupation(occ)}
+                      onClick={() => setOccupation(occKey)}
                       className={`cursor-pointer border-2 ${
-                        occupation === occ ? "ring-2 ring-blue-500 border-blue-300 bg-blue-50/50" : "border-gray-100"
+                        occupation === occKey ? "ring-2 ring-blue-500 border-blue-300 bg-blue-50/50" : "border-gray-100"
                       }`}
                     >
                       <CardContent className="p-5 text-center">
-                        <span className="font-semibold text-gray-900">{occ}</span>
+                        <span className="font-semibold text-gray-900">{t(occKey)}</span>
                       </CardContent>
                     </Card>
                   ))}
@@ -325,9 +324,9 @@ export default function WizardPage() {
               <div className="space-y-8">
                 <div className="text-center mb-10">
                   <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
-                    {insuranceFor === "self" ? "Do you smoke?" : "Do they smoke?"}
+                    {insuranceFor === "self" ? t("wizard.step4.titleSelf") : t("wizard.step4.titleOther")}
                   </h1>
-                  <p className="text-gray-600">Including e-cigarettes or vaping</p>
+                  <p className="text-gray-600">{t("wizard.step4.subtitle")}</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-5">
@@ -346,8 +345,10 @@ export default function WizardPage() {
                       }`}>
                         <Cigarette className={`w-10 h-10 ${smoker === true ? "text-orange-500" : "text-gray-400"}`} />
                       </div>
-                      <span className="font-bold text-xl text-gray-900 block mb-2">Yes</span>
-                      <p className="text-sm text-gray-500">I smoke or vape</p>
+                      <span className="font-bold text-xl text-gray-900 block mb-2">{language === "th" ? "ใช่" : "Yes"}</span>
+                      <p className="text-sm text-gray-500">
+                        {insuranceFor === "self" ? t("wizard.smoker.yes") : t("wizard.smoker.yesOther")}
+                      </p>
                     </CardContent>
                   </Card>
                   <Card
@@ -365,8 +366,8 @@ export default function WizardPage() {
                       }`}>
                         <HeartPulse className={`w-10 h-10 ${smoker === false ? "text-green-500" : "text-gray-400"}`} />
                       </div>
-                      <span className="font-bold text-xl text-gray-900 block mb-2">No</span>
-                      <p className="text-sm text-gray-500">Non-smoker</p>
+                      <span className="font-bold text-xl text-gray-900 block mb-2">{language === "th" ? "ไม่" : "No"}</span>
+                      <p className="text-sm text-gray-500">{t("wizard.smoker.no")}</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -378,34 +379,34 @@ export default function WizardPage() {
               <div className="space-y-8">
                 <div className="text-center mb-10">
                   <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
-                    Any pre-existing health conditions?
+                    {t("wizard.step5.title")}
                   </h1>
-                  <p className="text-gray-600">Select all that apply</p>
+                  <p className="text-gray-600">{t("wizard.step5.subtitle")}</p>
                 </div>
 
                 <div className="space-y-4">
-                  {healthConditions.map((condition) => (
+                  {healthConditionKeys.map((conditionKey) => (
                     <Card
-                      key={condition}
+                      key={conditionKey}
                       hover
-                      onClick={() => toggleCondition(condition)}
+                      onClick={() => toggleCondition(conditionKey)}
                       className={`cursor-pointer border-2 transition-all ${
-                        selectedConditions.includes(condition)
+                        selectedConditions.includes(conditionKey)
                           ? "ring-2 ring-blue-500 border-blue-300 bg-blue-50/50"
                           : "border-gray-100"
                       }`}
                     >
                       <CardContent className="p-5 flex items-center gap-5">
                         <div className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-colors ${
-                          selectedConditions.includes(condition)
+                          selectedConditions.includes(conditionKey)
                             ? "bg-blue-500 border-blue-500"
                             : "border-gray-300"
                         }`}>
-                          {selectedConditions.includes(condition) && (
+                          {selectedConditions.includes(conditionKey) && (
                             <Check className="w-5 h-5 text-white" />
                           )}
                         </div>
-                        <span className="font-semibold text-gray-900 text-base">{condition}</span>
+                        <span className="font-semibold text-gray-900 text-base">{t(conditionKey)}</span>
                       </CardContent>
                     </Card>
                   ))}
@@ -418,15 +419,15 @@ export default function WizardPage() {
               <div className="space-y-8">
                 <div className="text-center mb-10">
                   <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
-                    What&apos;s your monthly budget?
+                    {t("wizard.step6.title")}
                   </h1>
-                  <p className="text-gray-600">We&apos;ll find plans that fit your budget</p>
+                  <p className="text-gray-600">{t("wizard.step6.subtitle")}</p>
                 </div>
 
                 <div className="space-y-8">
                   <div className="flex items-center gap-4">
                     <div className="flex-1">
-                      <label className="block text-sm font-semibold text-gray-700 mb-3">Minimum (THB)</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">{t("wizard.budget.minimum")}</label>
                       <Input
                         type="number"
                         value={budgetMin}
@@ -436,9 +437,9 @@ export default function WizardPage() {
                         className="text-lg"
                       />
                     </div>
-                    <span className="text-gray-400 mt-8 font-medium">to</span>
+                    <span className="text-gray-400 mt-8 font-medium">{language === "th" ? "ถึง" : "to"}</span>
                     <div className="flex-1">
-                      <label className="block text-sm font-semibold text-gray-700 mb-3">Maximum (THB)</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">{t("wizard.budget.maximum")}</label>
                       <Input
                         type="number"
                         value={budgetMax}
@@ -452,16 +453,14 @@ export default function WizardPage() {
 
                   <div className="grid grid-cols-3 gap-3 sm:gap-5">
                     {[
-                      { labelEn: "Basic", labelTh: "พื้นฐาน", min: 500, max: 2000 },
-                      { labelEn: "Standard", labelTh: "มาตรฐาน", min: 2000, max: 5000 },
-                      { labelEn: "Premium", labelTh: "พรีเมียม", min: 5000, max: 15000 },
-                    ].map(({ labelEn, labelTh, min, max }) => {
+                      { labelKey: "wizard.budget.basic", min: 500, max: 2000 },
+                      { labelKey: "wizard.budget.standard", min: 2000, max: 5000 },
+                      { labelKey: "wizard.budget.premium", min: 5000, max: 15000 },
+                    ].map(({ labelKey, min, max }) => {
                       const formatK = (n: number) => n >= 1000 ? `${n / 1000}K` : n.toString();
-                      const label = language === "th" ? labelTh : labelEn;
-                      const currencyUnit = language === "th" ? "บาท/เดือน" : "THB/mo";
                       return (
                         <Card
-                          key={labelEn}
+                          key={labelKey}
                           hover
                           onClick={() => setBudget(min, max)}
                           className={`cursor-pointer border-2 shadow-sm hover:shadow-md transition-all ${
@@ -471,10 +470,10 @@ export default function WizardPage() {
                           }`}
                         >
                           <CardContent className="p-4 sm:p-6 text-center">
-                            <span className="font-bold text-gray-900 text-base sm:text-lg block mb-1">{label}</span>
+                            <span className="font-bold text-gray-900 text-base sm:text-lg block mb-1">{t(labelKey)}</span>
                             <p className="text-xs sm:text-sm text-gray-500">
                               <span className="block">{formatK(min)}-{formatK(max)}</span>
-                              <span className="block">{currencyUnit}</span>
+                              <span className="block">{t("wizard.budget.currency")}</span>
                             </p>
                           </CardContent>
                         </Card>
@@ -496,7 +495,7 @@ export default function WizardPage() {
             className="gap-2 w-auto h-14"
           >
             <ArrowLeft className="w-5 h-5" />
-            Back
+            {t("common.back")}
           </Button>
 
           <Button
@@ -504,7 +503,7 @@ export default function WizardPage() {
             disabled={!canProceed()}
             className="gap-2 w-auto h-14"
           >
-            {currentStep === totalSteps - 1 ? "See My Plans" : "Continue"}
+            {currentStep === totalSteps - 1 ? t("common.seeMyPlans") : t("common.continue")}
             <ArrowRight className="w-5 h-5" />
           </Button>
         </div>
@@ -520,7 +519,7 @@ export default function WizardPage() {
             className="gap-2 flex-1 h-14"
           >
             <ArrowLeft className="w-5 h-5" />
-            Back
+            {t("common.back")}
           </Button>
 
           <Button
@@ -528,7 +527,7 @@ export default function WizardPage() {
             disabled={!canProceed()}
             className="gap-2 flex-1 h-14"
           >
-            {currentStep === totalSteps - 1 ? "See My Plans" : "Continue"}
+            {currentStep === totalSteps - 1 ? t("common.seeMyPlans") : t("common.continue")}
             <ArrowRight className="w-5 h-5" />
           </Button>
         </div>
@@ -538,7 +537,7 @@ export default function WizardPage() {
 }
 
 function ResultsPage({ onBack }: { onBack: () => void }) {
-  const { insuranceType, age, gender, budgetMin, budgetMax } = useWizardStore();
+  const { t, language } = useLanguage();
   const [showLeadForm, setShowLeadForm] = useState(false);
 
   // Mock recommended plans based on user input
@@ -547,21 +546,33 @@ function ResultsPage({ onBack }: { onBack: () => void }) {
       id: "1",
       name: "Allianz Health Essential",
       premium: 1500,
-      highlights: ["Room & Board: 5,000 THB/day", "OPD: 30,000 THB/year", "No Waiting Period"],
+      highlights: [
+        language === "th" ? "ค่าห้อง: 5,000 บาท/วัน" : "Room & Board: 5,000 THB/day",
+        language === "th" ? "ผู้ป่วยนอก: 30,000 บาท/ปี" : "OPD: 30,000 THB/year",
+        language === "th" ? "ไม่มีระยะรอคอย" : "No Waiting Period",
+      ],
       isRecommended: true,
     },
     {
       id: "2",
       name: "Allianz Health Plus",
       premium: 2500,
-      highlights: ["Room & Board: 8,000 THB/day", "OPD: 50,000 THB/year", "Dental Coverage"],
+      highlights: [
+        language === "th" ? "ค่าห้อง: 8,000 บาท/วัน" : "Room & Board: 8,000 THB/day",
+        language === "th" ? "ผู้ป่วยนอก: 50,000 บาท/ปี" : "OPD: 50,000 THB/year",
+        language === "th" ? "คุ้มครองทันตกรรม" : "Dental Coverage",
+      ],
       isBestValue: true,
     },
     {
       id: "3",
       name: "Allianz Health Premium",
       premium: 4500,
-      highlights: ["Room & Board: 15,000 THB/day", "OPD: 100,000 THB/year", "Worldwide Coverage"],
+      highlights: [
+        language === "th" ? "ค่าห้อง: 15,000 บาท/วัน" : "Room & Board: 15,000 THB/day",
+        language === "th" ? "ผู้ป่วยนอก: 100,000 บาท/ปี" : "OPD: 100,000 THB/year",
+        language === "th" ? "คุ้มครองทั่วโลก" : "Worldwide Coverage",
+      ],
     },
   ];
 
@@ -577,10 +588,10 @@ function ResultsPage({ onBack }: { onBack: () => void }) {
             <Check className="w-10 h-10 text-green-600" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
-            We Found Your Perfect Plans!
+            {t("wizard.results.title")}
           </h1>
           <p className="text-gray-600 text-lg">
-            Based on your profile, here are our top recommendations
+            {t("wizard.results.subtitle")}
           </p>
         </motion.div>
 
@@ -595,12 +606,12 @@ function ResultsPage({ onBack }: { onBack: () => void }) {
               <Card className={`relative overflow-hidden border-2 shadow-lg ${plan.isRecommended ? "ring-2 ring-blue-500 border-blue-200" : "border-gray-200"}`}>
                 {plan.isRecommended && (
                   <div className="absolute top-0 right-0 bg-blue-500 text-white px-5 py-2 text-sm font-semibold rounded-bl-xl">
-                    RECOMMENDED
+                    {t("wizard.results.recommended")}
                   </div>
                 )}
                 {plan.isBestValue && (
                   <div className="absolute top-0 right-0 bg-green-500 text-white px-5 py-2 text-sm font-semibold rounded-bl-xl">
-                    BEST VALUE
+                    {t("wizard.results.bestValue")}
                   </div>
                 )}
                 <CardContent className="p-6 sm:p-8">
@@ -619,10 +630,10 @@ function ResultsPage({ onBack }: { onBack: () => void }) {
                     <div className="text-center sm:text-right pt-4 sm:pt-0">
                       <div className="text-4xl font-bold text-blue-600">
                         {plan.premium.toLocaleString()}
-                        <span className="text-base font-normal text-gray-500">/mo</span>
+                        <span className="text-base font-normal text-gray-500">{t("wizard.results.perMonth")}</span>
                       </div>
                       <Button className="mt-5 w-full sm:w-auto h-12 px-8" onClick={() => setShowLeadForm(true)}>
-                        Get This Plan
+                        {t("wizard.results.getThisPlan")}
                       </Button>
                     </div>
                   </div>
@@ -634,10 +645,10 @@ function ResultsPage({ onBack }: { onBack: () => void }) {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5 pt-6 border-t border-gray-100">
           <Button variant="outline" onClick={onBack} className="w-full sm:w-auto h-14">
-            Adjust My Preferences
+            {t("wizard.results.adjustPreferences")}
           </Button>
           <Button variant="secondary" onClick={() => setShowLeadForm(true)} className="w-full sm:w-auto h-14">
-            Speak to an Advisor
+            {t("wizard.results.speakToAdvisor")}
           </Button>
         </div>
 
@@ -655,8 +666,8 @@ function ResultsPage({ onBack }: { onBack: () => void }) {
               onClick={(e) => e.stopPropagation()}
               className="bg-white rounded-2xl p-6 max-w-md w-full"
             >
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Almost there!</h2>
-              <p className="text-gray-600 mb-6">Tell us how to reach you and we&apos;ll send your personalized quote.</p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">{t("wizard.results.almostThere")}</h2>
+              <p className="text-gray-600 mb-6">{t("wizard.results.sendQuote")}</p>
               <LeadCaptureForm onSuccess={() => setShowLeadForm(false)} />
             </motion.div>
           </motion.div>

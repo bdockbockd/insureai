@@ -178,7 +178,7 @@ export function HeroSection() {
           <h2 className="text-2xl font-bold text-gray-900">
             {t("common.getFreeQuoteNow")}
           </h2>
-          <p className="text-gray-600 mt-1">Tell us how to reach you</p>
+          <p className="text-gray-600 mt-1">{t("common.tellUsReach")}</p>
         </ModalHeader>
         <ModalContent>
           <LeadCaptureForm onSuccess={() => setShowLeadModal(false)} />

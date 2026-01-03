@@ -6,17 +6,19 @@ import { ArrowRight, Shield, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Modal, ModalContent, ModalHeader } from "@/components/ui/modal";
 import { LeadCaptureForm } from "@/components/forms/lead-capture-form";
+import { useLanguage } from "@/contexts/language-context";
 import Link from "next/link";
 
-const benefits = [
-  "Free personalized recommendations",
-  "Compare 100+ insurance plans",
-  "Expert advisors available 24/7",
-  "No obligation to purchase",
+const benefitKeys = [
+  "cta.benefit1",
+  "cta.benefit2",
+  "cta.benefit3",
+  "cta.benefit4",
 ];
 
 export function CTASection() {
   const [showLeadModal, setShowLeadModal] = useState(false);
+  const { t } = useLanguage();
 
   return (
     <section className="relative py-16 sm:py-24 lg:py-32 overflow-hidden">
@@ -50,7 +52,7 @@ export function CTASection() {
             className="inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 lg:px-6 lg:py-3 rounded-full bg-white/20 text-white mb-6 sm:mb-8"
           >
             <Shield className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
-            <span className="font-medium text-sm sm:text-base lg:text-lg">Start protecting your family today</span>
+            <span className="font-medium text-sm sm:text-base lg:text-lg">{t("cta.badge")}</span>
           </motion.div>
 
           <motion.h2
@@ -60,8 +62,8 @@ export function CTASection() {
             transition={{ delay: 0.1 }}
             className="text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-6 sm:mb-8 lg:mb-10 leading-tight"
           >
-            Ready to Find Your
-            <span className="block mt-2">Perfect Insurance Plan?</span>
+            {t("cta.title")}
+            <span className="block mt-2">{t("cta.titleLine2")}</span>
           </motion.h2>
 
           <motion.div
@@ -71,13 +73,13 @@ export function CTASection() {
             transition={{ delay: 0.2 }}
             className="flex flex-wrap justify-center gap-x-4 sm:gap-x-6 lg:gap-x-10 gap-y-3 mb-10 sm:mb-12 lg:mb-16"
           >
-            {benefits.map((benefit) => (
+            {benefitKeys.map((key) => (
               <div
-                key={benefit}
+                key={key}
                 className="flex items-center gap-2 text-white/90"
               >
                 <Check className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-300" />
-                <span className="text-sm sm:text-base lg:text-lg">{benefit}</span>
+                <span className="text-sm sm:text-base lg:text-lg">{t(key)}</span>
               </div>
             ))}
           </motion.div>
@@ -94,7 +96,7 @@ export function CTASection() {
                 size="lg"
                 className="w-full sm:w-auto bg-white text-blue-600 hover:bg-gray-100 shadow-xl group lg:text-lg lg:h-16 lg:px-10"
               >
-                Get Started - It&apos;s Free
+                {t("cta.getStarted")}
                 <ArrowRight className="w-5 h-5 lg:w-6 lg:h-6 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
@@ -104,7 +106,7 @@ export function CTASection() {
               className="w-full sm:w-auto border-white text-white hover:bg-white/20 lg:text-lg lg:h-16 lg:px-10"
               onClick={() => setShowLeadModal(true)}
             >
-              Request a Callback
+              {t("cta.requestCallback")}
             </Button>
           </motion.div>
 
@@ -115,7 +117,7 @@ export function CTASection() {
             transition={{ delay: 0.4 }}
             className="mt-8 sm:mt-10 lg:mt-12 text-white/70 text-sm sm:text-base lg:text-lg"
           >
-            Join 50,000+ families who found better protection with InsureAI
+            {t("cta.joinFamilies")}
           </motion.p>
         </div>
       </div>
@@ -123,8 +125,8 @@ export function CTASection() {
       {/* Lead Capture Modal */}
       <Modal isOpen={showLeadModal} onClose={() => setShowLeadModal(false)}>
         <ModalHeader>
-          <h2 className="text-2xl font-bold text-gray-900">Request a Callback</h2>
-          <p className="text-gray-600 mt-1">Our insurance advisor will contact you shortly</p>
+          <h2 className="text-2xl font-bold text-gray-900">{t("cta.requestCallback")}</h2>
+          <p className="text-gray-600 mt-1">{t("compare.advisorContact")}</p>
         </ModalHeader>
         <ModalContent>
           <LeadCaptureForm onSuccess={() => setShowLeadModal(false)} />

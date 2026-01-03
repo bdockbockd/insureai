@@ -2,34 +2,7 @@
 
 import Link from "next/link";
 import { Shield, Facebook, Instagram, MessageCircle, Youtube, Mail, Phone, MapPin } from "lucide-react";
-
-const footerLinks = {
-  products: [
-    { label: "Health Insurance", href: "/wizard?type=health" },
-    { label: "Life Insurance", href: "/wizard?type=life" },
-    { label: "Critical Illness", href: "/wizard?type=critical-illness" },
-    { label: "Motor Insurance", href: "/wizard?type=motor" },
-    { label: "Travel Insurance", href: "/wizard?type=travel" },
-  ],
-  company: [
-    { label: "About Us", href: "/about" },
-    { label: "Blog", href: "/blog" },
-    { label: "Careers", href: "/careers" },
-    { label: "Contact", href: "/contact" },
-    { label: "Partner With Us", href: "/partners" },
-  ],
-  support: [
-    { label: "FAQ", href: "/faq" },
-    { label: "Claims", href: "/claims" },
-    { label: "Policy Portal", href: "/portal" },
-    { label: "Find a Hospital", href: "/hospitals" },
-  ],
-  legal: [
-    { label: "Privacy Policy", href: "/privacy" },
-    { label: "Terms of Service", href: "/terms" },
-    { label: "Cookie Policy", href: "/cookies" },
-  ],
-};
+import { useLanguage } from "@/contexts/language-context";
 
 const socialLinks = [
   { icon: Facebook, href: "https://facebook.com", label: "Facebook" },
@@ -39,6 +12,36 @@ const socialLinks = [
 ];
 
 export function Footer() {
+  const { t } = useLanguage();
+
+  const footerLinks = {
+    products: [
+      { labelKey: "footer.healthInsurance", href: "/wizard?type=health" },
+      { labelKey: "footer.lifeInsurance", href: "/wizard?type=life" },
+      { labelKey: "footer.criticalIllness", href: "/wizard?type=critical-illness" },
+      { labelKey: "footer.motorInsurance", href: "/wizard?type=motor" },
+      { labelKey: "footer.travelInsurance", href: "/wizard?type=travel" },
+    ],
+    company: [
+      { labelKey: "footer.aboutUs", href: "/about" },
+      { labelKey: "footer.blog", href: "/blog" },
+      { labelKey: "footer.careers", href: "/careers" },
+      { labelKey: "footer.contact", href: "/contact" },
+      { labelKey: "footer.partnerWithUs", href: "/partners" },
+    ],
+    support: [
+      { labelKey: "footer.faq", href: "/faq" },
+      { labelKey: "footer.claims", href: "/claims" },
+      { labelKey: "footer.policyPortal", href: "/portal" },
+      { labelKey: "footer.findHospital", href: "/hospitals" },
+    ],
+    legal: [
+      { labelKey: "footer.privacyPolicy", href: "/privacy" },
+      { labelKey: "footer.termsOfService", href: "/terms" },
+      { labelKey: "footer.cookiePolicy", href: "/cookies" },
+    ],
+  };
+
   return (
     <footer className="bg-gray-900 text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -52,7 +55,7 @@ export function Footer() {
               <span className="font-bold text-xl text-white">InsureAI</span>
             </Link>
             <p className="text-sm text-gray-400 mb-4">
-              AI-powered insurance recommendations backed by Allianz - the world&apos;s #1 insurer.
+              {t("footer.brandDescription")}
             </p>
             <div className="flex gap-3">
               {socialLinks.map(({ icon: Icon, href, label }) => (
@@ -72,12 +75,12 @@ export function Footer() {
 
           {/* Products */}
           <div>
-            <h3 className="font-semibold text-white mb-4">Products</h3>
+            <h3 className="font-semibold text-white mb-4">{t("footer.products")}</h3>
             <ul className="space-y-2">
-              {footerLinks.products.map(({ label, href }) => (
-                <li key={label}>
+              {footerLinks.products.map(({ labelKey, href }) => (
+                <li key={labelKey}>
                   <Link href={href} className="text-sm hover:text-white transition-colors">
-                    {label}
+                    {t(labelKey)}
                   </Link>
                 </li>
               ))}
@@ -86,12 +89,12 @@ export function Footer() {
 
           {/* Company */}
           <div>
-            <h3 className="font-semibold text-white mb-4">Company</h3>
+            <h3 className="font-semibold text-white mb-4">{t("footer.company")}</h3>
             <ul className="space-y-2">
-              {footerLinks.company.map(({ label, href }) => (
-                <li key={label}>
+              {footerLinks.company.map(({ labelKey, href }) => (
+                <li key={labelKey}>
                   <Link href={href} className="text-sm hover:text-white transition-colors">
-                    {label}
+                    {t(labelKey)}
                   </Link>
                 </li>
               ))}
@@ -100,12 +103,12 @@ export function Footer() {
 
           {/* Support */}
           <div>
-            <h3 className="font-semibold text-white mb-4">Support</h3>
+            <h3 className="font-semibold text-white mb-4">{t("footer.support")}</h3>
             <ul className="space-y-2">
-              {footerLinks.support.map(({ label, href }) => (
-                <li key={label}>
+              {footerLinks.support.map(({ labelKey, href }) => (
+                <li key={labelKey}>
                   <Link href={href} className="text-sm hover:text-white transition-colors">
-                    {label}
+                    {t(labelKey)}
                   </Link>
                 </li>
               ))}
@@ -114,11 +117,11 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className="font-semibold text-white mb-4">Contact Us</h3>
+            <h3 className="font-semibold text-white mb-4">{t("footer.contactUs")}</h3>
             <ul className="space-y-3">
               <li className="flex items-center gap-2 text-sm">
                 <Phone className="w-4 h-4" />
-                <a href="tel:1378" className="hover:text-white">1378 (24/7)</a>
+                <a href="tel:1378" className="hover:text-white">{t("footer.hotline")}</a>
               </li>
               <li className="flex items-center gap-2 text-sm">
                 <MessageCircle className="w-4 h-4" />
@@ -140,22 +143,22 @@ export function Footer() {
         <div className="mt-12 pt-8 border-t border-gray-800">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm text-gray-500">
-              &copy; {new Date().getFullYear()} InsureAI. All rights reserved.
+              &copy; {new Date().getFullYear()} InsureAI. {t("footer.allRightsReserved")}
             </p>
             <div className="flex gap-6">
-              {footerLinks.legal.map(({ label, href }) => (
+              {footerLinks.legal.map(({ labelKey, href }) => (
                 <Link
-                  key={label}
+                  key={labelKey}
                   href={href}
                   className="text-sm text-gray-500 hover:text-white transition-colors"
                 >
-                  {label}
+                  {t(labelKey)}
                 </Link>
               ))}
             </div>
           </div>
           <p className="text-xs text-gray-600 mt-4 text-center sm:text-left">
-            InsureAI is an authorized digital partner of Allianz Ayudhya. Insurance products are underwritten by Allianz Ayudhya Assurance PCL and Allianz Ayudhya General Insurance PCL.
+            {t("footer.legalDisclaimer")}
           </p>
         </div>
       </div>

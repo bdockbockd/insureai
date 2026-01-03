@@ -22,6 +22,7 @@ import { Select } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Modal, ModalContent, ModalHeader } from "@/components/ui/modal";
 import { LeadCaptureForm } from "@/components/forms/lead-capture-form";
+import { useLanguage } from "@/contexts/language-context";
 
 interface ComparisonItem {
   category: string;
@@ -76,66 +77,68 @@ const insuranceProviders = [
   },
 ];
 
-const mockComparison: ComparisonItem[] = [
-  {
-    category: "Room & Board (per day)",
-    icon: Heart,
-    yourPlan: "3,000 THB",
-    allianzPlan: "5,000 THB",
-    winner: "allianz",
-    importance: "high",
-  },
-  {
-    category: "Outpatient Coverage (per year)",
-    icon: Activity,
-    yourPlan: "20,000 THB",
-    allianzPlan: "30,000 THB",
-    winner: "allianz",
-    importance: "high",
-  },
-  {
-    category: "Monthly Premium",
-    icon: DollarSign,
-    yourPlan: "1,800 THB",
-    allianzPlan: "1,500 THB",
-    winner: "allianz",
-    importance: "high",
-  },
-  {
-    category: "Critical Illness Coverage",
-    icon: Shield,
-    yourPlan: "Not Included",
-    allianzPlan: "500,000 THB",
-    winner: "allianz",
-    importance: "high",
-  },
-  {
-    category: "Dental Coverage",
-    icon: Activity,
-    yourPlan: "5,000 THB",
-    allianzPlan: "10,000 THB",
-    winner: "allianz",
-    importance: "medium",
-  },
-  {
-    category: "Waiting Period",
-    icon: Activity,
-    yourPlan: "30 days",
-    allianzPlan: "30 days",
-    winner: "tie",
-    importance: "medium",
-  },
-  {
-    category: "Worldwide Coverage",
-    icon: Shield,
-    yourPlan: "No",
-    allianzPlan: "Yes",
-    winner: "allianz",
-    importance: "medium",
-  },
-];
-
 export default function ComparePage() {
+  const { t, language } = useLanguage();
+
+  const mockComparison: ComparisonItem[] = [
+    {
+      category: t("compare.roomBoard"),
+      icon: Heart,
+      yourPlan: "3,000 THB",
+      allianzPlan: "5,000 THB",
+      winner: "allianz",
+      importance: "high",
+    },
+    {
+      category: t("compare.outpatient"),
+      icon: Activity,
+      yourPlan: "20,000 THB",
+      allianzPlan: "30,000 THB",
+      winner: "allianz",
+      importance: "high",
+    },
+    {
+      category: language === "th" ? "เบี้ยประกันรายเดือน" : "Monthly Premium",
+      icon: DollarSign,
+      yourPlan: "1,800 THB",
+      allianzPlan: "1,500 THB",
+      winner: "allianz",
+      importance: "high",
+    },
+    {
+      category: t("compare.criticalIllness"),
+      icon: Shield,
+      yourPlan: t("compare.notIncluded"),
+      allianzPlan: "500,000 THB",
+      winner: "allianz",
+      importance: "high",
+    },
+    {
+      category: t("compare.dentalCoverage"),
+      icon: Activity,
+      yourPlan: "5,000 THB",
+      allianzPlan: "10,000 THB",
+      winner: "allianz",
+      importance: "medium",
+    },
+    {
+      category: t("compare.waitingPeriod"),
+      icon: Activity,
+      yourPlan: language === "th" ? "30 วัน" : "30 days",
+      allianzPlan: language === "th" ? "30 วัน" : "30 days",
+      winner: "tie",
+      importance: "medium",
+    },
+    {
+      category: t("compare.worldwideCoverage"),
+      icon: Shield,
+      yourPlan: t("compare.no"),
+      allianzPlan: t("compare.yes"),
+      winner: "allianz",
+      importance: "medium",
+    },
+  ];
+
   const [step, setStep] = useState<"input" | "analyzing" | "results">("input");
   const [planDetails, setPlanDetails] = useState({
     provider: "",
@@ -150,7 +153,7 @@ export default function ComparePage() {
   // Get plans for the selected provider
   const selectedProvider = insuranceProviders.find(p => p.name === planDetails.provider);
   const planOptions = selectedProvider
-    ? [...selectedProvider.plans.map(plan => ({ value: plan, label: plan })), { value: "custom", label: "Other (Enter manually)" }]
+    ? [...selectedProvider.plans.map(plan => ({ value: plan, label: plan })), { value: "custom", label: t("compare.customPlan") }]
     : [];
 
   const providerOptions = insuranceProviders.map(p => ({ value: p.name, label: p.name }));
@@ -180,11 +183,10 @@ export default function ComparePage() {
             >
               <div className="text-center mb-10">
                 <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-5">
-                  Compare Your Current Plan
+                  {t("compare.title")}
                 </h1>
                 <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                  See how your existing insurance stacks up against Allianz plans.
-                  Find gaps in coverage and potential savings.
+                  {t("compare.fullSubtitle")}
                 </p>
               </div>
 
@@ -192,31 +194,31 @@ export default function ComparePage() {
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3">
                     <FileText className="w-5 h-5" />
-                    Your Current Plan Details
+                    {t("compare.yourCurrentPlan")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6 pt-2">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2.5">
-                        Insurance Provider
+                        {t("compare.provider")}
                       </label>
                       <Select
                         options={providerOptions}
                         value={planDetails.provider}
                         onChange={(value) => setPlanDetails({ ...planDetails, provider: value, planName: "", customPlanName: "" })}
-                        placeholder="Select your insurance provider"
+                        placeholder={t("compare.selectProvider")}
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2.5">
-                        Plan Name
+                        {t("compare.planName")}
                       </label>
                       <Select
                         options={planOptions}
                         value={planDetails.planName}
                         onChange={(value) => setPlanDetails({ ...planDetails, planName: value })}
-                        placeholder={planDetails.provider ? "Select your plan" : "Select provider first"}
+                        placeholder={planDetails.provider ? t("compare.selectPlan") : t("compare.selectProviderFirst")}
                         disabled={!planDetails.provider}
                       />
                     </div>
@@ -226,10 +228,10 @@ export default function ComparePage() {
                   {planDetails.planName === "custom" && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2.5">
-                        Enter Your Plan Name
+                        {t("compare.enterPlanName")}
                       </label>
                       <Input
-                        placeholder="Enter your plan name"
+                        placeholder={t("compare.enterPlanNamePlaceholder")}
                         value={planDetails.customPlanName}
                         onChange={(e) => setPlanDetails({ ...planDetails, customPlanName: e.target.value })}
                       />
@@ -239,7 +241,7 @@ export default function ComparePage() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2.5">
-                        Monthly Premium (THB)
+                        {t("compare.monthlyPremium")}
                       </label>
                       <Input
                         type="number"
@@ -250,7 +252,7 @@ export default function ComparePage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2.5">
-                        Room & Board (per day)
+                        {t("compare.roomBoard")}
                       </label>
                       <Input
                         type="number"
@@ -261,7 +263,7 @@ export default function ComparePage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2.5">
-                        Outpatient (per year)
+                        {t("compare.outpatient")}
                       </label>
                       <Input
                         type="number"
@@ -276,14 +278,14 @@ export default function ComparePage() {
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
                       <div className="flex-1">
                         <p className="text-sm text-gray-600">
-                          Or upload your policy document and our AI will extract the details
+                          {t("compare.uploadDescription")}
                         </p>
                       </div>
                       <label className="cursor-pointer w-full sm:w-auto">
                         <input type="file" className="hidden" accept=".pdf,.jpg,.png" />
                         <div className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
                           <Upload className="w-4 h-4" />
-                          <span className="text-sm font-medium">Upload PDF</span>
+                          <span className="text-sm font-medium">{t("compare.uploadPdf")}</span>
                         </div>
                       </label>
                     </div>
@@ -299,7 +301,7 @@ export default function ComparePage() {
                   disabled={!planDetails.provider}
                   className="w-full sm:w-auto gap-2 py-3"
                 >
-                  Analyze My Plan
+                  {t("compare.analyzeMyPlan")}
                   <ArrowRight className="w-5 h-5" />
                 </Button>
               </div>
@@ -321,15 +323,19 @@ export default function ComparePage() {
                 className="w-20 h-20 border-4 border-blue-200 border-t-blue-600 rounded-full mx-auto mb-6"
               />
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Analyzing Your Plan...
+                {t("compare.analyzing")}
               </h2>
               <p className="text-gray-600">
-                Our AI is comparing your coverage against 50+ Allianz plans
+                {t("compare.aiAnalyzing")}
               </p>
               <div className="mt-8 space-y-2 max-w-md mx-auto">
-                {["Extracting coverage details", "Comparing benefits", "Finding the best match"].map((text, i) => (
+                {[
+                  t("compare.extractingDetails"),
+                  t("compare.comparingBenefits"),
+                  t("compare.findingBestMatch")
+                ].map((text, i) => (
                   <motion.div
-                    key={text}
+                    key={i}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.5 }}
@@ -364,21 +370,21 @@ export default function ComparePage() {
                   <CardContent className="p-7 sm:p-8 text-center">
                     <TrendingUp className="w-10 h-10 text-green-600 mx-auto mb-4" />
                     <div className="text-3xl font-bold text-green-600">{savingsPercent}%</div>
-                    <p className="text-sm text-gray-600 mt-1">Potential Savings</p>
+                    <p className="text-sm text-gray-600 mt-1">{t("compare.potentialSavings")}</p>
                   </CardContent>
                 </Card>
                 <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
                   <CardContent className="p-7 sm:p-8 text-center">
                     <Shield className="w-10 h-10 text-blue-600 mx-auto mb-4" />
                     <div className="text-3xl font-bold text-blue-600">{allianzWins}/{mockComparison.length}</div>
-                    <p className="text-sm text-gray-600 mt-1">Categories Better</p>
+                    <p className="text-sm text-gray-600 mt-1">{t("compare.categoriesBetter")}</p>
                   </CardContent>
                 </Card>
                 <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200">
                   <CardContent className="p-7 sm:p-8 text-center">
                     <AlertTriangle className="w-10 h-10 text-orange-600 mx-auto mb-4" />
                     <div className="text-3xl font-bold text-orange-600">2</div>
-                    <p className="text-sm text-gray-600 mt-1">Coverage Gaps Found</p>
+                    <p className="text-sm text-gray-600 mt-1">{t("compare.coverageGaps")}</p>
                   </CardContent>
                 </Card>
               </div>
@@ -386,19 +392,19 @@ export default function ComparePage() {
               {/* Comparison Table */}
               <Card className="mb-12 overflow-hidden">
                 <CardHeader className="bg-gray-50 py-5">
-                  <CardTitle>Detailed Comparison</CardTitle>
+                  <CardTitle>{t("compare.detailedComparison")}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
                         <tr className="border-b bg-gray-100">
-                          <th className="text-left p-4 font-semibold text-gray-900">Category</th>
-                          <th className="text-center p-4 font-semibold text-gray-900">Your Plan</th>
+                          <th className="text-left p-4 font-semibold text-gray-900">{t("compare.category")}</th>
+                          <th className="text-center p-4 font-semibold text-gray-900">{t("compare.yourPlan")}</th>
                           <th className="text-center p-4 font-semibold text-blue-700">
                             Allianz Health Plus
                           </th>
-                          <th className="text-center p-4 font-semibold text-gray-900">Winner</th>
+                          <th className="text-center p-4 font-semibold text-gray-900">{t("compare.winner")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -416,7 +422,7 @@ export default function ComparePage() {
                                 <span className="font-medium text-gray-900">{item.category}</span>
                                 {item.importance === "high" && (
                                   <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full">
-                                    Important
+                                    {t("compare.important")}
                                   </span>
                                 )}
                               </div>
@@ -428,15 +434,15 @@ export default function ComparePage() {
                             <td className="p-4 text-center">
                               {item.winner === "allianz" ? (
                                 <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-sm rounded-full">
-                                  <Check className="w-3 h-3" /> Allianz
+                                  <Check className="w-3 h-3" /> {t("compare.allianz")}
                                 </span>
                               ) : item.winner === "yours" ? (
                                 <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">
-                                  <Check className="w-3 h-3" /> Yours
+                                  <Check className="w-3 h-3" /> {t("compare.yours")}
                                 </span>
                               ) : (
                                 <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-500 text-sm rounded-full">
-                                  <Minus className="w-3 h-3" /> Tie
+                                  <Minus className="w-3 h-3" /> {t("compare.tie")}
                                 </span>
                               )}
                             </td>
@@ -451,19 +457,18 @@ export default function ComparePage() {
               {/* CTA */}
               <div className="text-center space-y-5">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  Ready to Upgrade Your Coverage?
+                  {t("compare.readyToUpgrade")}
                 </h2>
                 <p className="text-gray-600 max-w-lg mx-auto leading-relaxed">
-                  Switch to Allianz Health Plus and get better coverage at a lower price.
-                  Our advisor will help you make the transition seamless.
+                  {t("compare.upgradeDescription")}
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5 px-4 pt-2">
                   <Button size="lg" variant="gradient" onClick={() => setShowLeadModal(true)} className="w-full sm:w-auto">
-                    Get My Upgrade
+                    {t("compare.getMyUpgrade")}
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                   <Button size="lg" variant="outline" onClick={() => setStep("input")} className="w-full sm:w-auto">
-                    Compare Another Plan
+                    {t("compare.compareAnother")}
                   </Button>
                 </div>
               </div>
@@ -475,8 +480,8 @@ export default function ComparePage() {
       {/* Lead Capture Modal */}
       <Modal isOpen={showLeadModal} onClose={() => setShowLeadModal(false)}>
         <ModalHeader>
-          <h2 className="text-2xl font-bold text-gray-900">Get Your Upgrade</h2>
-          <p className="text-gray-600 mt-1">Our advisor will contact you with next steps</p>
+          <h2 className="text-2xl font-bold text-gray-900">{t("compare.getYourUpgrade")}</h2>
+          <p className="text-gray-600 mt-1">{t("compare.advisorContact")}</p>
         </ModalHeader>
         <ModalContent>
           <LeadCaptureForm onSuccess={() => setShowLeadModal(false)} />

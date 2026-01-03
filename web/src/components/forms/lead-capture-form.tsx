@@ -9,19 +9,15 @@ import { Mail, Phone, MessageCircle, User, CheckCircle, Loader2 } from "lucide-r
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useWizardStore } from "@/store/wizard-store";
+import { useLanguage } from "@/contexts/language-context";
 
-const leadSchema = z.object({
-  fullName: z.string().min(2, "Please enter your name"),
-  email: z.string().email("Invalid email").optional().or(z.literal("")),
-  phone: z.string().min(9, "Invalid phone number").optional().or(z.literal("")),
-  lineId: z.string().min(3, "Invalid LINE ID").optional().or(z.literal("")),
-  preferredContact: z.enum(["email", "phone", "line"]),
-}).refine(
-  (data) => data.email || data.phone || data.lineId,
-  { message: "Please provide at least one contact method", path: ["email"] }
-);
-
-type LeadFormData = z.infer<typeof leadSchema>;
+type LeadFormData = {
+  fullName: string;
+  email?: string;
+  phone?: string;
+  lineId?: string;
+  preferredContact: "email" | "phone" | "line";
+};
 
 interface LeadCaptureFormProps {
   onSuccess?: () => void;
@@ -29,9 +25,21 @@ interface LeadCaptureFormProps {
 }
 
 export function LeadCaptureForm({ onSuccess, compact = false }: LeadCaptureFormProps) {
+  const { t } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const { setContactInfo } = useWizardStore();
+
+  const leadSchema = z.object({
+    fullName: z.string().min(2, t("form.validation.name")),
+    email: z.string().email(t("form.validation.email")).optional().or(z.literal("")),
+    phone: z.string().min(9, t("form.validation.phone")).optional().or(z.literal("")),
+    lineId: z.string().min(3, t("form.validation.line")).optional().or(z.literal("")),
+    preferredContact: z.enum(["email", "phone", "line"]),
+  }).refine(
+    (data) => data.email || data.phone || data.lineId,
+    { message: t("form.validation.contactMethod"), path: ["email"] }
+  );
 
   const {
     register,
@@ -79,9 +87,9 @@ export function LeadCaptureForm({ onSuccess, compact = false }: LeadCaptureFormP
         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <CheckCircle className="w-8 h-8 text-green-600" />
         </div>
-        <h3 className="text-xl font-bold text-gray-900 mb-2">Thank You!</h3>
+        <h3 className="text-xl font-bold text-gray-900 mb-2">{t("form.thankYou")}</h3>
         <p className="text-gray-600">
-          Our insurance advisor will contact you within 24 hours.
+          {t("form.advisorContact")}
         </p>
       </motion.div>
     );
@@ -91,21 +99,21 @@ export function LeadCaptureForm({ onSuccess, compact = false }: LeadCaptureFormP
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <Input
         {...register("fullName")}
-        placeholder="Your name"
+        placeholder={t("form.yourName")}
         icon={<User className="w-5 h-5" />}
         error={errors.fullName?.message}
       />
 
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">
-          How would you like us to contact you?
+          {t("form.contactMethod")}
         </label>
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {[
-            { value: "line", icon: MessageCircle, label: "LINE" },
-            { value: "phone", icon: Phone, label: "Phone" },
-            { value: "email", icon: Mail, label: "Email" },
-          ].map(({ value, icon: Icon, label }) => (
+            { value: "line", icon: MessageCircle, labelKey: "form.line" },
+            { value: "phone", icon: Phone, labelKey: "form.phone" },
+            { value: "email", icon: Mail, labelKey: "form.email" },
+          ].map(({ value, icon: Icon, labelKey }) => (
             <button
               key={value}
               type="button"
@@ -119,7 +127,7 @@ export function LeadCaptureForm({ onSuccess, compact = false }: LeadCaptureFormP
               `}
             >
               <Icon className="w-5 h-5" />
-              <span className="text-xs font-medium">{label}</span>
+              <span className="text-xs font-medium">{t(labelKey)}</span>
             </button>
           ))}
         </div>
@@ -129,7 +137,7 @@ export function LeadCaptureForm({ onSuccess, compact = false }: LeadCaptureFormP
         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}>
           <Input
             {...register("lineId")}
-            placeholder="LINE ID"
+            placeholder={t("form.lineId")}
             icon={<MessageCircle className="w-5 h-5" />}
             error={errors.lineId?.message}
           />
@@ -140,7 +148,7 @@ export function LeadCaptureForm({ onSuccess, compact = false }: LeadCaptureFormP
         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}>
           <Input
             {...register("phone")}
-            placeholder="Phone number"
+            placeholder={t("form.phoneNumber")}
             type="tel"
             icon={<Phone className="w-5 h-5" />}
             error={errors.phone?.message}
@@ -152,7 +160,7 @@ export function LeadCaptureForm({ onSuccess, compact = false }: LeadCaptureFormP
         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}>
           <Input
             {...register("email")}
-            placeholder="Email address"
+            placeholder={t("form.emailAddress")}
             type="email"
             icon={<Mail className="w-5 h-5" />}
             error={errors.email?.message}
@@ -160,7 +168,7 @@ export function LeadCaptureForm({ onSuccess, compact = false }: LeadCaptureFormP
         </motion.div>
       )}
 
-      {errors.email?.message === "Please provide at least one contact method" && (
+      {errors.email?.message === t("form.validation.contactMethod") && (
         <p className="text-sm text-red-500">{errors.email.message}</p>
       )}
 
@@ -168,16 +176,15 @@ export function LeadCaptureForm({ onSuccess, compact = false }: LeadCaptureFormP
         {isSubmitting ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
-            Submitting...
+            {t("form.submitting")}
           </>
         ) : (
-          "Get My Free Quote"
+          t("form.getMyFreeQuote")
         )}
       </Button>
 
       <p className="text-xs text-center text-gray-500 mt-3">
-        By submitting, you agree to be contacted by our insurance advisors.
-        Your information is secure and will never be shared.
+        {t("form.disclaimer")}
       </p>
     </form>
   );

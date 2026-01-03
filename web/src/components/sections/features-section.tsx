@@ -8,45 +8,45 @@ import {
   Shield,
   Smartphone,
   HeadphonesIcon,
-  TrendingUp,
   FileCheck
 } from "lucide-react";
+import { useLanguage } from "@/contexts/language-context";
 
-const features = [
+const featureKeys = [
   {
     icon: Brain,
-    title: "AI-Powered Matching",
-    description: "Our smart algorithm analyzes your needs and finds the perfect plan from 100+ options.",
+    titleKey: "features.aiMatching",
+    descKey: "features.aiMatchingDesc",
     color: "from-purple-500 to-indigo-500",
   },
   {
     icon: Scale,
-    title: "Side-by-Side Comparison",
-    description: "Upload your current plan and see exactly where you can get better coverage.",
+    titleKey: "features.comparison",
+    descKey: "features.comparisonDesc",
     color: "from-blue-500 to-cyan-500",
   },
   {
     icon: Clock,
-    title: "60-Second Results",
-    description: "No lengthy forms. Just a few quick questions and you&apos;ll have personalized recommendations.",
+    titleKey: "features.results",
+    descKey: "features.resultsDesc",
     color: "from-green-500 to-emerald-500",
   },
   {
     icon: Shield,
-    title: "Allianz Backed",
-    description: "All plans are from Allianz, the world&apos;s #1 insurance brand with AA rating.",
+    titleKey: "features.allianzBacked",
+    descKey: "features.allianzBackedDesc",
     color: "from-orange-500 to-red-500",
   },
   {
     icon: Smartphone,
-    title: "Easy Claims",
-    description: "Submit claims directly from your phone. Get reimbursed faster than ever.",
+    titleKey: "features.easyClaims",
+    descKey: "features.easyClaimsDesc",
     color: "from-pink-500 to-rose-500",
   },
   {
     icon: HeadphonesIcon,
-    title: "Expert Advisors",
-    description: "Real humans available 24/7 to help you understand your options.",
+    titleKey: "features.experts",
+    descKey: "features.expertsDesc",
     color: "from-teal-500 to-cyan-500",
   },
 ];
@@ -66,6 +66,8 @@ const itemVariants = {
 };
 
 export function FeaturesSection() {
+  const { t } = useLanguage();
+
   return (
     <section className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -76,10 +78,10 @@ export function FeaturesSection() {
           className="text-center mb-20"
         >
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
-            Why Choose InsureAI?
+            {t("features.title")}
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            We combine cutting-edge AI technology with human expertise to find you the best protection.
+            {t("features.subtitle")}
           </p>
         </motion.div>
 
@@ -90,9 +92,9 @@ export function FeaturesSection() {
           viewport={{ once: true }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12"
         >
-          {features.map(({ icon: Icon, title, description, color }) => (
+          {featureKeys.map(({ icon: Icon, titleKey, descKey, color }) => (
             <motion.div
-              key={title}
+              key={titleKey}
               variants={itemVariants}
               className="group relative p-6 sm:p-8 lg:p-10 rounded-2xl bg-white border border-gray-100 hover:border-transparent hover:shadow-xl transition-all duration-300"
             >
@@ -105,8 +107,8 @@ export function FeaturesSection() {
               >
                 <Icon className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-white" />
               </div>
-              <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-3">{title}</h3>
-              <p className="text-gray-600 leading-relaxed lg:text-lg">{description}</p>
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-3">{t(titleKey)}</h3>
+              <p className="text-gray-600 leading-relaxed lg:text-lg">{t(descKey)}</p>
             </motion.div>
           ))}
         </motion.div>
@@ -116,29 +118,31 @@ export function FeaturesSection() {
 }
 
 export function HowItWorksSection() {
-  const steps = [
+  const { t } = useLanguage();
+
+  const stepKeys = [
     {
       number: "01",
-      title: "Tell Us About You",
-      description: "Answer a few quick questions about yourself, your family, and what you&apos;re looking for.",
+      titleKey: "howItWorks.step1",
+      descKey: "howItWorks.step1Desc",
       icon: FileCheck,
     },
     {
       number: "02",
-      title: "Get Smart Recommendations",
-      description: "Our AI analyzes your needs and matches you with the best Allianz plans.",
+      titleKey: "howItWorks.step2",
+      descKey: "howItWorks.step2Desc",
       icon: Brain,
     },
     {
       number: "03",
-      title: "Compare & Choose",
-      description: "See detailed comparisons with your current plan. Understand exactly what you&apos;re getting.",
+      titleKey: "howItWorks.step3",
+      descKey: "howItWorks.step3Desc",
       icon: Scale,
     },
     {
       number: "04",
-      title: "Get Protected",
-      description: "Complete your application online or speak with an advisor. Start coverage immediately.",
+      titleKey: "howItWorks.step4",
+      descKey: "howItWorks.step4Desc",
       icon: Shield,
     },
   ];
@@ -153,10 +157,10 @@ export function HowItWorksSection() {
           className="text-center mb-20"
         >
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
-            How It Works
+            {t("howItWorks.title")}
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            From finding the right plan to getting covered - we make it simple.
+            {t("howItWorks.subtitle")}
           </p>
         </motion.div>
 
@@ -165,7 +169,7 @@ export function HowItWorksSection() {
           <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 -translate-y-1/2" />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-8">
-            {steps.map(({ number, title, description, icon: Icon }, index) => (
+            {stepKeys.map(({ number, titleKey, descKey, icon: Icon }, index) => (
               <motion.div
                 key={number}
                 initial={{ opacity: 0, y: 30 }}
@@ -180,8 +184,8 @@ export function HowItWorksSection() {
                 <div className="mt-4 mb-5 lg:mb-6">
                   <Icon className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 text-blue-600" />
                 </div>
-                <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-900 mb-3">{title}</h3>
-                <p className="text-gray-600 text-sm lg:text-base leading-relaxed">{description}</p>
+                <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-900 mb-3">{t(titleKey)}</h3>
+                <p className="text-gray-600 text-sm lg:text-base leading-relaxed">{t(descKey)}</p>
               </motion.div>
             ))}
           </div>
@@ -192,6 +196,8 @@ export function HowItWorksSection() {
 }
 
 export function TrustSection() {
+  const { t } = useLanguage();
+
   return (
     <section className="py-12 sm:py-16 lg:py-20 bg-white border-y border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -203,27 +209,27 @@ export function TrustSection() {
         >
           <div className="text-center sm:text-left">
             <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-              Trusted by 50,000+ Families
+              {t("trust.title")}
             </h3>
             <p className="text-gray-600 lg:text-lg">
-              Protecting lives across Thailand, Southeast Asia, and beyond.
+              {t("trust.subtitle")}
             </p>
           </div>
 
           <div className="flex items-center gap-6 sm:gap-8 lg:gap-12">
             <div className="text-center">
               <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-600">AA</div>
-              <div className="text-xs sm:text-sm lg:text-base text-gray-500">S&P Rating</div>
+              <div className="text-xs sm:text-sm lg:text-base text-gray-500">{t("trust.spRating")}</div>
             </div>
             <div className="h-10 sm:h-12 lg:h-16 w-px bg-gray-200" />
             <div className="text-center">
               <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-600">130+</div>
-              <div className="text-xs sm:text-sm lg:text-base text-gray-500">Years Experience</div>
+              <div className="text-xs sm:text-sm lg:text-base text-gray-500">{t("trust.yearsExperience")}</div>
             </div>
             <div className="h-10 sm:h-12 lg:h-16 w-px bg-gray-200" />
             <div className="text-center">
               <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-600">70+</div>
-              <div className="text-xs sm:text-sm lg:text-base text-gray-500">Countries</div>
+              <div className="text-xs sm:text-sm lg:text-base text-gray-500">{t("trust.countries")}</div>
             </div>
           </div>
         </motion.div>
