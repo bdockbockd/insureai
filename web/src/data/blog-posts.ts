@@ -2546,7 +2546,7 @@ Superior Health represents a significant investment in healthcare protection. Co
       "Discover Allianz Ayudhya's innovative Double Care health insurance that doubles your coverage to 60 million THB when diagnosed with 1 of 10 critical illnesses. Comprehensive protection from prevention to recovery.",
     excerptTh:
       "รู้จัก ดับเบิล แคร์ จากอลิอันซ์ อยุธยา ประกันสุขภาพนวัตกรรมที่เบิ้ลความคุ้มครองเป็น 60 ล้านบาท เมื่อตรวจพบ 1 ใน 10 โรคร้ายแรง คุ้มครองครบตั้งแต่ป้องกัน รักษา และฟื้นฟู",
-    content: \`
+    content: `
 ## เบิ้ลความคุ้มครอง... พร้อมรับมือโรคร้าย
 
 **ประกันสุขภาพ ปลดล็อค ดับเบิล แคร์** (Double Care) from Allianz Ayudhya offers a revolutionary approach to health insurance - your coverage automatically doubles when you're diagnosed with one of 10 critical illnesses.
@@ -2644,7 +2644,7 @@ Double Care provides comprehensive coverage throughout your healthcare journey:
 
 **ไม่เหมาะกับ:**
 - ผู้ที่ต้องการความคุ้มครองค่ารักษาพยาบาลในต่างประเทศ (ยกเว้นกรณีฉุกเฉิน)
-    \`,
+    `,
     coverImage:
       "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&q=80",
     category: "Health Insurance",
@@ -2673,7 +2673,7 @@ Double Care provides comprehensive coverage throughout your healthcare journey:
       "CI 48 Beyond covers 75 critical illnesses including childhood diseases, with payouts up to 170% of sum insured. Multiple claims possible with premiums starting from just 5,040 THB/year.",
     excerptTh:
       "ประกันโรคร้าย 48 บียอนด์ คุ้มครอง 75 โรค/อาการ รวมโรคร้ายในเด็ก รับเงินก้อนสูงสุด 170% เคลมได้หลายครั้ง เบี้ยเริ่มต้นเพียง 5,040 บาท/ปี",
-    content: \`
+    content: `
 ## หมดกังวลกับบิลค่ารักษาโรคร้าย
 
 When diagnosed with a critical illness, the last thing you want to worry about is money. **ประกันโรคร้าย 48 บียอนด์** (CI 48 Beyond) provides a lump sum payment immediately upon diagnosis, giving you the financial freedom to focus on recovery.
@@ -2789,7 +2789,7 @@ CI 48 Beyond uniquely covers childhood diseases (for those diagnosed before age 
 2. **When healthy** - Pre-existing conditions may be excluded
 3. **Before family responsibility** - Protect your income-earning years
 4. **Alongside health insurance** - Different purposes, complementary protection
-    \`,
+    `,
     coverImage:
       "https://images.unsplash.com/photo-1631815589968-fdb09a223b1e?w=800&q=80",
     category: "Health Insurance",
@@ -2818,7 +2818,7 @@ CI 48 Beyond uniquely covers childhood diseases (for those diagnosed before age 
       "Confused about All Hospital vs BDMS network plans? Standard vs Premium coverage? This guide helps you navigate Thailand's health insurance options with practical decision-making frameworks.",
     excerptTh:
       "สับสนระหว่างแผน All Hospital กับ BDMS? มาตรฐานหรือพรีเมียม? คู่มือนี้ช่วยคุณเลือกประกันสุขภาพในไทยด้วยกรอบการตัดสินใจที่ใช้ได้จริง",
-    content: \`
+    content: `
 ## Finding Your Perfect Health Insurance Match
 
 With dozens of health insurance plans available in Thailand, choosing the right one can feel overwhelming. This guide breaks down the decision into manageable steps based on your actual needs.
@@ -2957,7 +2957,7 @@ Remember: The best health insurance plan is one that:
 - Covers your most likely health needs
 - Gives you access to hospitals you trust
 - Provides peace of mind for your family
-    \`,
+    `,
     coverImage:
       "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=80",
     category: "Education",
@@ -2986,7 +2986,7 @@ Remember: The best health insurance plan is one that:
       "My Double Plus from Allianz Ayudhya offers 115% life coverage with guaranteed 140% maturity benefit. Perfect for those who want disciplined savings with family protection.",
     excerptTh:
       "มาย ดับเบิล พลัส จากอลิอันซ์ อยุธยา คุ้มครองชีวิต 115% พร้อมรับเงินครบกำหนด 140% เหมาะสำหรับผู้ที่ต้องการออมอย่างมีวินัยพร้อมคุ้มครองครอบครัว",
-    content: \`
+    content: `
 ## The Best of Both Worlds: Savings + Protection
 
 For many Thai families, the question isn't whether to save or protect - it's how to do both efficiently. **มาย ดับเบิล พลัส** (My Double Plus) from Allianz Ayudhya answers this by combining disciplined savings with substantial life protection.
@@ -3107,7 +3107,7 @@ For comprehensive financial planning, consider combining My Double Plus with:
 - Maximize 100,000 THB deduction
 - Consider higher premiums if tax bracket warrants
 - Combine with pension insurance for additional deduction
-    \`,
+    `,
     coverImage:
       "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&q=80",
     category: "Life Insurance",
@@ -3136,7 +3136,7 @@ For comprehensive financial planning, consider combining My Double Plus with:
       "Plan your retirement with Pension Plus 85A55 - receive guaranteed monthly/annual income from age 55 until 85. Tax deduction up to 200,000 THB. No medical exam required.",
     excerptTh:
       "วางแผนเกษียณกับ บำนาญพลัส 85A55 รับเงินบำนาญแน่นอนตั้งแต่อายุ 55-85 ปี ลดหย่อนภาษีได้ถึง 200,000 บาท ไม่ต้องตรวจสุขภาพ",
-    content: \`
+    content: `
 ## Secure Your Golden Years with Guaranteed Income
 
 Thailand's rapidly aging population means retirement planning is more important than ever. **บำนาญพลัส 85A55** (Pension Plus 85A55) from Allianz Ayudhya provides guaranteed retirement income you can count on.
@@ -3294,7 +3294,7 @@ For optimal retirement planning, consider:
 The earlier you start, the lower your annual premium for the same retirement income. A 30-year-old pays significantly less than a 45-year-old for equivalent benefits.
 
 **ไม่ต้องรอ เริ่มวางแผนเกษียณวันนี้**
-    \`,
+    `,
     coverImage:
       "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80",
     category: "Life Insurance",
