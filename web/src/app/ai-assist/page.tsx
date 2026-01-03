@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/language-context";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { PlanSelector } from "@/components/plan-selector";
 import type { InsurancePlan } from "@/data/plans-config";
 
@@ -385,7 +386,7 @@ export default function AIAssistPage() {
                       {message.role === "assistant" ? (
                         message.content ? (
                           <div className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-headings:font-semibold prose-headings:mt-4 prose-headings:mb-2 prose-p:text-gray-700 prose-p:my-2 prose-li:text-gray-700 prose-li:my-0.5 prose-strong:text-gray-900 prose-ul:my-2 prose-ol:my-2">
-                            <ReactMarkdown>{message.content}</ReactMarkdown>
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
                           </div>
                         ) : (
                           <span className="flex items-center gap-2 text-gray-400">
