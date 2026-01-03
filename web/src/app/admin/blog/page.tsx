@@ -440,14 +440,14 @@ The content has been enhanced with:
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 overflow-y-auto">
-      <div className="min-h-screen py-8 px-4">
+      <div className="min-h-screen py-4 sm:py-8 px-2 sm:px-4 flex items-start justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="max-w-6xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden"
+          className="w-full max-w-6xl bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[95vh] flex flex-col"
         >
           {/* Editor Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 sm:p-6 shrink-0">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold">
@@ -493,9 +493,9 @@ The content has been enhanced with:
             </div>
           </div>
 
-          <div className="p-6">
+          <div className="p-4 sm:p-6 flex-1 overflow-y-auto">
             {activeTab === "edit" ? (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {/* Language Toggle */}
                 <div className="flex items-center justify-end gap-2">
                   <span className="text-sm text-gray-500">Editing:</span>

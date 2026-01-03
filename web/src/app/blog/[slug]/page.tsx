@@ -225,7 +225,7 @@ export default function BlogPostPage() {
               ),
             }}
           >
-            {post.content}
+            {language === "th" && post.contentTh ? post.contentTh : post.content}
           </ReactMarkdown>
         </motion.article>
 

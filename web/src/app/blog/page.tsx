@@ -147,9 +147,11 @@ export default function BlogPage() {
                       </span>
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
-                      {featuredPost.title}
+                      {language === "th" && featuredPost.titleTh ? featuredPost.titleTh : featuredPost.title}
                     </h2>
-                    <p className="text-gray-600 mb-5 leading-relaxed">{featuredPost.excerpt}</p>
+                    <p className="text-gray-600 mb-5 leading-relaxed">
+                      {language === "th" && featuredPost.excerptTh ? featuredPost.excerptTh : featuredPost.excerpt}
+                    </p>
                     <div className="flex items-center gap-5 text-sm text-gray-500">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-semibold">
@@ -198,9 +200,11 @@ export default function BlogPage() {
                       {post.category}
                     </span>
                     <h3 className="font-bold text-lg text-gray-900 mb-3 line-clamp-2">
-                      {post.title}
+                      {language === "th" && post.titleTh ? post.titleTh : post.title}
                     </h3>
-                    <p className="text-gray-600 text-sm mb-5 line-clamp-2 leading-relaxed">{post.excerpt}</p>
+                    <p className="text-gray-600 text-sm mb-5 line-clamp-2 leading-relaxed">
+                      {language === "th" && post.excerptTh ? post.excerptTh : post.excerpt}
+                    </p>
                     <div className="flex items-center justify-between text-xs text-gray-500 pt-1">
                       <div className="flex items-center gap-2.5">
                         <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-[10px] font-semibold">
