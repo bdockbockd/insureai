@@ -792,16 +792,22 @@ Combines life protection with savings. You pay premiums for a set period, then r
 - Less flexibility than pure savings
 - Penalties for early withdrawal
 
-#### 4. Unit-Linked Insurance (ประกันควบการลงทุน)
+#### 4. Unit-Linked Insurance (ประกันควบการลงทุน / ยูนิต ลิงค์)
 
 **What it is:**
 Combines life insurance with investment funds. Part of your premium provides life cover, part is invested in mutual funds of your choice.
 
-**Allianz Ayudhya's Unit-Linked Products:**
-- My Style Protect Ultra
-- My Style Smart Pay 15 Ultra
-- My Style Legacy Ultra (NEW)
-- My Style Wealth Ultra (NEW)
+**Allianz Ayudhya's ยูนิต ลิงค์ Products:**
+- **มาย สไตล์ โพรเทค อัลตร้า** (My Style Protect Ultra) - Protection-focused unit-linked
+- **มาย สไตล์ สมาร์ต เพย์ 15 อัลตร้า** (My Style Smart Pay 15 Ultra) - 15-year premium payment
+- **มาย สไตล์ เลกาซี อัลตร้า** (My Style Legacy Ultra) - NEW legacy planning option
+- **มาย สไตล์ เวลท์ อัลตร้า** (My Style Wealth Ultra) - NEW wealth accumulation focus
+
+**Additional Life Insurance Products from Allianz Ayudhya:**
+- **มาย โฮล ไลฟ์ A99/20 (มีเงินปันผล)** - NEW whole life with dividends
+- **มาย ดับเบิล พลัส** (My Double Plus) - Savings with protection
+- **สมาร์ท เซฟวิ่ง 18/8 (มีเงินปันผล)** (Smart Saving) - 18-year endowment with dividends
+- **มาย บำนาญ ไฟว์ (90/5)** (My Annuity Five) - 5-year premium retirement plan
 
 **Investment Options:**
 - Money market funds (low risk)
