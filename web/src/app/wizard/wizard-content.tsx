@@ -26,6 +26,7 @@ import { useWizardStore } from "@/store/wizard-store";
 import { LeadCaptureForm } from "@/components/forms/lead-capture-form";
 import type { InsuranceType, InsuranceFor } from "@/types/insurance";
 import { useLanguage } from "@/contexts/language-context";
+import { insurancePlans, type InsurancePlan } from "@/data/plans-config";
 
 const insuranceTypeData: { type: InsuranceType; icon: React.ElementType; labelKey: string; descKey: string; color: string }[] = [
   { type: "health", icon: Shield, labelKey: "wizard.insurance.health", descKey: "wizard.insurance.health.desc", color: "from-blue-500 to-cyan-500" },
@@ -539,42 +540,31 @@ export function WizardContent() {
 function ResultsPage({ onBack }: { onBack: () => void }) {
   const { t, language } = useLanguage();
   const [showLeadForm, setShowLeadForm] = useState(false);
+  const { insuranceType } = useWizardStore();
 
-  // Mock recommended plans based on user input
-  const recommendedPlans = [
-    {
-      id: "1",
-      name: "Allianz Health Essential",
-      premium: 1500,
-      highlights: [
-        language === "th" ? "ค่าห้อง: 5,000 บาท/วัน" : "Room & Board: 5,000 THB/day",
-        language === "th" ? "ผู้ป่วยนอก: 30,000 บาท/ปี" : "OPD: 30,000 THB/year",
-        language === "th" ? "ไม่มีระยะรอคอย" : "No Waiting Period",
-      ],
-      isRecommended: true,
-    },
-    {
-      id: "2",
-      name: "Allianz Health Plus",
-      premium: 2500,
-      highlights: [
-        language === "th" ? "ค่าห้อง: 8,000 บาท/วัน" : "Room & Board: 8,000 THB/day",
-        language === "th" ? "ผู้ป่วยนอก: 50,000 บาท/ปี" : "OPD: 50,000 THB/year",
-        language === "th" ? "คุ้มครองทันตกรรม" : "Dental Coverage",
-      ],
-      isBestValue: true,
-    },
-    {
-      id: "3",
-      name: "Allianz Health Premium",
-      premium: 4500,
-      highlights: [
-        language === "th" ? "ค่าห้อง: 15,000 บาท/วัน" : "Room & Board: 15,000 THB/day",
-        language === "th" ? "ผู้ป่วยนอก: 100,000 บาท/ปี" : "OPD: 100,000 THB/year",
-        language === "th" ? "คุ้มครองทั่วโลก" : "Worldwide Coverage",
-      ],
-    },
-  ];
+  // Map wizard insurance types to plan categories
+  const typeToCategory: Record<string, string[]> = {
+    health: ['health'],
+    life: ['life', 'savings'],
+    'critical-illness': ['critical-illness'],
+    motor: ['health'], // fallback to health plans
+    travel: ['health'], // fallback to health plans
+    home: ['life', 'savings'], // fallback
+  };
+
+  // Get relevant plans based on selected insurance type
+  const categories = typeToCategory[insuranceType || 'health'] || ['health'];
+  const filteredPlans = insurancePlans.filter(plan => categories.includes(plan.category));
+
+  // Take top 3 plans or all if less than 3
+  const recommendedPlans = filteredPlans.slice(0, 3).map((plan, index) => ({
+    id: plan.id,
+    name: language === 'th' ? plan.name_th : plan.name_en,
+    description: language === 'th' ? plan.description_th : plan.description_en,
+    highlights: plan.key_highlights,
+    isRecommended: index === 0,
+    isBestValue: index === 1,
+  }));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 sm:py-12 px-5 sm:px-6 lg:px-8">
@@ -615,24 +605,21 @@ function ResultsPage({ onBack }: { onBack: () => void }) {
                   </div>
                 )}
                 <CardContent className="p-6 sm:p-8">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-                    <div>
-                      <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">{plan.name}</h3>
-                      <ul className="space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
+                    <div className="flex-1">
+                      <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+                      <p className="text-gray-600 mb-4">{plan.description}</p>
+                      <ul className="space-y-2">
                         {plan.highlights.map((highlight) => (
-                          <li key={highlight} className="flex items-center gap-3 text-base text-gray-700">
-                            <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
+                          <li key={highlight} className="flex items-center gap-3 text-sm text-gray-700">
+                            <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
                             {highlight}
                           </li>
                         ))}
                       </ul>
                     </div>
-                    <div className="text-center sm:text-right pt-4 sm:pt-0">
-                      <div className="text-4xl font-bold text-blue-600">
-                        {plan.premium.toLocaleString()}
-                        <span className="text-base font-normal text-gray-500">{t("wizard.results.perMonth")}</span>
-                      </div>
-                      <Button className="mt-5 w-full sm:w-auto h-12 px-8" onClick={() => setShowLeadForm(true)}>
+                    <div className="text-center sm:text-right pt-4 sm:pt-0 flex-shrink-0">
+                      <Button className="w-full sm:w-auto h-12 px-8" onClick={() => setShowLeadForm(true)}>
                         {t("wizard.results.getThisPlan")}
                       </Button>
                     </div>
