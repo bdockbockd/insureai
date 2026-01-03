@@ -3,12 +3,12 @@ import { NextRequest } from "next/server";
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
 
-// Model fallback chain: 2.5 flash-lite → 3 flash → 3 pro
+// Model fallback chain: cheapest → balanced → newest
 // Starting with cheapest/fastest, falling back to more capable models
 const MODEL_FALLBACK_CHAIN = [
-  "gemini-2.5-flash-lite",  // Most cost-effective, 1.5x faster than 2.0
-  "gemini-3-flash",         // Fast, outperforms 2.5 series
-  "gemini-3-pro",           // Most capable reasoning model
+  "gemini-2.5-flash-lite",    // Cheapest, 1.5x faster than 2.0
+  "gemini-2.5-flash",         // Balanced speed & intelligence (stable)
+  "gemini-3-flash-preview",   // Newest, outperforms 2.5 series
 ];
 
 const SYSTEM_PROMPT = `คุณคือผู้เชี่ยวชาญด้านประกันภัยของ InsureAI ประเทศไทย ชื่อ "ไอ้หนูประกัน" (Insurance AI Assistant)
