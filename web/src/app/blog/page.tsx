@@ -75,51 +75,53 @@ export default function BlogPage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
         {/* Search and Filter Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-10"
         >
-          {/* Search Bar */}
-          <div className="relative max-w-md mb-6">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder={language === "th" ? "ค้นหาบทความ..." : "Search articles..."}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+          {/* Search and Results Row */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            {/* Search Bar */}
+            <div className="relative w-full sm:w-80">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder={language === "th" ? "ค้นหาบทความ..." : "Search articles..."}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Results Count */}
+            <p className="text-sm text-gray-500">
+              {filteredPosts.length + (featuredPost && selectedCategory === "All" && !searchQuery ? 1 : 0)} {language === "th" ? "บทความ" : "articles"}
+              {selectedCategory !== "All" && ` in ${selectedCategory}`}
+            </p>
           </div>
 
-          {/* Categories */}
-          <div className="flex flex-wrap gap-3">
-            {categoryKeys.map((category) => (
-              <button
-                key={category.key}
-                onClick={() => handleCategoryChange(category.value)}
-                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-colors ${
-                  selectedCategory === category.value
-                    ? "bg-blue-600 text-white"
-                    : "bg-white text-gray-600 hover:bg-gray-100 border"
-                }`}
-              >
-                {t(category.key)}
-              </button>
-            ))}
+          {/* Categories - Horizontal Scroll on Mobile */}
+          <div className="relative -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap scrollbar-hide">
+              {categoryKeys.map((category) => (
+                <button
+                  key={category.key}
+                  onClick={() => handleCategoryChange(category.value)}
+                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    selectedCategory === category.value
+                      ? "bg-blue-600 text-white shadow-md"
+                      : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  {t(category.key)}
+                </button>
+              ))}
+            </div>
           </div>
         </motion.div>
-
-        {/* Results Count */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-gray-500 mb-6"
-        >
-          {filteredPosts.length + (featuredPost && selectedCategory === "All" && !searchQuery ? 1 : 0)} {language === "th" ? "บทความ" : "articles"} {selectedCategory !== "All" && `in ${selectedCategory}`}
-        </motion.p>
 
         {/* Featured Post - Show only on All category with no search */}
         {featuredPost && selectedCategory === "All" && !searchQuery && (
