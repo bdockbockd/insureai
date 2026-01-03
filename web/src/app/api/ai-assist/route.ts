@@ -1,6 +1,32 @@
 import { NextRequest } from "next/server";
+import { promises as fs } from "fs";
+import path from "path";
+import { getPlanById } from "@/data/plans-config";
 
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
+
+// Load plan markdown content from file system
+async function loadPlanMarkdown(planId: string): Promise<string | null> {
+  const plan = getPlanById(planId);
+  if (!plan) return null;
+
+  try {
+    // Markdown files are in the parent directory: ../data/markdown/
+    const markdownPath = path.join(
+      process.cwd(),
+      "..",
+      "data",
+      "markdown",
+      plan.markdown_path.replace(/^\/data\/markdown\//, "")
+    );
+    const content = await fs.readFile(markdownPath, "utf-8");
+    return content;
+  } catch {
+    // If file doesn't exist, return null
+    console.log(`Markdown file not found for plan: ${planId}`);
+    return null;
+  }
+}
 
 // API Key management with rotation support
 // Primary key + reserve keys for when daily limits are hit
@@ -157,7 +183,7 @@ async function tryGeminiModel(
 // Streaming response handler
 export async function POST(request: NextRequest) {
   try {
-    const { message, history } = await request.json();
+    const { message, history, planId } = await request.json();
 
     if (!message) {
       return new Response(JSON.stringify({ error: "Message is required" }), {
@@ -174,9 +200,39 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Build system prompt with plan context if a plan is selected
+    let systemPrompt = SYSTEM_PROMPT;
+
+    if (planId) {
+      const plan = getPlanById(planId);
+      const planMarkdown = await loadPlanMarkdown(planId);
+
+      if (plan) {
+        systemPrompt += `\n\n===== ข้อมูลแผนประกันที่ผู้ใช้เลือก =====
+ผู้ใช้กำลังถามเกี่ยวกับแผน: ${plan.name_th} (${plan.name_en})
+หมวดหมู่: ${plan.category}
+คำอธิบาย: ${plan.description_th}
+จุดเด่น: ${plan.key_highlights.join(", ")}
+
+กรุณาตอบคำถามโดยอิงจากข้อมูลแผนนี้เป็นหลัก`;
+
+        if (planMarkdown) {
+          // Truncate if too long to avoid context limits
+          const maxLength = 8000;
+          const truncatedMarkdown = planMarkdown.length > maxLength
+            ? planMarkdown.substring(0, maxLength) + "\n\n... (ข้อมูลเพิ่มเติมถูกตัดออก)"
+            : planMarkdown;
+
+          systemPrompt += `\n\n===== รายละเอียดแผนประกันจากเอกสาร =====
+${truncatedMarkdown}
+===== สิ้นสุดข้อมูลแผน =====`;
+        }
+      }
+    }
+
     // Build conversation history for Gemini
     const contents = [
-      { role: "user", parts: [{ text: SYSTEM_PROMPT }] },
+      { role: "user", parts: [{ text: systemPrompt }] },
       { role: "model", parts: [{ text: "เข้าใจแล้วครับ ผมพร้อมให้คำปรึกษาเรื่องประกันภัยแล้ว 😊 ถามมาได้เลยครับ!" }] },
     ];
 
