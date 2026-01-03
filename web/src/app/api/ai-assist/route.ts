@@ -72,11 +72,11 @@ function markKeyExhausted(key: string) {
   console.log(`API key exhausted: ${key.slice(0, 10)}... (${exhaustedKeys.size} keys exhausted)`);
 }
 
-// Model fallback chain: using valid Gemini model names
+// Model fallback chain: Gemini 2.5+ models (1.5 retired April 2025)
 const MODEL_FALLBACK_CHAIN = [
-  "gemini-1.5-flash",         // Fast and efficient
-  "gemini-1.5-flash-latest",  // Latest flash version
-  "gemini-1.5-pro",           // More capable, slightly slower
+  "gemini-2.5-flash-lite",    // Cheapest, fastest - best for free tier
+  "gemini-2.5-flash",         // Balanced speed & intelligence
+  "gemini-2.0-flash",         // Fallback if 2.5 unavailable
 ];
 
 const SYSTEM_PROMPT = `คุณคือผู้เชี่ยวชาญด้านประกันภัยของ InsureAI ประเทศไทย ชื่อ "ไอ้หนูประกัน" (Insurance AI Assistant)
