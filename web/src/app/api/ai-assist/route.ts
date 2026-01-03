@@ -49,8 +49,10 @@ function markKeyExhausted(key: string) {
 // Model fallback chain: cheapest → balanced → newest
 // Starting with cheapest/fastest, falling back to more capable models
 const MODEL_FALLBACK_CHAIN = [
-  "gemini-2.5-flash-lite",    // Cheapest, 1.5x faster than 2.0
-  "gemini-2.5-flash",         // Balanced speed & intelligence (stable)
+  "gemini-2.0-flash-lite",    // Cheapest, fastest (free tier friendly)
+  "gemini-2.0-flash",         // Stable 2.0 baseline
+  "gemini-2.5-flash-lite",    // Newer lite, 1.5x faster than 2.0
+  "gemini-2.5-flash",         // Balanced speed & intelligence
   "gemini-3-flash-preview",   // Newest, outperforms 2.5 series
 ];
 
