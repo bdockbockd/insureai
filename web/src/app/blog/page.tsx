@@ -117,7 +117,7 @@ export default function BlogPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white py-16 px-4">
+      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto text-center">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -137,7 +137,7 @@ export default function BlogPage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Categories */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -172,7 +172,7 @@ export default function BlogPage() {
                     className="h-64 md:h-auto bg-cover bg-center"
                     style={{ backgroundImage: `url(${featuredPost.coverImage})` }}
                   />
-                  <CardContent className="p-8 flex flex-col justify-center">
+                  <CardContent className="p-5 sm:p-8 flex flex-col justify-center">
                     <div className="flex items-center gap-2 mb-3">
                       <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
                         Featured
@@ -253,7 +253,7 @@ export default function BlogPage() {
 
         {/* Load More */}
         <div className="text-center mt-12">
-          <Button variant="outline" size="lg">
+          <Button variant="outline" size="lg" className="w-full sm:w-auto">
             Load More Articles
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
@@ -264,7 +264,7 @@ export default function BlogPage() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-center text-white"
+          className="mt-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 sm:p-8 text-center text-white"
         >
           <h2 className="text-2xl font-bold mb-3">Stay Updated</h2>
           <p className="text-white/80 mb-6 max-w-lg mx-auto">

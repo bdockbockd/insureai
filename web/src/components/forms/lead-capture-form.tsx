@@ -74,7 +74,7 @@ export function LeadCaptureForm({ onSuccess, compact = false }: LeadCaptureFormP
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="text-center py-8"
+        className="text-center py-8 px-4"
       >
         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <CheckCircle className="w-8 h-8 text-green-600" />
@@ -100,7 +100,7 @@ export function LeadCaptureForm({ onSuccess, compact = false }: LeadCaptureFormP
         <label className="text-sm font-medium text-gray-700">
           How would you like us to contact you?
         </label>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {[
             { value: "line", icon: MessageCircle, label: "LINE" },
             { value: "phone", icon: Phone, label: "Phone" },
@@ -111,7 +111,7 @@ export function LeadCaptureForm({ onSuccess, compact = false }: LeadCaptureFormP
               type="button"
               onClick={() => setValue("preferredContact", value as LeadFormData["preferredContact"])}
               className={`
-                flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all
+                flex flex-col items-center gap-1 p-2 sm:p-3 rounded-xl border-2 transition-all
                 ${preferredContact === value
                   ? "border-blue-500 bg-blue-50 text-blue-700"
                   : "border-gray-200 hover:border-gray-300"
@@ -175,7 +175,7 @@ export function LeadCaptureForm({ onSuccess, compact = false }: LeadCaptureFormP
         )}
       </Button>
 
-      <p className="text-xs text-center text-gray-500">
+      <p className="text-xs text-center text-gray-500 mt-3">
         By submitting, you agree to be contacted by our insurance advisors.
         Your information is secure and will never be shared.
       </p>

@@ -113,7 +113,7 @@ export default function ComparePage() {
   const savingsPercent = 17; // Mock savings calculation
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <AnimatePresence mode="wait">
           {/* Input Step */}
@@ -202,15 +202,15 @@ export default function ComparePage() {
                   </div>
 
                   <div className="pt-4 border-t">
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                       <div className="flex-1">
                         <p className="text-sm text-gray-600">
                           Or upload your policy document and our AI will extract the details
                         </p>
                       </div>
-                      <label className="cursor-pointer">
+                      <label className="cursor-pointer w-full sm:w-auto">
                         <input type="file" className="hidden" accept=".pdf,.jpg,.png" />
-                        <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
+                        <div className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
                           <Upload className="w-4 h-4" />
                           <span className="text-sm font-medium">Upload PDF</span>
                         </div>
@@ -222,11 +222,11 @@ export default function ComparePage() {
 
               <div className="text-center">
                 <Button
-                  size="xl"
+                  size="lg"
                   variant="gradient"
                   onClick={handleAnalyze}
                   disabled={!planDetails.provider}
-                  className="gap-2"
+                  className="w-full sm:w-auto gap-2"
                 >
                   Analyze My Plan
                   <ArrowRight className="w-5 h-5" />
@@ -386,12 +386,12 @@ export default function ComparePage() {
                   Switch to Allianz Health Plus and get better coverage at a lower price.
                   Our advisor will help you make the transition seamless.
                 </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <Button size="lg" variant="gradient" onClick={() => setShowLeadModal(true)}>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4">
+                  <Button size="lg" variant="gradient" onClick={() => setShowLeadModal(true)} className="w-full sm:w-auto">
                     Get My Upgrade
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
-                  <Button size="lg" variant="outline" onClick={() => setStep("input")}>
+                  <Button size="lg" variant="outline" onClick={() => setStep("input")} className="w-full sm:w-auto">
                     Compare Another Plan
                   </Button>
                 </div>

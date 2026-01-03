@@ -107,7 +107,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-12 px-2"
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-12 px-4"
         >
           <Link href="/wizard" className="w-full sm:w-auto">
             <Button size="lg" variant="gradient" className="group w-full sm:w-auto">

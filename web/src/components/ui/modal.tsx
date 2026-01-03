@@ -49,7 +49,7 @@ export function Modal({
             transition={{ type: "spring", duration: 0.3 }}
             className={cn(
               "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50",
-              "w-full max-w-lg mx-4",
+              "w-[calc(100%-2rem)] max-w-lg",
               "bg-white rounded-2xl shadow-2xl",
               "max-h-[90vh] overflow-y-auto",
               className
@@ -76,7 +76,7 @@ export function ModalHeader({ className, ...props }: React.HTMLAttributes<HTMLDi
 }
 
 export function ModalContent({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("p-6", className)} {...props} />;
+  return <div className={cn("px-6 py-4", className)} {...props} />;
 }
 
 export function ModalFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {

@@ -135,7 +135,7 @@ export default function WizardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
         {/* Progress Bar */}
         <div className="mb-8">
@@ -322,11 +322,11 @@ export default function WizardPage() {
                   <p className="text-gray-600">Including e-cigarettes or vaping</p>
                 </div>
 
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <Card
                     hover
                     onClick={() => setSmoker(true)}
-                    className={`flex-1 cursor-pointer ${
+                    className={`w-full sm:flex-1 cursor-pointer ${
                       smoker ? "ring-2 ring-blue-500" : ""
                     }`}
                   >
@@ -338,7 +338,7 @@ export default function WizardPage() {
                   <Card
                     hover
                     onClick={() => setSmoker(false)}
-                    className={`flex-1 cursor-pointer ${
+                    className={`w-full sm:flex-1 cursor-pointer ${
                       !smoker ? "ring-2 ring-blue-500" : ""
                     }`}
                   >
@@ -452,12 +452,12 @@ export default function WizardPage() {
         </AnimatePresence>
 
         {/* Navigation Buttons */}
-        <div className="flex items-center justify-between mt-8">
+        <div className="flex flex-col-reverse sm:flex-row items-center justify-between mt-8 gap-3">
           <Button
             variant="outline"
             onClick={prevStep}
             disabled={currentStep === 0}
-            className="gap-2"
+            className="gap-2 w-full sm:w-auto"
           >
             <ArrowLeft className="w-4 h-4" />
             Back
@@ -466,7 +466,7 @@ export default function WizardPage() {
           <Button
             onClick={handleNext}
             disabled={!canProceed()}
-            className="gap-2"
+            className="gap-2 w-full sm:w-auto"
           >
             {currentStep === totalSteps - 1 ? "See My Plans" : "Continue"}
             <ArrowRight className="w-4 h-4" />
@@ -506,7 +506,7 @@ function ResultsPage({ onBack }: { onBack: () => void }) {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -572,11 +572,11 @@ function ResultsPage({ onBack }: { onBack: () => void }) {
           ))}
         </div>
 
-        <div className="flex items-center justify-center gap-4">
-          <Button variant="outline" onClick={onBack}>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4">
+          <Button variant="outline" onClick={onBack} className="w-full sm:w-auto">
             Adjust My Preferences
           </Button>
-          <Button variant="secondary" onClick={() => setShowLeadForm(true)}>
+          <Button variant="secondary" onClick={() => setShowLeadForm(true)} className="w-full sm:w-auto">
             Speak to an Advisor
           </Button>
         </div>

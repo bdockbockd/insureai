@@ -87,7 +87,7 @@ export function CTASection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-2"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4"
           >
             <Link href="/wizard" className="w-full sm:w-auto">
               <Button
