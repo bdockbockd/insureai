@@ -1,120 +1,56 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Calendar, Clock, ArrowRight } from "lucide-react";
+import { Calendar, Clock, ArrowRight, Search } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/language-context";
-
-const blogPosts = [
-  {
-    id: "1",
-    slug: "health-insurance-guide-thailand-2026",
-    title: "Complete Guide to Health Insurance in Thailand 2026",
-    excerpt: "Everything you need to know about health insurance in Thailand - from government schemes to private coverage options for expats and locals.",
-    coverImage: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
-    category: "Health Insurance",
-    tags: ["Thailand", "Health", "Guide"],
-    author: {
-      name: "Dr. Somchai Prasert",
-      avatar: "SP",
-    },
-    publishedAt: "2026-01-02",
-    readTime: 8,
-    featured: true,
-  },
-  {
-    id: "2",
-    slug: "allianz-bdms-partnership-2026",
-    title: "Allianz x BDMS: New Health Insurance Partnership",
-    excerpt: "Allianz Ayudhya partners with Bangkok Dusit Medical Services to offer enhanced health coverage for working professionals.",
-    coverImage: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&q=80",
-    category: "News",
-    tags: ["Allianz", "BDMS", "Partnership"],
-    author: {
-      name: "InsureAI Team",
-      avatar: "IA",
-    },
-    publishedAt: "2025-12-28",
-    readTime: 5,
-  },
-  {
-    id: "3",
-    slug: "critical-illness-coverage-young-adults",
-    title: "Why Young Adults Need Critical Illness Coverage",
-    excerpt: "Think you're too young for critical illness insurance? Here's why millennials and Gen Z should consider it now.",
-    coverImage: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=800&q=80",
-    category: "Life Insurance",
-    tags: ["Critical Illness", "Young Adults", "Prevention"],
-    author: {
-      name: "Nattaya Suthikul",
-      avatar: "NS",
-    },
-    publishedAt: "2025-12-20",
-    readTime: 6,
-  },
-  {
-    id: "4",
-    slug: "ai-insurance-industry-transformation",
-    title: "How AI is Transforming the Insurance Industry",
-    excerpt: "From claims processing to personalized recommendations - discover how artificial intelligence is revolutionizing insurance.",
-    coverImage: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80",
-    category: "Technology",
-    tags: ["AI", "InsurTech", "Innovation"],
-    author: {
-      name: "InsureAI Team",
-      avatar: "IA",
-    },
-    publishedAt: "2025-12-15",
-    readTime: 7,
-  },
-  {
-    id: "5",
-    slug: "family-protection-planning-guide",
-    title: "Family Protection Planning: A Complete Guide",
-    excerpt: "Secure your family's financial future with proper insurance planning. Learn how to choose the right coverage for your loved ones.",
-    coverImage: "https://images.unsplash.com/photo-1609220136736-443140cffec6?w=800&q=80",
-    category: "Family Planning",
-    tags: ["Family", "Life Insurance", "Financial Planning"],
-    author: {
-      name: "Dr. Somchai Prasert",
-      avatar: "SP",
-    },
-    publishedAt: "2025-12-10",
-    readTime: 10,
-  },
-  {
-    id: "6",
-    slug: "expat-insurance-guide-southeast-asia",
-    title: "Expat Insurance Guide: Southeast Asia Edition",
-    excerpt: "Moving to Thailand, Singapore, or Vietnam? Here's everything expats need to know about health and life insurance in SEA.",
-    coverImage: "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=800&q=80",
-    category: "Expat Guide",
-    tags: ["Expat", "Southeast Asia", "International"],
-    author: {
-      name: "Michael Thompson",
-      avatar: "MT",
-    },
-    publishedAt: "2025-12-05",
-    readTime: 9,
-  },
-];
+import { blogPosts, categories, getFeaturedPost, getPostsByCategory } from "@/data/blog-posts";
 
 const categoryKeys = [
   { key: "blog.all", value: "All" },
   { key: "blog.healthInsurance", value: "Health Insurance" },
   { key: "blog.lifeInsurance", value: "Life Insurance" },
-  { key: "blog.news", value: "News" },
+  { key: "blog.travelInsurance", value: "Travel Insurance" },
+  { key: "blog.motorInsurance", value: "Motor Insurance" },
+  { key: "blog.education", value: "Education" },
+  { key: "blog.financialPlanning", value: "Financial Planning" },
   { key: "blog.technology", value: "Technology" },
-  { key: "blog.familyPlanning", value: "Family Planning" },
   { key: "blog.expatGuide", value: "Expat Guide" },
+  { key: "blog.news", value: "News" },
 ];
 
 export default function BlogPage() {
   const { t, language } = useLanguage();
-  const featuredPost = blogPosts.find((post) => post.featured);
-  const regularPosts = blogPosts.filter((post) => !post.featured);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [visiblePosts, setVisiblePosts] = useState(9);
+
+  const featuredPost = getFeaturedPost();
+
+  // Filter posts by category and search
+  const filteredPosts = blogPosts.filter((post) => {
+    const matchesCategory = selectedCategory === "All" || post.category === selectedCategory;
+    const matchesSearch = searchQuery === "" ||
+      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+    return matchesCategory && matchesSearch && !post.featured;
+  });
+
+  const regularPosts = filteredPosts.slice(0, visiblePosts);
+  const hasMorePosts = filteredPosts.length > visiblePosts;
+
+  const handleLoadMore = () => {
+    setVisiblePosts(prev => prev + 6);
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    setVisiblePosts(9);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
@@ -140,28 +76,53 @@ export default function BlogPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
-        {/* Categories */}
+        {/* Search and Filter Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-wrap gap-3 mb-12"
+          className="mb-8"
         >
-          {categoryKeys.map((category) => (
-            <button
-              key={category.key}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-colors ${
-                category.value === "All"
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-100 border"
-              }`}
-            >
-              {t(category.key)}
-            </button>
-          ))}
+          {/* Search Bar */}
+          <div className="relative max-w-md mb-6">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder={language === "th" ? "ค้นหาบทความ..." : "Search articles..."}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Categories */}
+          <div className="flex flex-wrap gap-3">
+            {categoryKeys.map((category) => (
+              <button
+                key={category.key}
+                onClick={() => handleCategoryChange(category.value)}
+                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-colors ${
+                  selectedCategory === category.value
+                    ? "bg-blue-600 text-white"
+                    : "bg-white text-gray-600 hover:bg-gray-100 border"
+                }`}
+              >
+                {t(category.key)}
+              </button>
+            ))}
+          </div>
         </motion.div>
 
-        {/* Featured Post */}
-        {featuredPost && (
+        {/* Results Count */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-gray-500 mb-6"
+        >
+          {filteredPosts.length + (featuredPost && selectedCategory === "All" && !searchQuery ? 1 : 0)} {language === "th" ? "บทความ" : "articles"} {selectedCategory !== "All" && `in ${selectedCategory}`}
+        </motion.p>
+
+        {/* Featured Post - Show only on All category with no search */}
+        {featuredPost && selectedCategory === "All" && !searchQuery && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -255,12 +216,44 @@ export default function BlogPage() {
         </div>
 
         {/* Load More */}
-        <div className="text-center mt-16 mb-8">
-          <Button variant="outline" size="lg" className="w-full sm:w-auto py-3 px-8">
-            {t("blog.loadMore")}
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </div>
+        {hasMorePosts && (
+          <div className="text-center mt-16 mb-8">
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full sm:w-auto py-3 px-8"
+              onClick={handleLoadMore}
+            >
+              {t("blog.loadMore")} ({filteredPosts.length - visiblePosts} {language === "th" ? "เหลืออีก" : "more"})
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+        )}
+
+        {/* No Results */}
+        {filteredPosts.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-16"
+          >
+            <p className="text-gray-500 text-lg">
+              {language === "th"
+                ? "ไม่พบบทความที่ตรงกับการค้นหา"
+                : "No articles found matching your criteria"}
+            </p>
+            <Button
+              variant="outline"
+              className="mt-4"
+              onClick={() => {
+                setSelectedCategory("All");
+                setSearchQuery("");
+              }}
+            >
+              {language === "th" ? "ล้างตัวกรอง" : "Clear filters"}
+            </Button>
+          </motion.div>
+        )}
 
         {/* Newsletter CTA */}
         <motion.div
