@@ -6,15 +6,18 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Shield, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/language-context";
+import { useWizardStore } from "@/store/wizard-store";
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
+  const resetWizard = useWizardStore((state) => state.reset);
 
   const navLinks = [
     { href: "/", labelKey: "nav.home" },
-    { href: "/wizard", labelKey: "nav.findPlan" },
-    { href: "/compare", labelKey: "nav.compare" },
+    { href: "/wizard", labelKey: "nav.findPlan", resetOnClick: true },
+    { href: "/compare", labelKey: "nav.analyze" },
+    { href: "/learn/compare", labelKey: "nav.compareTypes" },
     { href: "/blog", labelKey: "nav.blog" },
   ];
 
@@ -40,10 +43,11 @@ export function Header() {
 
             {/* Desktop Navigation - centered in remaining space */}
             <nav className="hidden md:flex flex-1 items-center justify-center gap-8">
-              {navLinks.map(({ href, labelKey }) => (
+              {navLinks.map(({ href, labelKey, resetOnClick }) => (
                 <Link
                   key={href}
                   href={href}
+                  onClick={() => resetOnClick && resetWizard()}
                   className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
                 >
                   {t(labelKey)}
@@ -63,7 +67,7 @@ export function Header() {
                 <Globe className="w-4 h-4" />
                 {language === "en" ? "EN" : "TH"}
               </button>
-              <Link href="/wizard">
+              <Link href="/wizard" onClick={() => resetWizard()}>
                 <Button size="sm">{t("nav.getFreeQuote")}</Button>
               </Link>
             </div>
@@ -93,11 +97,14 @@ export function Header() {
             className="md:hidden bg-white border-b border-gray-100"
           >
             <div className="px-4 sm:px-6 py-4 space-y-3">
-              {navLinks.map(({ href, labelKey }) => (
+              {navLinks.map(({ href, labelKey, resetOnClick }) => (
                 <Link
                   key={href}
                   href={href}
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    if (resetOnClick) resetWizard();
+                  }}
                   className="block py-2 text-gray-600 hover:text-gray-900 font-medium"
                 >
                   {t(labelKey)}
@@ -112,7 +119,10 @@ export function Header() {
                   {language === "en" ? "English" : "ภาษาไทย"}
                 </button>
               </div>
-              <Link href="/wizard" onClick={() => setIsMobileMenuOpen(false)}>
+              <Link href="/wizard" onClick={() => {
+                setIsMobileMenuOpen(false);
+                resetWizard();
+              }}>
                 <Button className="w-full mt-4">{t("nav.getFreeQuote")}</Button>
               </Link>
             </div>

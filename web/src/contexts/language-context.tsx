@@ -17,7 +17,8 @@ const translations: Record<Language, Record<string, string>> = {
     // Navigation
     "nav.home": "Home",
     "nav.findPlan": "Find Plan",
-    "nav.compare": "Compare",
+    "nav.analyze": "Analyze Your Plan",
+    "nav.compareTypes": "Compare Types",
     "nav.blog": "Blog",
     "nav.getFreeQuote": "Get Free Quote",
 
@@ -314,7 +315,8 @@ const translations: Record<Language, Record<string, string>> = {
     // Navigation
     "nav.home": "หน้าแรก",
     "nav.findPlan": "ค้นหาแผน",
-    "nav.compare": "เปรียบเทียบ",
+    "nav.analyze": "วิเคราะห์แผนของคุณ",
+    "nav.compareTypes": "เปรียบเทียบประเภท",
     "nav.blog": "บทความ",
     "nav.getFreeQuote": "ขอใบเสนอราคา",
 

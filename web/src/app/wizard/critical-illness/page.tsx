@@ -10,10 +10,13 @@ import {
   Check,
   Clock,
   Sparkles,
+  Download,
+  FileText,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/language-context";
+import { LeadCaptureForm } from "@/components/forms/lead-capture-form";
 import {
   criticalIllnessEasyHook,
   criticalIllnessLongHook,
@@ -41,6 +44,7 @@ export default function CriticalIllnessWizardPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [results, setResults] = useState<ProductScore[]>([]);
+  const [leadSubmitted, setLeadSubmitted] = useState(false);
 
   const questions = mode === "easy" ? criticalIllnessEasyHook : criticalIllnessLongHook;
   const currentQuestion = questions[currentStep];
@@ -261,15 +265,77 @@ export default function CriticalIllnessWizardPage() {
             ))}
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          {/* Lead Capture Form or Brochure Download */}
+          {!leadSubmitted ? (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 text-center">
+                    {language === "th" ? "รับใบเสนอราคาส่วนตัว" : "Get Your Personalized Quote"}
+                  </h3>
+                  <p className="text-gray-600 text-center mb-6">
+                    {language === "th"
+                      ? "กรอกข้อมูลติดต่อ ที่ปรึกษาจะติดต่อกลับภายใน 24 ชั่วโมง"
+                      : "Fill in your contact details and our advisor will reach out within 24 hours"}
+                  </p>
+                  <LeadCaptureForm onSuccess={() => setLeadSubmitted(true)} />
+                </CardContent>
+              </Card>
+            </motion.div>
+          ) : (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+              <Card className="border-2 border-green-200 bg-green-50">
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Check className="w-8 h-8 text-green-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    {language === "th" ? "ขอบคุณค่ะ!" : "Thank You!"}
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    {language === "th"
+                      ? "ที่ปรึกษาของเราจะติดต่อคุณภายใน 24 ชั่วโมง"
+                      : "Our advisor will contact you within 24 hours"}
+                  </p>
+
+                  <div className="border-t border-green-200 pt-6 mt-6">
+                    <h4 className="font-semibold text-gray-900 mb-4">
+                      {language === "th" ? "ดาวน์โหลดโบรชัวร์" : "Download Brochures"}
+                    </h4>
+                    <div className="grid sm:grid-cols-2 gap-3">
+                      {results.map((product) => (
+                        <a
+                          key={product.id}
+                          href={`/brochures/critical-illness/${product.id}.pdf`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 p-3 bg-white rounded-lg border border-green-200 hover:border-green-300 transition-colors"
+                        >
+                          <FileText className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {language === "th" ? product.name_th : product.name_en}
+                            </p>
+                            <p className="text-xs text-gray-500">PDF</p>
+                          </div>
+                          <Download className="w-4 h-4 text-gray-400" />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
             <Button variant="outline" onClick={resetWizard} className="gap-2">
               <ArrowLeft className="w-4 h-4" />
               {language === "th" ? "ทำแบบทดสอบใหม่" : "Retake Quiz"}
             </Button>
-            <Link href="/wizard">
-              <Button className="gap-2 w-full sm:w-auto">
-                {language === "th" ? "ขอใบเสนอราคา" : "Get Quote"}
-                <ArrowRight className="w-4 h-4" />
+            <Link href="/learn/compare">
+              <Button variant="outline" className="gap-2 w-full sm:w-auto">
+                {language === "th" ? "เปรียบเทียบประเภทประกัน" : "Compare Insurance Types"}
               </Button>
             </Link>
           </div>
