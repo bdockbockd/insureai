@@ -1,7 +1,50 @@
 import { NextRequest } from "next/server";
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
+
+// API Key management with rotation support
+// Primary key + reserve keys for when daily limits are hit
+function getApiKeys(): string[] {
+  const keys: string[] = [];
+
+  // Primary key
+  if (process.env.GEMINI_API_KEY) {
+    keys.push(process.env.GEMINI_API_KEY);
+  }
+
+  // Reserve keys (comma-separated)
+  if (process.env.GEMINI_KEY_RESERVES) {
+    const reserves = process.env.GEMINI_KEY_RESERVES.split(",")
+      .map((k) => k.trim())
+      .filter((k) => k.length > 0);
+    keys.push(...reserves);
+  }
+
+  return keys;
+}
+
+// Track failed keys in memory (resets on server restart)
+// In production, consider using Redis or similar for persistence
+const exhaustedKeys = new Set<string>();
+
+// Get the next available key that hasn't been exhausted
+function getNextAvailableKey(): string | null {
+  const keys = getApiKeys();
+  for (const key of keys) {
+    if (!exhaustedKeys.has(key)) {
+      return key;
+    }
+  }
+  // All keys exhausted, reset and try again (maybe limits reset)
+  exhaustedKeys.clear();
+  return keys[0] || null;
+}
+
+// Mark a key as exhausted (hit rate limit)
+function markKeyExhausted(key: string) {
+  exhaustedKeys.add(key);
+  console.log(`API key exhausted: ${key.slice(0, 10)}... (${exhaustedKeys.size} keys exhausted)`);
+}
 
 // Model fallback chain: cheapest → balanced → newest
 // Starting with cheapest/fastest, falling back to more capable models
@@ -49,14 +92,21 @@ interface ChatMessage {
   content: string;
 }
 
-// Try calling Gemini with a specific model
+// Result type for tryGeminiModel
+interface GeminiResult {
+  response: Response | null;
+  keyExhausted: boolean;  // True if 429 rate limit hit
+}
+
+// Try calling Gemini with a specific model and API key
 async function tryGeminiModel(
   model: string,
+  apiKey: string,
   contents: Array<{ role: string; parts: Array<{ text: string }> }>,
   stream: boolean = false
-): Promise<Response | null> {
+): Promise<GeminiResult> {
   const endpoint = stream ? "streamGenerateContent" : "generateContent";
-  const url = `${GEMINI_BASE_URL}/${model}:${endpoint}?key=${GEMINI_API_KEY}`;
+  const url = `${GEMINI_BASE_URL}/${model}:${endpoint}?key=${apiKey}`;
 
   try {
     const response = await fetch(url, {
@@ -80,16 +130,28 @@ async function tryGeminiModel(
     });
 
     if (response.ok) {
-      return response;
+      return { response, keyExhausted: false };
     }
 
-    // Log the error but don't throw - we'll try the next model
+    // Check for rate limit / quota exhausted
+    if (response.status === 429 || response.status === 403) {
+      const errorData = await response.json().catch(() => ({}));
+      const errorMessage = JSON.stringify(errorData).toLowerCase();
+
+      // Check if it's a quota/rate limit issue
+      if (errorMessage.includes("quota") || errorMessage.includes("rate") || errorMessage.includes("limit")) {
+        console.log(`API key ${apiKey.slice(0, 10)}... hit rate limit for model ${model}`);
+        return { response: null, keyExhausted: true };
+      }
+    }
+
+    // Log other errors but don't throw - we'll try the next model
     const errorData = await response.json().catch(() => ({}));
     console.log(`Model ${model} failed:`, response.status, errorData);
-    return null;
+    return { response: null, keyExhausted: false };
   } catch (error) {
     console.log(`Model ${model} error:`, error);
-    return null;
+    return { response: null, keyExhausted: false };
   }
 }
 
@@ -105,8 +167,9 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Check if API key is configured
-    if (!GEMINI_API_KEY) {
+    // Check if any API key is configured
+    const apiKeys = getApiKeys();
+    if (apiKeys.length === 0) {
       return new Response(JSON.stringify({ response: getDemoResponse(message), demo: true }), {
         headers: { "Content-Type": "application/json" },
       });
@@ -131,21 +194,46 @@ export async function POST(request: NextRequest) {
     // Add current message
     contents.push({ role: "user", parts: [{ text: message }] });
 
-    // Try models with fallback - use streaming
+    // Try models with fallback and key rotation
     let geminiResponse: Response | null = null;
     let usedModel = "";
+    let usedKey = "";
+    let allKeysExhausted = false;
 
-    for (const model of MODEL_FALLBACK_CHAIN) {
-      geminiResponse = await tryGeminiModel(model, contents, true);
-      if (geminiResponse) {
-        usedModel = model;
-        console.log(`Using model: ${model}`);
+    // Outer loop: try each API key
+    keyLoop: while (!allKeysExhausted) {
+      const currentKey = getNextAvailableKey();
+      if (!currentKey) {
+        allKeysExhausted = true;
         break;
       }
+
+      // Inner loop: try each model with current key
+      for (const model of MODEL_FALLBACK_CHAIN) {
+        const result = await tryGeminiModel(model, currentKey, contents, true);
+
+        if (result.keyExhausted) {
+          // Key hit rate limit, mark it and try next key
+          markKeyExhausted(currentKey);
+          continue keyLoop;
+        }
+
+        if (result.response) {
+          geminiResponse = result.response;
+          usedModel = model;
+          usedKey = currentKey;
+          console.log(`Using model: ${model} with key: ${currentKey.slice(0, 10)}...`);
+          break keyLoop;
+        }
+        // Model failed but not due to rate limit, try next model
+      }
+
+      // All models failed for this key (not rate limit), try next key
+      markKeyExhausted(currentKey);
     }
 
     if (!geminiResponse) {
-      throw new Error("All models failed");
+      throw new Error("All models and API keys exhausted");
     }
 
     // Create a TransformStream to process JSON array chunks and convert to SSE
@@ -217,12 +305,16 @@ export async function POST(request: NextRequest) {
     // Pipe the Gemini response through our transform
     const readable = geminiResponse.body?.pipeThrough(transformStream);
 
+    // Get key index for debugging (don't expose full key)
+    const keyIndex = apiKeys.indexOf(usedKey) + 1;
+
     return new Response(readable, {
       headers: {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
         "Connection": "keep-alive",
         "X-Model-Used": usedModel,
+        "X-Key-Index": `${keyIndex}/${apiKeys.length}`,
       },
     });
   } catch (error) {
