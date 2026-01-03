@@ -2537,6 +2537,783 @@ Superior Health represents a significant investment in healthcare protection. Co
       "https://shop.9prakan.com/2023/12/allianz-superior-health-2-10-milyong-baht/",
     ],
   },
+  {
+    id: "16",
+    slug: "double-care-health-insurance-double-coverage",
+    title: "ปลดล็อค ดับเบิล แคร์: Double Your Coverage When You Need It Most",
+    titleTh: "ปลดล็อค ดับเบิล แคร์: เบิ้ลความคุ้มครอง เมื่อคุณต้องการมากที่สุด",
+    excerpt:
+      "Discover Allianz Ayudhya's innovative Double Care health insurance that doubles your coverage to 60 million THB when diagnosed with 1 of 10 critical illnesses. Comprehensive protection from prevention to recovery.",
+    excerptTh:
+      "รู้จัก ดับเบิล แคร์ จากอลิอันซ์ อยุธยา ประกันสุขภาพนวัตกรรมที่เบิ้ลความคุ้มครองเป็น 60 ล้านบาท เมื่อตรวจพบ 1 ใน 10 โรคร้ายแรง คุ้มครองครบตั้งแต่ป้องกัน รักษา และฟื้นฟู",
+    content: \`
+## เบิ้ลความคุ้มครอง... พร้อมรับมือโรคร้าย
+
+**ประกันสุขภาพ ปลดล็อค ดับเบิล แคร์** (Double Care) from Allianz Ayudhya offers a revolutionary approach to health insurance - your coverage automatically doubles when you're diagnosed with one of 10 critical illnesses.
+
+### Coverage Plans
+
+| Plan | Annual Coverage | With Double Benefit |
+|------|-----------------|---------------------|
+| **แผน 1** | 8,000,000 THB | 16,000,000 THB |
+| **แผน 2** | 15,000,000 THB | 30,000,000 THB |
+| **แผน 3** | 30,000,000 THB | **60,000,000 THB** |
+
+### The "Double" Innovation - เบิ้ลวงเงินผลประโยชน์
+
+When you're first diagnosed with one of 10 specified critical illnesses, your annual coverage automatically **doubles for 5 consecutive years**:
+
+**10 โรคร้ายแรงที่ได้รับสิทธิ์เบิ้ล:**
+1. กล้ามเนื้อหัวใจตายเฉียบพลันจากการขาดเลือด (Acute Myocardial Infarction)
+2. การผ่าตัดเส้นเลือดเลี้ยงกล้ามเนื้อหัวใจ (Coronary Artery Bypass)
+3. การผ่าตัดลิ้นหัวใจโดยวิธีการเปิดหัวใจ (Open Heart Valve Surgery)
+4. โรคหลอดเลือดสมองโป่งพองที่ต้องรักษาโดยการผ่าตัด
+5. โรคหลอดเลือดสมองแตกหรืออุดตัน (Stroke)
+6. โรคมะเร็งระยะลุกลาม (Invasive Cancer)
+7. การผ่าตัดเปลี่ยนอวัยวะหรือปลูกถ่ายไขกระดูก
+8. การผ่าตัดเส้นเลือดแดงใหญ่เอออร์ต้า
+9. การผ่าตัดกระดูกสันหลังคดที่ไม่ทราบสาเหตุ
+10. แผลไหม้ฉกรรจ์ (Severe Burns)
+
+### Real Example: How Double Coverage Works
+
+**Scenario:** You purchase Plan 3 (30 million THB) on January 1, 2024. On June 1, 2024, you're diagnosed with stroke for the first time.
+
+**Result:**
+- Your coverage immediately increases to **60 million THB per year**
+- This doubled coverage continues for **5 consecutive policy years** (until December 31, 2028)
+- After 5 years, coverage returns to the original 30 million THB
+
+### Comprehensive Benefits - เหมาจ่ายตามจริง
+
+**1. In-Patient Benefits (ผลประโยชน์กรณีเป็นผู้ป่วยใน):**
+- ค่าห้อง ค่าอาหาร และค่าบริการ: 3,000-15,000 THB/day
+- ค่าบริการทางการพยาบาล: Actual expenses
+- ค่าห้อง ICU: Actual expenses
+- ค่าแพทย์ตรวจรักษา: 2,000-10,000 THB/day
+- ค่ายากลับบ้าน: 20,000-50,000 THB/visit
+
+**2. Out-Patient Benefits (ผลประโยชน์กรณีไม่ต้องเข้าพักรักษาตัว):**
+- ค่าล้างไตผ่านทางเส้นเลือด (Hemodialysis)
+- ค่าเคมีบำบัดรักษาโรคมะเร็ง (Chemotherapy)
+- การรักษามะเร็งแบบมุ่งเป้า (Targeted Therapy)
+- ค่ารังสีรักษาโรคเนื้องอกหรือมะเร็ง
+- ค่ารักษาพยาบาลอุบัติเหตุฉุกเฉินภายใน 24 ชม.
+- ค่าตรวจวินิจฉัยทางรังสี (X-ray, CT scan, MRI, Ultrasound)
+
+**3. Follow-up Care (ดูแลต่อเนื่องหลังออกจาก รพ.):**
+- ค่าเวชศาสตร์ฟื้นฟู (Rehabilitation)
+- หมอนัดติดตามอาการ (OPD follow-up)
+- ค่าล้างแผล ตัดไหม
+
+**4. Preventive Care (ดูแลเชิงป้องกัน):**
+- ค่าฉีดวัคซีน และ/หรือ ค่าตรวจสุขภาพประจำปี
+- แผนสูงสุด **5,500 THB** ต่อรอบปีกรมธรรม์
+- (หลังสัญญามีผลบังคับต่อเนื่องมากกว่า 12 เดือน)
+
+### Sample Annual Premium (Male, Age 35, Occupation Class 1-2)
+
+| Plan | Without Deductible | With 30,000 THB Deductible |
+|------|-------------------|---------------------------|
+| **แผน 1** | 19,992 THB | 14,194 THB |
+| **แผน 2** | 29,916 THB | N/A |
+| **แผน 3** | 49,937 THB | N/A |
+
+### Eligibility
+
+- **Age:** 1 month 1 day to 70 years (renewable to age 89, coverage to 90)
+- **Age 1 month - 10 years:** Plan 1 only
+- **Age 11-70 years:** Plans 1-3 available
+- Must be attached to a main policy with minimum 100,000 THB sum insured
+
+### เคียงข้างทุกขั้นตอน: ทั้งป้องกัน รักษา และฟื้นฟู
+
+Double Care provides comprehensive coverage throughout your healthcare journey:
+1. **วินิจฉัยโรค** - X-ray, CT scan, MRI, Ultrasound, Mammography, Lab tests
+2. **บำบัดรักษา** - IPD and OPD treatment, dialysis, chemotherapy, targeted therapy
+3. **ติดตามผล** - Follow-up appointments, wound care, suture removal
+4. **ฟื้นฟูร่างกาย** - Rehabilitation, physical therapy, occupational therapy
+5. **ดูแลเชิงป้องกัน** - Vaccinations and annual health checkups
+
+### Who Should Consider Double Care?
+
+**เหมาะกับ:**
+- ผู้ที่ต้องการความคุ้มครองครอบคลุมค่าใช้จ่ายเมื่อต้องนอนโรงพยาบาล
+- ผู้ที่มองหาวงเงินความคุ้มครองสูงเพื่อรับการรักษาด้วยนวัตกรรมทางการแพทย์และเทคโนโลยีที่ทันสมัย
+- ผู้ที่ต้องการแบ่งเบาภาระค่าใช้จ่ายส่วนเกินจากสวัสดิการที่มีอยู่แล้ว
+
+**ไม่เหมาะกับ:**
+- ผู้ที่ต้องการความคุ้มครองค่ารักษาพยาบาลในต่างประเทศ (ยกเว้นกรณีฉุกเฉิน)
+    \`,
+    coverImage:
+      "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&q=80",
+    category: "Health Insurance",
+    tags: [
+      "Double Care",
+      "ดับเบิล แคร์",
+      "Critical Illness",
+      "Allianz",
+      "High Coverage",
+      "Cancer Treatment",
+    ],
+    author: blogAuthors.nattaya,
+    publishedAt: "2025-10-05",
+    readTime: 11,
+    sources: [
+      "https://www.allianz.co.th/th_TH/health/lump-sum/double-care.html",
+      "Allianz Ayudhya Double Care Brochure (Jul 2023)",
+    ],
+  },
+  {
+    id: "17",
+    slug: "ci-48-beyond-critical-illness-insurance",
+    title: "ประกันโรคร้าย 48 บียอนด์: Affordable Protection Against 75 Critical Conditions",
+    titleTh: "ประกันโรคร้าย 48 บียอนด์: คุ้มครอง 75 โรคร้ายแรง เบี้ยไม่แพง",
+    excerpt:
+      "CI 48 Beyond covers 75 critical illnesses including childhood diseases, with payouts up to 170% of sum insured. Multiple claims possible with premiums starting from just 5,040 THB/year.",
+    excerptTh:
+      "ประกันโรคร้าย 48 บียอนด์ คุ้มครอง 75 โรค/อาการ รวมโรคร้ายในเด็ก รับเงินก้อนสูงสุด 170% เคลมได้หลายครั้ง เบี้ยเริ่มต้นเพียง 5,040 บาท/ปี",
+    content: \`
+## หมดกังวลกับบิลค่ารักษาโรคร้าย
+
+When diagnosed with a critical illness, the last thing you want to worry about is money. **ประกันโรคร้าย 48 บียอนด์** (CI 48 Beyond) provides a lump sum payment immediately upon diagnosis, giving you the financial freedom to focus on recovery.
+
+### Why Critical Illness Insurance is Different from Health Insurance
+
+| Feature | Health Insurance | Critical Illness Insurance |
+|---------|------------------|---------------------------|
+| **Payment Type** | Reimburses medical bills | Lump sum on diagnosis |
+| **Usage** | Must be used for treatment | Use for anything you need |
+| **Coverage** | Hospital expenses only | Income replacement, bills, lifestyle |
+| **Waiting Period** | 30 days (general illness) | 60 days (specific conditions) |
+
+### คุ้มครองโรคร้ายแรงมากขึ้น - 75 Conditions Covered
+
+CI 48 Beyond covers 75 diseases/conditions organized into 8 categories:
+
+**หมวดที่ 1: โรคมะเร็ง (Cancer)**
+- โรคมะเร็งระยะลุกลาม (Invasive Cancer) - 100%
+- โรคมะเร็งระยะไม่ลุกลาม (Non-invasive Cancer) - 50%
+
+**หมวดที่ 2: โรคหัวใจ ปอด และหลอดเลือด**
+- กล้ามเนื้อหัวใจตายเฉียบพลันจากการขาดเลือด - 100%
+- การผ่าตัดเส้นเลือดเลี้ยงกล้ามเนื้อหัวใจ - 100%
+- การผ่าตัดลิ้นหัวใจโดยวิธีการเปิดหัวใจ - 100%
+- โรคหลอดเลือดหัวใจตีบที่รักษาด้วยการสวนหลอดเลือดหัวใจ - **10%**
+
+**หมวดที่ 3: โรคสมองและระบบประสาท**
+- โรคหลอดเลือดสมองแตกหรืออุดตัน (Stroke) - 100%
+- เนื้องอกในสมองชนิดที่ไม่ใช่มะเร็ง - 100%
+- โรคพาร์กินสัน - 100%
+- โรคสมองเสื่อมชนิดอัลไซเมอร์ - 100%
+
+**หมวดที่ 4: โรคไต**
+- ไตวายเรื้อรัง - 100%
+- ไตอักเสบลูปัสจากโรคซิสเต็มมิค ลูปัส - 100%
+
+**หมวดที่ 5: โรคเลือดและไขกระดูก**
+- การผ่าตัดเปลี่ยนอวัยวะหรือปลูกถ่ายไขกระดูก - 100%
+
+**หมวดที่ 6: โรคทางเดินอาหาร ตับ และต่อมไร้ท่อ**
+- ตับวาย - 100%
+- โรคเบาหวานชนิดต้องใช้อินซูลิน (เด็ก) - 100%
+
+**หมวดที่ 7: โรคกระดูกและกล้ามเนื้อ**
+- โรคกล้ามเนื้อเสื่อม - 100%
+- อัมพาตของกล้ามเนื้อแขนหรือขา - 100%
+
+**หมวดที่ 8: โรคอื่นๆ**
+- แผลไหม้ฉกรรจ์ - 100%
+- ตาบอด - 100%
+- การสูญเสียการได้ยิน - 100%
+- การเจ็บป่วยระยะสุดท้าย - 100%
+- ภาวะโคม่า - 100%
+
+### Payment Structure - ลำดับการรับผลประโยชน์
+
+**เมื่อตรวจพบโรคร้ายแรงครั้งแรก:**
+
+| Disease Group | Payout | Contract Status |
+|---------------|--------|-----------------|
+| **กลุ่ม 1 or 2** | **100%** | Contract terminates |
+| ทุพพลภาพถาวรสิ้นเชิง | **100%** | Contract terminates |
+| **กลุ่ม 3** | **50%** | Contract continues (1 time only) |
+| **กลุ่ม 4** | **10%** | Contract continues (1 time only) |
+| **กลุ่ม 5** | **10%** | Contract continues (1 time only) |
+
+### Real-Life Example: Maximum 170% Payout
+
+**นาย A อายุ 30 ปี ซื้อประกันโรคร้าย 48 บียอนด์ จำนวนเงินเอาประกันภัย 1 ล้านบาท**
+
+**Timeline:**
+- อายุ 37 ปี: โรคหลอดเลือดหัวใจตีบที่รักษาด้วยการสวนหลอดเลือดหัวใจ (กลุ่ม 4) → รับ **10% = 100,000 บาท**
+- อายุ 45 ปี: ภาวะเบาหวานขึ้นจอประสาทตาเป็นโรคแทรกซ้อน (กลุ่ม 5) → รับ **10% = 100,000 บาท**
+- อายุ 47 ปี: โรคมะเร็งระยะไม่ลุกลาม (กลุ่ม 3) → รับ **50% = 500,000 บาท**
+- อายุ 50 ปี: โรคมะเร็งระยะลุกลาม (กลุ่ม 1) → รับ **100% = 1,000,000 บาท** (สัญญาสิ้นผลบังคับ)
+
+**ผลลัพธ์:**
+- รวมชำระเบี้ยประกันภัยรายปีตั้งแต่อายุ 30-50 ปี = **153,840 บาท**
+- รับเงินผลประโยชน์รวม = **1,700,000 บาท (170%)**
+
+### Premium Examples (Age 30, 1 Million THB Coverage)
+
+Annual premiums starting from just **5,040 THB/year** for young adults make this coverage extremely affordable.
+
+### Childhood Critical Illness Coverage
+
+CI 48 Beyond uniquely covers childhood diseases (for those diagnosed before age 17):
+- โรคไข้รูมาติกที่มีภาวะความผิดปกติของหัวใจร่วมด้วย
+- โรคเบาหวานชนิดต้องใช้อินซูลิน
+- โรคน้ำไขสันหลังคั่งในโพรงสมอง
+- โรคคาวาซากิและมีภาวะแทรกซ้อนของหัวใจ
+
+### Eligibility
+
+- **Age:** 1 month 1 day to 70 years
+- **Renewable:** To age 84 (coverage to age 85)
+- **Minimum sum insured:** 100,000 THB per policy
+- **Maximum:** Based on underwriting guidelines
+
+### Why Choose CI 48 Beyond?
+
+**เบี้ยไม่แพง เมื่อเทียบกับความคุ้มครองที่ได้รับ:**
+- Affordable premiums for comprehensive coverage
+- Multiple claim opportunities
+- Covers modern lifestyle diseases
+- No medical exam for standard coverage
+- Includes childhood diseases
+
+### When to Buy Critical Illness Insurance
+
+1. **Start young** - Lock in low premiums before health issues arise
+2. **When healthy** - Pre-existing conditions may be excluded
+3. **Before family responsibility** - Protect your income-earning years
+4. **Alongside health insurance** - Different purposes, complementary protection
+    \`,
+    coverImage:
+      "https://images.unsplash.com/photo-1631815589968-fdb09a223b1e?w=800&q=80",
+    category: "Health Insurance",
+    tags: [
+      "Critical Illness",
+      "CI 48 Beyond",
+      "โรคร้ายแรง",
+      "Cancer Insurance",
+      "Allianz",
+      "Affordable",
+    ],
+    author: blogAuthors.drSomchai,
+    publishedAt: "2025-09-28",
+    readTime: 12,
+    sources: [
+      "https://www.allianz.co.th/th_TH/health/critical-illness/ci48-beyond.html",
+      "Allianz Ayudhya CI 48 Beyond Brochure (Aug 2021)",
+    ],
+  },
+  {
+    id: "18",
+    slug: "choosing-health-insurance-plan-thailand",
+    title: "How to Choose the Right Health Insurance Plan: A Step-by-Step Guide",
+    titleTh: "วิธีเลือกแผนประกันสุขภาพที่เหมาะสม: คู่มือทีละขั้นตอน",
+    excerpt:
+      "Confused about All Hospital vs BDMS network plans? Standard vs Premium coverage? This guide helps you navigate Thailand's health insurance options with practical decision-making frameworks.",
+    excerptTh:
+      "สับสนระหว่างแผน All Hospital กับ BDMS? มาตรฐานหรือพรีเมียม? คู่มือนี้ช่วยคุณเลือกประกันสุขภาพในไทยด้วยกรอบการตัดสินใจที่ใช้ได้จริง",
+    content: \`
+## Finding Your Perfect Health Insurance Match
+
+With dozens of health insurance plans available in Thailand, choosing the right one can feel overwhelming. This guide breaks down the decision into manageable steps based on your actual needs.
+
+### Step 1: Determine Your Coverage Level
+
+**Three Tiers to Consider:**
+
+| Level | Thai Name | Annual Coverage | Best For |
+|-------|-----------|-----------------|----------|
+| **Standard** | มาตรฐาน | 1-10 million THB | Most people, basic protection |
+| **Premium** | พรีเมียม | 10-50 million THB | Families, comprehensive care |
+| **VIP** | วีไอพี | 50-120 million THB | Executives, top-tier hospitals |
+
+**Ask yourself:**
+- Do I need coverage for expensive treatments (cancer, organ transplant)?
+- Am I comfortable with shared rooms or do I need private?
+- Do I travel abroad and need international coverage?
+
+### Step 2: All Hospital vs Network Plans
+
+**แผน All Hospital (ทุกโรงพยาบาล)**
+- ✅ Freedom to choose any hospital
+- ✅ Good for people who move or travel within Thailand
+- ✅ Access to over 490+ partner hospitals
+- ⚠️ May have per-visit limits at premium hospitals
+
+**แผน BDMS Network (เครือ BDMS)**
+- ✅ Access to Thailand's premier hospital group
+- ✅ Bangkok Hospital, Samitivej, BNH, Phyathai, Paolo
+- ✅ Often includes higher OPD coverage
+- ⚠️ Limited to 59 BDMS network hospitals
+- ⚠️ Higher premium cost
+
+**Decision Framework:**
+- Prefer BDMS hospitals regularly? → BDMS plan
+- Live outside Bangkok? → All Hospital plan
+- Want maximum flexibility? → All Hospital plan
+- Want VIP service at premium hospitals? → BDMS plan
+
+### Step 3: Budget Alignment
+
+**Annual Premium Ranges (Age 35, Male):**
+
+| Plan Type | Annual Premium | Coverage Level |
+|-----------|----------------|----------------|
+| Budget | 15,000-30,000 THB | Up to 3 million |
+| Mid-Range | 30,000-60,000 THB | 8-15 million |
+| Premium | 60,000-120,000 THB | 30-60 million |
+| VIP | 120,000+ THB | 80-120 million |
+
+**Rule of Thumb:** Allocate 3-5% of your annual income for health insurance premiums.
+
+### Step 4: OPD Coverage Decision
+
+**With OPD Coverage:**
+- Pay extra for outpatient visits (doctor consultations, prescriptions)
+- Typical limits: 400-4,000 THB per visit, 30 visits/year
+- Worth it if you visit doctors frequently
+
+**Without OPD Coverage:**
+- Lower premiums
+- Pay out-of-pocket for routine visits
+- IPD-only coverage still handles major expenses
+
+**Decision factors:**
+- Do you see a doctor more than 5 times per year? → Consider OPD
+- Are you generally healthy? → IPD-only may be sufficient
+- Do you have chronic conditions requiring regular monitoring? → OPD essential
+
+### Step 5: Deductible Strategy
+
+**No Deductible (ไม่มีความรับผิดส่วนแรก):**
+- Pay higher premium
+- Insurance covers from first baht
+- Simpler to understand
+
+**With Deductible (มีความรับผิดส่วนแรก):**
+- Pay lower premium (15-30% savings)
+- You cover first X amount per year
+- Example: 30,000 THB deductible means you pay first 30,000 THB
+
+**Who should choose deductible?**
+- Those with emergency savings
+- People who rarely get sick
+- Those with employer coverage (use insurance as backup)
+
+### Step 6: Product Comparison - Allianz Ayudhya Example
+
+**First Class @BDMS (เฟิร์สคลาส @บีดีเอ็มเอส)**
+- Coverage: 60-120 million THB/year
+- Network: 59 BDMS hospitals
+- OPD: Up to 4,000 THB/visit, 30 visits/year
+- Best for: VIP treatment at premium hospitals
+
+**Double Care (ดับเบิล แคร์)**
+- Coverage: 8-30 million THB/year (doubles to 60M with critical illness)
+- Network: All hospitals
+- Unique: Double coverage for 10 critical illnesses
+- Best for: Those wanting critical illness protection built-in
+
+**Platinum (แพลทินัม)**
+- Coverage: 80-100 million THB/year
+- Network: All hospitals
+- Premium: Comprehensive protection
+- Best for: Maximum coverage seekers
+
+**Superior Health (ซูพีเรีย เฮลท์)**
+- Coverage: 2-10 million THB/year
+- Network: Worldwide (excluding USA)
+- Best for: International coverage, families
+
+### Step 7: Final Checklist
+
+Before purchasing, verify:
+- [ ] Coverage amount matches potential medical costs
+- [ ] Preferred hospitals are in network
+- [ ] Premium fits budget long-term
+- [ ] Understand waiting periods (30/120/280 days)
+- [ ] Know exclusions (pre-existing, specific conditions)
+- [ ] Consider adding critical illness rider
+- [ ] Tax deduction benefits understood
+
+### Common Mistakes to Avoid
+
+1. **Choosing lowest premium only** - May leave gaps in coverage
+2. **Over-insuring** - Paying for coverage you won't use
+3. **Ignoring network hospitals** - Premium hospitals may have limits
+4. **Forgetting to renew** - Lapse can reset waiting periods
+5. **Not declaring health history** - Can void claims later
+
+### The Best Plan is One You'll Keep
+
+Remember: The best health insurance plan is one that:
+- You can afford to maintain long-term
+- Covers your most likely health needs
+- Gives you access to hospitals you trust
+- Provides peace of mind for your family
+    \`,
+    coverImage:
+      "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=80",
+    category: "Education",
+    tags: [
+      "How To",
+      "Health Insurance",
+      "Decision Guide",
+      "BDMS",
+      "All Hospital",
+      "Thailand",
+    ],
+    author: blogAuthors.insureAITeam,
+    publishedAt: "2025-09-20",
+    readTime: 10,
+    sources: [
+      "https://www.allianz.co.th/th_TH/health.html",
+      "InsureAI Analysis",
+    ],
+  },
+  {
+    id: "19",
+    slug: "my-double-plus-savings-protection",
+    title: "มาย ดับเบิล พลัส: Combine Savings with 115% Life Protection",
+    titleTh: "มาย ดับเบิล พลัส: ออมเงินพร้อมความคุ้มครองชีวิต 115%",
+    excerpt:
+      "My Double Plus from Allianz Ayudhya offers 115% life coverage with guaranteed 140% maturity benefit. Perfect for those who want disciplined savings with family protection.",
+    excerptTh:
+      "มาย ดับเบิล พลัส จากอลิอันซ์ อยุธยา คุ้มครองชีวิต 115% พร้อมรับเงินครบกำหนด 140% เหมาะสำหรับผู้ที่ต้องการออมอย่างมีวินัยพร้อมคุ้มครองครอบครัว",
+    content: \`
+## The Best of Both Worlds: Savings + Protection
+
+For many Thai families, the question isn't whether to save or protect - it's how to do both efficiently. **มาย ดับเบิล พลัส** (My Double Plus) from Allianz Ayudhya answers this by combining disciplined savings with substantial life protection.
+
+### Product Overview
+
+| Feature | Benefit |
+|---------|---------|
+| **Life Coverage** | 115% of sum insured |
+| **Maturity Benefit** | 140% of sum insured |
+| **Premium Payment** | Limited pay period |
+| **Tax Deduction** | Up to 100,000 THB/year |
+
+### How My Double Plus Works
+
+**During Premium Payment Period:**
+- Pay regular premiums for a set number of years
+- Life coverage of **115%** of sum insured active
+- If death occurs, beneficiaries receive 115%
+
+**At Maturity:**
+- Receive guaranteed **140%** of sum insured
+- No risk - guaranteed return regardless of market
+- Tax-free maturity benefit
+
+### Example Scenario
+
+**นาย B ซื้อ My Double Plus จำนวนเงินเอาประกันภัย 500,000 บาท**
+
+| Event | Benefit Received |
+|-------|-----------------|
+| Death during coverage | **575,000 THB** (115%) |
+| Maturity at end of term | **700,000 THB** (140%) |
+
+### Comparison with Other Savings Options
+
+| Option | Returns | Protection | Risk | Tax Benefits |
+|--------|---------|------------|------|--------------|
+| **My Double Plus** | 140% guaranteed | 115% life cover | None | Yes (100K) |
+| Bank Savings | 1-2% interest | None | Low | No |
+| Fixed Deposit | 2-3% interest | None | Very Low | Interest taxed |
+| Stocks/Funds | Variable | None | High | Limited |
+
+### Why Choose Endowment Insurance for Savings?
+
+**1. Forced Savings Discipline**
+- Regular premium payments enforce saving habit
+- Harder to withdraw than bank account
+- Build long-term financial security
+
+**2. Dual Purpose**
+- Protection for family if something happens
+- Savings for yourself at maturity
+- One product, two benefits
+
+**3. Guaranteed Returns**
+- No market risk
+- Know exactly what you'll receive
+- Peace of mind for conservative savers
+
+**4. Tax Efficiency**
+- Premiums deductible up to 100,000 THB/year
+- Maturity benefit tax-free
+- Effective after-tax returns higher
+
+### Who Should Consider My Double Plus?
+
+**Ideal for:**
+- ผู้ที่ต้องการออมเงินอย่างมีวินัย
+- Parents planning for children's education
+- Those who want guaranteed returns
+- Risk-averse investors
+- People seeking tax deduction benefits
+
+**Consider alternatives if:**
+- You need high liquidity
+- You want potentially higher returns (accept risk)
+- You have existing life insurance coverage
+
+### Premium Payment Options
+
+My Double Plus offers flexible payment terms:
+- 6-year premium payment
+- 10-year premium payment
+- 15-year premium payment
+
+**Tip:** Shorter payment periods often have better internal rates of return.
+
+### Combining with Other Products
+
+For comprehensive financial planning, consider combining My Double Plus with:
+
+1. **Health Insurance** - Cover medical expenses (My Double Plus doesn't)
+2. **Critical Illness Insurance** - Lump sum for serious diseases
+3. **Term Life Insurance** - Additional protection at low cost
+4. **Pension Insurance** - Separate retirement income stream
+
+### Application Requirements
+
+- Age: Varies by plan (typically 1 month - 55 years)
+- Health declaration required
+- Thai ID or valid work permit
+- Minimum sum insured: As per product rules
+
+### Making the Most of My Double Plus
+
+**Strategy 1: Education Fund**
+- Calculate education costs 15-20 years out
+- Choose sum insured to match maturity timing
+- Guaranteed fund when child reaches university age
+
+**Strategy 2: Retirement Supplement**
+- Use as part of diversified retirement portfolio
+- Guaranteed maturity adds stability
+- Combine with pension insurance for income
+
+**Strategy 3: Tax Optimization**
+- Maximize 100,000 THB deduction
+- Consider higher premiums if tax bracket warrants
+- Combine with pension insurance for additional deduction
+    \`,
+    coverImage:
+      "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&q=80",
+    category: "Life Insurance",
+    tags: [
+      "My Double Plus",
+      "Savings Insurance",
+      "Endowment",
+      "Tax Deduction",
+      "Allianz",
+      "Financial Planning",
+    ],
+    author: blogAuthors.prasit,
+    publishedAt: "2025-09-15",
+    readTime: 9,
+    sources: [
+      "https://www.azay.co.th/th_TH/life/saving/my-double-plus.html",
+      "Allianz Ayudhya MDP-Double Plus Brochure",
+    ],
+  },
+  {
+    id: "20",
+    slug: "pension-plus-retirement-income-plan",
+    title: "บำนาญพลัส 85A55: Secure Retirement Income from Age 55 to 85",
+    titleTh: "บำนาญพลัส 85A55: รับเงินบำนาญแน่นอนตั้งแต่อายุ 55-85 ปี",
+    excerpt:
+      "Plan your retirement with Pension Plus 85A55 - receive guaranteed monthly/annual income from age 55 until 85. Tax deduction up to 200,000 THB. No medical exam required.",
+    excerptTh:
+      "วางแผนเกษียณกับ บำนาญพลัส 85A55 รับเงินบำนาญแน่นอนตั้งแต่อายุ 55-85 ปี ลดหย่อนภาษีได้ถึง 200,000 บาท ไม่ต้องตรวจสุขภาพ",
+    content: \`
+## Secure Your Golden Years with Guaranteed Income
+
+Thailand's rapidly aging population means retirement planning is more important than ever. **บำนาญพลัส 85A55** (Pension Plus 85A55) from Allianz Ayudhya provides guaranteed retirement income you can count on.
+
+### Product Structure
+
+| Feature | Detail |
+|---------|--------|
+| **Annuity Period** | Age 55 to 85 (30 years) |
+| **Payment Options** | Monthly or Annual |
+| **Premium Payment** | Until age 55 |
+| **Medical Exam** | Not required |
+| **Tax Deduction** | Up to 200,000 THB/year |
+
+### How Pension Plus Works
+
+**Phase 1: Accumulation (Before Age 55)**
+- Pay regular premiums
+- Build up cash value
+- Life protection active
+- Tax deduction benefits
+
+**Phase 2: Distribution (Age 55-85)**
+- Stop paying premiums
+- Receive guaranteed pension payments
+- Monthly or annual disbursements
+- Payments continue for 30 years
+
+### Benefit Calculation Example
+
+**นางสาว C อายุ 30 ปี ต้องการเงินบำนาญเดือนละ 20,000 บาท**
+
+| Component | Amount |
+|-----------|--------|
+| Monthly pension at age 55 | 20,000 THB |
+| Annual pension | 240,000 THB |
+| Total pension (30 years) | **7,200,000 THB** |
+| Premium per year (25 years) | Calculated based on sum insured |
+
+### Tax Benefits of Pension Insurance
+
+**Premium Deduction:**
+- Up to **200,000 THB per year** (separate from regular life insurance)
+- Must be within 15% of assessable income
+- Pension insurance policy from licensed Thai insurer
+
+**Combined Retirement Deduction:**
+When combined with other retirement vehicles (RMF, SSF, Provident Fund), total cannot exceed **500,000 THB**:
+- Pension insurance: 200,000 THB
+- RMF: 30% of income, max 500,000 THB
+- SSF: 30% of income, max 200,000 THB
+- Provident Fund: As contributed
+
+### Why Choose Pension Insurance Over Other Options?
+
+**vs. Bank Savings:**
+| Factor | Pension Insurance | Bank Savings |
+|--------|------------------|--------------|
+| Returns | Higher, guaranteed | Low interest |
+| Discipline | Enforced | Easy to withdraw |
+| Tax benefit | 200,000 THB deduction | None |
+| Protection | Life cover included | None |
+
+**vs. Investment Funds (RMF):**
+| Factor | Pension Insurance | RMF |
+|--------|------------------|-----|
+| Returns | Guaranteed | Market-dependent |
+| Risk | None | Market risk |
+| Payout | Fixed schedule | Flexible |
+| Complexity | Simple | Requires monitoring |
+
+### Pension Plus 85A55 Features
+
+**Guaranteed Annuity Payments:**
+- Know exactly how much you'll receive
+- Not affected by market conditions
+- Payments continue even in economic downturns
+
+**Long Coverage Period:**
+- 30 years of guaranteed income (age 55-85)
+- Covers most of retirement years
+- Inflation consideration: start amount should account for future purchasing power
+
+**Flexibility:**
+- Choose payment frequency (monthly/annual)
+- Can combine with other retirement vehicles
+- Adjust sum insured based on retirement goals
+
+### Planning Your Retirement Income
+
+**Step 1: Calculate Retirement Needs**
+- Current monthly expenses
+- Adjust for inflation (3-4% annually)
+- Consider healthcare costs (rising with age)
+- Factor in lifestyle changes
+
+**Step 2: Identify Income Sources**
+- Social Security (limited)
+- Employer pension (if any)
+- Personal savings
+- Investment income
+- Pension insurance (guaranteed)
+
+**Step 3: Fill the Gap**
+- Calculate shortfall between needs and guaranteed sources
+- Use Pension Plus to fill the gap
+- Consider multiple policies if needed
+
+### Who Should Consider Pension Plus 85A55?
+
+**Ideal for:**
+- Self-employed without employer pension
+- Employees wanting to supplement company benefits
+- Those seeking tax deduction for retirement savings
+- Risk-averse individuals wanting guaranteed income
+- People in their 30s-40s with time to build benefits
+
+**Consider alternatives if:**
+- You need liquidity before age 55
+- You want potentially higher returns (accept risk)
+- You're already maximizing retirement deductions
+
+### Combining Pension Products
+
+For optimal retirement planning, consider:
+
+1. **Pension Insurance (Pension Plus)** - Guaranteed base income
+2. **RMF Funds** - Growth potential with market exposure
+3. **SSF Funds** - Additional tax benefit with flexibility
+4. **Personal Savings** - Emergency liquidity
+
+### Application Process
+
+**Requirements:**
+- Thai ID card or valid work permit
+- Age typically 20-55 for new enrollment
+- Simple health declaration (no exam)
+- Premium payment proof
+
+**Timeline:**
+- Application: Same day
+- Underwriting: 3-5 business days
+- Policy issuance: Within 2 weeks
+- Benefits begin: At age 55
+
+### Important Considerations
+
+1. **Inflation Risk:** Fixed payments may lose purchasing power over 30 years
+2. **Early Death:** Some policies return premium if death occurs before age 55
+3. **Liquidity:** Surrender value may be less than premiums paid if canceled early
+4. **Long Commitment:** Best suited for those who can maintain premiums long-term
+
+### Start Early for Maximum Benefit
+
+The earlier you start, the lower your annual premium for the same retirement income. A 30-year-old pays significantly less than a 45-year-old for equivalent benefits.
+
+**ไม่ต้องรอ เริ่มวางแผนเกษียณวันนี้**
+    \`,
+    coverImage:
+      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80",
+    category: "Life Insurance",
+    tags: [
+      "Pension",
+      "Retirement",
+      "บำนาญ",
+      "Annuity",
+      "Tax Deduction",
+      "Financial Planning",
+    ],
+    author: blogAuthors.siriporn,
+    publishedAt: "2025-09-10",
+    readTime: 11,
+    sources: [
+      "https://www.azay.co.th/th_TH/life/retirement/pension-plus-85a55.html",
+      "Allianz Ayudhya บำนาญพลัส 85A55 Brochure",
+    ],
+  },
 ];
 
 // Helper function to get featured post
