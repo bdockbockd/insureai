@@ -132,7 +132,10 @@ async function tryGeminiModel(
   stream: boolean = false
 ): Promise<GeminiResult> {
   const endpoint = stream ? "streamGenerateContent" : "generateContent";
-  const url = `${GEMINI_BASE_URL}/${model}:${endpoint}?key=${apiKey}`;
+  // For streaming, add alt=sse to get Server-Sent Events format
+  const url = stream
+    ? `${GEMINI_BASE_URL}/${model}:${endpoint}?alt=sse&key=${apiKey}`
+    : `${GEMINI_BASE_URL}/${model}:${endpoint}?key=${apiKey}`;
 
   try {
     const response = await fetch(url, {
@@ -342,7 +345,8 @@ ${truncatedMarkdown}
       throw new Error("Failed to get response after context reduction");
     }
 
-    // Create a TransformStream to process JSON array chunks and convert to SSE
+    // Create a TransformStream to process SSE chunks from Gemini
+    // With alt=sse, Gemini returns: data: {"candidates":[...]}\n\ndata: {...}\n\n
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
 
@@ -352,56 +356,52 @@ ${truncatedMarkdown}
       async transform(chunk, controller) {
         buffer += decoder.decode(chunk, { stream: true });
 
-        // Try to extract complete JSON objects from the buffer
-        // Gemini streaming returns: [{...},\n{...},\n{...}]
-        // We need to parse each chunk individually
+        // Split by double newline to find complete SSE events
+        const events = buffer.split("\n\n");
 
-        // Remove leading [ and trailing ] if present
-        let cleanBuffer = buffer.replace(/^\[/, "").replace(/\]$/, "");
+        // Keep the last potentially incomplete event in buffer
+        buffer = events.pop() || "";
 
-        // Split by },{ pattern to find complete objects
-        const parts = cleanBuffer.split(/\},\s*\{/);
+        for (const event of events) {
+          // Each event starts with "data: " followed by JSON
+          const lines = event.split("\n");
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const jsonStr = line.slice(6).trim();
+              if (!jsonStr || jsonStr === "[DONE]") continue;
 
-        for (let i = 0; i < parts.length - 1; i++) {
-          let jsonStr = parts[i];
-          // Add back the braces that were removed by split
-          if (i > 0) jsonStr = "{" + jsonStr;
-          jsonStr = jsonStr + "}";
-
-          try {
-            const data = JSON.parse(jsonStr);
-            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (text) {
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text, model: usedModel })}\n\n`));
+              try {
+                const data = JSON.parse(jsonStr);
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (text) {
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text, model: usedModel })}\n\n`));
+                }
+              } catch {
+                // Skip invalid JSON
+              }
             }
-          } catch {
-            // Not a complete JSON yet, continue
           }
-        }
-
-        // Keep the last incomplete part in the buffer
-        if (parts.length > 0) {
-          let lastPart = parts[parts.length - 1];
-          if (parts.length > 1) lastPart = "{" + lastPart;
-          buffer = lastPart;
         }
       },
       flush(controller) {
-        // Try to parse any remaining data in buffer
+        // Process any remaining data in buffer
         if (buffer.trim()) {
-          try {
-            // Clean up the buffer
-            let jsonStr = buffer.replace(/^\[/, "").replace(/\]$/, "").trim();
-            if (!jsonStr.startsWith("{")) jsonStr = "{" + jsonStr;
-            if (!jsonStr.endsWith("}")) jsonStr = jsonStr + "}";
+          const lines = buffer.split("\n");
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const jsonStr = line.slice(6).trim();
+              if (!jsonStr || jsonStr === "[DONE]") continue;
 
-            const data = JSON.parse(jsonStr);
-            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (text) {
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text, model: usedModel })}\n\n`));
+              try {
+                const data = JSON.parse(jsonStr);
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (text) {
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text, model: usedModel })}\n\n`));
+                }
+              } catch {
+                // Skip invalid JSON
+              }
             }
-          } catch {
-            // Ignore parse errors on flush
           }
         }
         controller.enqueue(encoder.encode("data: [DONE]\n\n"));
