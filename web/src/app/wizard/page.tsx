@@ -448,28 +448,34 @@ export default function WizardPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4 sm:gap-5">
+                  <div className="grid grid-cols-3 gap-3 sm:gap-5">
                     {[
                       { label: "Basic", min: 500, max: 2000 },
                       { label: "Standard", min: 2000, max: 5000 },
                       { label: "Premium", min: 5000, max: 15000 },
-                    ].map(({ label, min, max }) => (
-                      <Card
-                        key={label}
-                        hover
-                        onClick={() => setBudget(min, max)}
-                        className={`cursor-pointer border-2 shadow-sm hover:shadow-md transition-all ${
-                          budgetMin === min && budgetMax === max
-                            ? "ring-2 ring-blue-500 border-blue-300 bg-blue-50"
-                            : "border-gray-200 bg-white"
-                        }`}
-                      >
-                        <CardContent className="p-5 sm:p-6 text-center">
-                          <span className="font-bold text-gray-900 text-base sm:text-lg block mb-1">{label}</span>
-                          <p className="text-sm text-gray-500">{min.toLocaleString()}-{max.toLocaleString()}/mo</p>
-                        </CardContent>
-                      </Card>
-                    ))}
+                    ].map(({ label, min, max }) => {
+                      const formatK = (n: number) => n >= 1000 ? `${n / 1000}K` : n.toString();
+                      return (
+                        <Card
+                          key={label}
+                          hover
+                          onClick={() => setBudget(min, max)}
+                          className={`cursor-pointer border-2 shadow-sm hover:shadow-md transition-all ${
+                            budgetMin === min && budgetMax === max
+                              ? "ring-2 ring-blue-500 border-blue-300 bg-blue-50"
+                              : "border-gray-200 bg-white"
+                          }`}
+                        >
+                          <CardContent className="p-4 sm:p-6 text-center">
+                            <span className="font-bold text-gray-900 text-base sm:text-lg block mb-1">{label}</span>
+                            <p className="text-xs sm:text-sm text-gray-500">
+                              <span className="block">{formatK(min)}-{formatK(max)}</span>
+                              <span className="block">THB/mo</span>
+                            </p>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
