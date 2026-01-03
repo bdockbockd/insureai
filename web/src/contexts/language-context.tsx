@@ -619,8 +619,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>("th"); // Default to Thai
 
   useEffect(() => {
-    // Check URL parameter first (?la=en or ?la=th)
-    const langParam = searchParams.get("la") as Language;
+    // Check URL parameter first - support both ?lang= and ?la= for compatibility
+    const langParam = (searchParams.get("lang") || searchParams.get("la")) as Language;
     if (langParam && (langParam === "en" || langParam === "th")) {
       setLanguage(langParam);
       localStorage.setItem("insureai-lang", langParam);

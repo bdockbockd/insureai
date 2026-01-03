@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Shield, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,8 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const resetWizard = useWizardStore((state) => state.reset);
+  const pathname = usePathname();
+  const router = useRouter();
 
   const navLinks = [
     { href: "/", labelKey: "nav.home" },
@@ -23,7 +26,11 @@ export function Header() {
   ];
 
   const toggleLanguage = () => {
-    setLanguage(language === "en" ? "th" : "en");
+    const newLang = language === "en" ? "th" : "en";
+    setLanguage(newLang);
+    // Update URL with language parameter while preserving current path
+    const newUrl = `${pathname}?lang=${newLang}`;
+    router.push(newUrl, { scroll: false });
   };
 
   return (
