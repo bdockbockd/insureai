@@ -251,13 +251,18 @@ export default function WizardPage() {
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-3">Age</label>
                     <Input
-                      type="number"
-                      placeholder="Enter age"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      placeholder="Enter age (1-100)"
                       value={age || ""}
-                      onChange={(e) => setAge(parseInt(e.target.value) || 0)}
-                      min={0}
-                      max={100}
-                      className="text-lg"
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "");
+                        const num = parseInt(val) || 0;
+                        if (num <= 100) setAge(num);
+                      }}
+                      maxLength={3}
+                      className="text-lg text-center text-2xl font-semibold h-16"
                     />
                   </div>
 
