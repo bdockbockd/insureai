@@ -267,152 +267,150 @@ export default function AIAssistPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden">
+      {/* Header - Fixed at top */}
+      <div className="shrink-0 px-4 py-4 border-b border-gray-100 bg-white/80 backdrop-blur-sm">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
           <Link href="/" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900">
             <ArrowLeft className="w-4 h-4" />
             {language === "th" ? "กลับหน้าหลัก" : "Back to Home"}
           </Link>
-          {messages.length > 0 && (
-            <Button variant="ghost" size="sm" onClick={resetChat} className="gap-2">
-              <RefreshCw className="w-4 h-4" />
-              {language === "th" ? "เริ่มใหม่" : "Reset"}
-            </Button>
+          <div className="flex items-center gap-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full text-sm">
+              <Sparkles className="w-4 h-4" />
+              <span className="font-medium">AI Assistant</span>
+            </div>
+            {messages.length > 0 && (
+              <Button variant="ghost" size="sm" onClick={resetChat} className="gap-2">
+                <RefreshCw className="w-4 h-4" />
+                {language === "th" ? "เริ่มใหม่" : "Reset"}
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area - Scrollable */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          {messages.length === 0 ? (
+            /* Welcome + Preset Questions */
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              {/* Title */}
+              <div className="text-center mb-8">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                  {language === "th" ? "ถามอะไรก็ได้เรื่องประกัน" : "Ask Anything About Insurance"}
+                </h1>
+                <p className="text-gray-600">
+                  {language === "th"
+                    ? "ผู้ช่วย AI พร้อมตอบทุกคำถามเกี่ยวกับประกัน 24/7"
+                    : "AI Assistant ready to answer all your insurance questions 24/7"}
+                </p>
+              </div>
+
+              <p className="text-center text-gray-500 mb-6">
+                {language === "th" ? "เลือกคำถามด้านล่าง หรือพิมพ์คำถามของคุณ" : "Choose a question below, or type your own"}
+              </p>
+              <div className="grid sm:grid-cols-2 gap-4">
+                {presetQuestions.map((question, index) => {
+                  const Icon = question.icon;
+                  return (
+                    <motion.div
+                      key={question.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 + index * 0.05 }}
+                    >
+                      <button
+                        onClick={() => handlePresetClick(question)}
+                        className="w-full text-left outline-none"
+                        disabled={isLoading}
+                      >
+                        <Card className="h-full hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-2 border-transparent hover:border-blue-200 cursor-pointer group">
+                          <CardContent className="p-5">
+                            <div className="flex items-start gap-4">
+                              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${question.color} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
+                                <Icon className="w-6 h-6 text-white" />
+                              </div>
+                              <div>
+                                <h3 className="font-bold text-gray-900 mb-1">
+                                  {language === "th" ? question.title_th : question.title_en}
+                                </h3>
+                                <p className="text-sm text-gray-500 line-clamp-2">
+                                  {language === "th" ? question.question_th : question.question_en}
+                                </p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </button>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          ) : (
+            /* Messages */
+            <div className="space-y-4 pb-4">
+              <AnimatePresence>
+                {messages.map((message) => (
+                  <motion.div
+                    key={message.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                  >
+                    <div
+                      className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+                        message.role === "user"
+                          ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white"
+                          : "bg-white border border-gray-200 text-gray-800 shadow-sm"
+                      }`}
+                    >
+                      {message.role === "assistant" && (
+                        <div className="flex items-center gap-2 mb-2 text-blue-600">
+                          <Sparkles className="w-4 h-4" />
+                          <span className="text-xs font-medium">AI Assistant</span>
+                          {message.isStreaming && (
+                            <span className="flex items-center gap-1 text-xs text-gray-400">
+                              <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      {message.role === "assistant" ? (
+                        message.content ? (
+                          <div className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-headings:font-semibold prose-headings:mt-4 prose-headings:mb-2 prose-p:text-gray-700 prose-p:my-2 prose-li:text-gray-700 prose-li:my-0.5 prose-strong:text-gray-900 prose-ul:my-2 prose-ol:my-2">
+                            <ReactMarkdown>{message.content}</ReactMarkdown>
+                          </div>
+                        ) : (
+                          <span className="flex items-center gap-2 text-gray-400">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            {language === "th" ? "กำลังคิด..." : "Thinking..."}
+                          </span>
+                        )
+                      ) : (
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                          {message.content}
+                        </p>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+              <div ref={messagesEndRef} />
+            </div>
           )}
         </div>
+      </div>
 
-        {/* Title */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full mb-4">
-            <Sparkles className="w-5 h-5" />
-            <span className="font-medium">AI Assistant</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            {language === "th" ? "ถามอะไรก็ได้เรื่องประกัน" : "Ask Anything About Insurance"}
-          </h1>
-          <p className="text-gray-600">
-            {language === "th"
-              ? "ผู้ช่วย AI พร้อมตอบทุกคำถามเกี่ยวกับประกัน 24/7"
-              : "AI Assistant ready to answer all your insurance questions 24/7"}
-          </p>
-        </motion.div>
-
-        {/* Chat Area */}
-        {messages.length === 0 ? (
-          /* Preset Questions */
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <p className="text-center text-gray-500 mb-6">
-              {language === "th" ? "เลือกคำถามด้านล่าง หรือพิมพ์คำถามของคุณ" : "Choose a question below, or type your own"}
-            </p>
-            <div className="grid sm:grid-cols-2 gap-4">
-              {presetQuestions.map((question, index) => {
-                const Icon = question.icon;
-                return (
-                  <motion.div
-                    key={question.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 + index * 0.05 }}
-                  >
-                    <button
-                      onClick={() => handlePresetClick(question)}
-                      className="w-full text-left outline-none"
-                      disabled={isLoading}
-                    >
-                      <Card className="h-full hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-2 border-transparent hover:border-blue-200 cursor-pointer group">
-                        <CardContent className="p-5">
-                          <div className="flex items-start gap-4">
-                            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${question.color} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
-                              <Icon className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                              <h3 className="font-bold text-gray-900 mb-1">
-                                {language === "th" ? question.title_th : question.title_en}
-                              </h3>
-                              <p className="text-sm text-gray-500 line-clamp-2">
-                                {language === "th" ? question.question_th : question.question_en}
-                              </p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </button>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </motion.div>
-        ) : (
-          /* Messages */
-          <div className="space-y-4 mb-4 max-h-[50vh] overflow-y-auto px-2">
-            <AnimatePresence>
-              {messages.map((message) => (
-                <motion.div
-                  key={message.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  <div
-                    className={`max-w-[85%] rounded-2xl px-4 py-3 ${
-                      message.role === "user"
-                        ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white"
-                        : "bg-white border border-gray-200 text-gray-800 shadow-sm"
-                    }`}
-                  >
-                    {message.role === "assistant" && (
-                      <div className="flex items-center gap-2 mb-2 text-blue-600">
-                        <Sparkles className="w-4 h-4" />
-                        <span className="text-xs font-medium">AI Assistant</span>
-                        {message.isStreaming && (
-                          <span className="flex items-center gap-1 text-xs text-gray-400">
-                            <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    {message.role === "assistant" ? (
-                      message.content ? (
-                        <div className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-headings:font-semibold prose-headings:mt-4 prose-headings:mb-2 prose-p:text-gray-700 prose-p:my-2 prose-li:text-gray-700 prose-li:my-0.5 prose-strong:text-gray-900 prose-ul:my-2 prose-ol:my-2">
-                          <ReactMarkdown>{message.content}</ReactMarkdown>
-                        </div>
-                      ) : (
-                        <span className="flex items-center gap-2 text-gray-400">
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          {language === "th" ? "กำลังคิด..." : "Thinking..."}
-                        </span>
-                      )
-                    ) : (
-                      <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                        {message.content}
-                      </p>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-            <div ref={messagesEndRef} />
-          </div>
-        )}
-
-        {/* Input Area */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="sticky bottom-4 mt-6"
-        >
+      {/* Input Area - Fixed at bottom */}
+      <div className="shrink-0 border-t border-gray-200 bg-white/95 backdrop-blur-sm">
+        <div className="max-w-4xl mx-auto px-4 py-3">
           <Card className="border-2 border-gray-200 shadow-lg">
             <CardContent className="p-3">
               {/* Plan Selector Row */}
@@ -467,12 +465,12 @@ export default function AIAssistPage() {
               </div>
             </CardContent>
           </Card>
-          <p className="text-center text-xs text-gray-400 mt-3">
+          <p className="text-center text-xs text-gray-400 mt-2">
             {language === "th"
               ? "AI อาจให้ข้อมูลที่ไม่ถูกต้อง กรุณาตรวจสอบกับตัวแทนประกันก่อนตัดสินใจ"
               : "AI may provide inaccurate information. Please verify with an insurance agent before deciding."}
           </p>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
