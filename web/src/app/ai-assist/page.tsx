@@ -268,7 +268,7 @@ export default function AIAssistPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex flex-col bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden">
       {/* Header - Fixed at top */}
       <div className="shrink-0 px-4 py-4 border-b border-gray-100 bg-white/80 backdrop-blur-sm">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
