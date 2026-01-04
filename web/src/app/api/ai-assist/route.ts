@@ -279,7 +279,7 @@ function extractMetadata(request: NextRequest) {
 // Streaming response handler
 export async function POST(request: NextRequest) {
   try {
-    const { message, history, planId, sessionId } = await request.json();
+    const { message, history, planId, sessionId, userId } = await request.json();
 
     if (!message) {
       return new Response(JSON.stringify({ error: "Message is required" }), {
@@ -519,6 +519,7 @@ ${truncatedMarkdown}
         if (sessionId) {
           logChatConversation({
             sessionId,
+            userId: userId || undefined,
             userMessage: message,
             assistantResponse: parsed.answer_to_user,
             planId: planId || undefined,

@@ -17,7 +17,9 @@ import {
   Phone,
   UserCheck,
   CheckCircle,
+  User,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/language-context";
@@ -102,7 +104,8 @@ function generateSessionId() {
 }
 
 export default function AIAssistPage() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
+  const { data: session } = useSession();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -181,6 +184,7 @@ export default function AIAssistPage() {
           history: messages.map((m) => ({ role: m.role, content: m.content })),
           planId: selectedPlan?.id || null,
           sessionId, // Include session ID for conversation tracking
+          userId: session?.user?.id || null, // Link to authenticated user
         }),
         signal: abortControllerRef.current.signal,
       });

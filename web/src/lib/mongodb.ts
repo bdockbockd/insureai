@@ -158,6 +158,7 @@ export interface ChatMessage {
 
 export interface ChatConversation {
   sessionId: string;
+  userId?: string; // Linked to authenticated user
   messages: ChatMessage[];
   planId?: string;
   planName?: string;
@@ -184,6 +185,7 @@ export interface ChatConversation {
 
 export async function logChatConversation(data: {
   sessionId: string;
+  userId?: string;
   userMessage: string;
   assistantResponse: string;
   planId?: string;
@@ -249,6 +251,7 @@ export async function logChatConversation(data: {
     // Create new conversation
     await collection.insertOne({
       sessionId: data.sessionId,
+      userId: data.userId,
       messages: [
         { role: "user", content: data.userMessage, timestamp: now },
         {
@@ -350,6 +353,45 @@ export async function getChatConversations(limit: number = 100) {
     .sort({ updatedAt: -1 })
     .limit(limit)
     .toArray();
+}
+
+// Get conversations for a specific user
+export async function getUserConversations(userId: string, limit: number = 50) {
+  const collection = await getCollection("chat_conversations");
+  if (!collection) {
+    return [];
+  }
+
+  return collection
+    .find({ userId })
+    .sort({ updatedAt: -1 })
+    .limit(limit)
+    .toArray();
+}
+
+// Get a specific conversation by sessionId
+export async function getConversationBySessionId(sessionId: string) {
+  const collection = await getCollection("chat_conversations");
+  if (!collection) {
+    return null;
+  }
+
+  return collection.findOne({ sessionId });
+}
+
+// Link a conversation to a user (when user logs in after starting a conversation)
+export async function linkConversationToUser(sessionId: string, userId: string) {
+  const collection = await getCollection("chat_conversations");
+  if (!collection) {
+    return { success: false, error: "MongoDB not connected" };
+  }
+
+  const result = await collection.updateOne(
+    { sessionId },
+    { $set: { userId, updatedAt: new Date() } }
+  );
+
+  return { success: result.modifiedCount > 0 };
 }
 
 export async function getChatStats() {

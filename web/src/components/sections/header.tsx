@@ -4,17 +4,26 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Shield, Globe } from "lucide-react";
+import { Menu, X, Shield, Globe, User, LogOut, MessageCircle } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/language-context";
 import { useWizardStore } from "@/store/wizard-store";
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const resetWizard = useWizardStore((state) => state.reset);
   const pathname = usePathname();
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  const handleSignOut = async () => {
+    await signOut({ redirect: false });
+    router.push("/");
+    router.refresh();
+  };
 
   const navLinks = [
     { href: "/", labelKey: "nav.home" },
@@ -64,7 +73,7 @@ export function Header() {
             <div className="flex-1 md:hidden" />
 
             {/* Desktop CTA - aligned to right edge */}
-            <div className="hidden md:flex items-center gap-4 flex-shrink-0">
+            <div className="hidden md:flex items-center gap-3 flex-shrink-0">
               <button
                 onClick={toggleLanguage}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
@@ -72,6 +81,60 @@ export function Header() {
                 <Globe className="w-4 h-4" />
                 {language === "en" ? "EN" : "TH"}
               </button>
+
+              {status === "loading" ? (
+                <div className="w-8 h-8 rounded-full bg-gray-100 animate-pulse" />
+              ) : session?.user ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <div className="w-7 h-7 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                      <User className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="max-w-[100px] truncate">{session.user.name || session.user.email?.split("@")[0]}</span>
+                  </button>
+
+                  <AnimatePresence>
+                    {showUserMenu && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50"
+                      >
+                        <Link
+                          href="/ai-assist"
+                          onClick={() => setShowUserMenu(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                          {t("auth.myChats")}
+                        </Link>
+                        <button
+                          onClick={() => {
+                            setShowUserMenu(false);
+                            handleSignOut();
+                          }}
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          {t("auth.logout")}
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                <Link href="/login">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <User className="w-4 h-4" />
+                    {t("auth.login")}
+                  </Button>
+                </Link>
+              )}
+
               <Link href="/wizard" onClick={() => resetWizard()}>
                 <Button size="sm">{t("nav.getFreeQuote")}</Button>
               </Link>
@@ -115,7 +178,7 @@ export function Header() {
                   {t(labelKey)}
                 </Link>
               ))}
-              <div className="pt-4 border-t border-gray-100">
+              <div className="pt-4 border-t border-gray-100 space-y-2">
                 <button
                   onClick={toggleLanguage}
                   className="flex items-center gap-2 py-2 text-gray-600 hover:text-gray-900 font-medium w-full"
@@ -123,6 +186,44 @@ export function Header() {
                   <Globe className="w-5 h-5" />
                   {language === "en" ? "English" : "ภาษาไทย"}
                 </button>
+
+                {session?.user ? (
+                  <>
+                    <div className="flex items-center gap-2 py-2 text-gray-700 font-medium">
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                        <User className="w-5 h-5 text-white" />
+                      </div>
+                      <span>{session.user.name || session.user.email?.split("@")[0]}</span>
+                    </div>
+                    <Link
+                      href="/ai-assist"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-2 py-2 text-gray-600 hover:text-gray-900 font-medium"
+                    >
+                      <MessageCircle className="w-5 h-5" />
+                      {t("auth.myChats")}
+                    </Link>
+                    <button
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        handleSignOut();
+                      }}
+                      className="flex items-center gap-2 py-2 text-red-600 hover:text-red-700 font-medium w-full"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      {t("auth.logout")}
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    href="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-2 py-2 text-gray-600 hover:text-gray-900 font-medium"
+                  >
+                    <User className="w-5 h-5" />
+                    {t("auth.login")}
+                  </Link>
+                )}
               </div>
               <Link href="/wizard" onClick={() => {
                 setIsMobileMenuOpen(false);

@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, ReactNode } from "react";
+import { SessionProvider } from "next-auth/react";
 import { LanguageProvider } from "@/contexts/language-context";
 
 function LanguageProviderWrapper({ children }: { children: ReactNode }) {
@@ -13,8 +14,10 @@ function LanguageProviderWrapper({ children }: { children: ReactNode }) {
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <LanguageProviderWrapper>
-      {children}
-    </LanguageProviderWrapper>
+    <SessionProvider>
+      <LanguageProviderWrapper>
+        {children}
+      </LanguageProviderWrapper>
+    </SessionProvider>
   );
 }
