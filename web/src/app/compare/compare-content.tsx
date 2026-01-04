@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import {
   Upload,
   FileText,
@@ -15,6 +16,12 @@ import {
   DollarSign,
   Activity,
   Heart,
+  AlertCircle,
+  Clock,
+  Lock,
+  Unlock,
+  Sparkles,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,6 +99,22 @@ const insuranceProviders = [
   },
 ];
 
+// Hook problems that old plans commonly have
+const oldPlanProblems = {
+  th: [
+    { icon: Lock, title: "ล็อควงเงินค่าห้อง", desc: "แผนเก่าจำกัดค่าห้อง 3,000-5,000 บาท ไม่พอกับ รพ. ชั้นนำ" },
+    { icon: AlertCircle, title: "ไม่ครอบคลุม OPD", desc: "ต้องนอน รพ. ถึงจะเคลมได้ ตรวจเช็คทั่วไปไม่คุ้มครอง" },
+    { icon: Clock, title: "เบี้ยขึ้นทุกปี", desc: "แผนเก่าเบี้ยเพิ่มตามอายุ บางคนเบี้ยแพงกว่าแผนใหม่" },
+    { icon: X, title: "ไม่ครอบคลุมโรคร้าย", desc: "มะเร็ง หัวใจ ต้องซื้อเพิ่ม หรือไม่คุ้มครองเลย" },
+  ],
+  en: [
+    { icon: Lock, title: "Room Limit Locked", desc: "Old plans cap room at 3,000-5,000 THB, not enough for top hospitals" },
+    { icon: AlertCircle, title: "No OPD Coverage", desc: "Must be hospitalized to claim, regular checkups not covered" },
+    { icon: Clock, title: "Premium Increases", desc: "Old plans increase premium with age, sometimes more than new plans" },
+    { icon: X, title: "No Critical Illness", desc: "Cancer, heart disease need add-ons or not covered at all" },
+  ],
+};
+
 export function CompareContent() {
   const { t, language } = useLanguage();
 
@@ -103,23 +126,23 @@ export function CompareContent() {
       category: t("compare.roomBoard"),
       icon: Heart,
       yourPlan: "3,000 THB",
-      recommendedPlan: "5,000 THB",
+      recommendedPlan: "ไม่จำกัด",
       winner: "recommended",
       importance: "high",
     },
     {
       category: t("compare.outpatient"),
       icon: Activity,
-      yourPlan: "20,000 THB",
-      recommendedPlan: "30,000 THB",
+      yourPlan: "ไม่คุ้มครอง",
+      recommendedPlan: "เหมาจ่าย",
       winner: "recommended",
       importance: "high",
     },
     {
-      category: language === "th" ? "เบี้ยประกันรายเดือน" : "Monthly Premium",
+      category: language === "th" ? "เบี้ยประกันรายปี" : "Annual Premium",
       icon: DollarSign,
-      yourPlan: "1,800 THB",
-      recommendedPlan: "1,500 THB",
+      yourPlan: "25,000 THB",
+      recommendedPlan: "22,000 THB",
       winner: "recommended",
       importance: "high",
     },
@@ -127,37 +150,29 @@ export function CompareContent() {
       category: t("compare.criticalIllness"),
       icon: Shield,
       yourPlan: t("compare.notIncluded"),
-      recommendedPlan: "500,000 THB",
+      recommendedPlan: "รวมอยู่ในแผน",
       winner: "recommended",
       importance: "high",
     },
     {
-      category: t("compare.dentalCoverage"),
+      category: language === "th" ? "วงเงินต่อปี" : "Annual Limit",
       icon: Activity,
-      yourPlan: "5,000 THB",
-      recommendedPlan: "10,000 THB",
+      yourPlan: "5 ล้านบาท",
+      recommendedPlan: "80 ล้านบาท",
       winner: "recommended",
-      importance: "medium",
+      importance: "high",
     },
     {
       category: t("compare.waitingPeriod"),
-      icon: Activity,
+      icon: Clock,
       yourPlan: language === "th" ? "30 วัน" : "30 days",
       recommendedPlan: language === "th" ? "30 วัน" : "30 days",
       winner: "tie",
       importance: "medium",
     },
-    {
-      category: t("compare.worldwideCoverage"),
-      icon: Shield,
-      yourPlan: t("compare.no"),
-      recommendedPlan: t("compare.yes"),
-      winner: "recommended",
-      importance: "medium",
-    },
   ];
 
-  const [step, setStep] = useState<"input" | "analyzing" | "results">("input");
+  const [step, setStep] = useState<"hook" | "input" | "analyzing" | "results">("hook");
   const [planDetails, setPlanDetails] = useState({
     provider: "",
     planName: "",
@@ -167,6 +182,7 @@ export function CompareContent() {
     outpatient: "",
   });
   const [showLeadModal, setShowLeadModal] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
   // Get plans for the selected provider
   const selectedProvider = insuranceProviders.find(p => p.name === planDetails.provider);
@@ -175,6 +191,14 @@ export function CompareContent() {
     : [];
 
   const providerOptions = insuranceProviders.map(p => ({ value: p.name, label: p.name }));
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadedFile(file);
+      setStep("input");
+    }
+  };
 
   const handleAnalyze = () => {
     setStep("analyzing");
@@ -185,12 +209,227 @@ export function CompareContent() {
   };
 
   const recommendedWins = mockComparison.filter(c => c.winner === "recommended").length;
-  const savingsPercent = 17; // Mock savings calculation
+  const savingsPercent = 12;
+
+  const problems = language === "th" ? oldPlanProblems.th : oldPlanProblems.en;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 sm:py-16 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto">
         <AnimatePresence mode="wait">
+          {/* Hook Step - First thing users see */}
+          {step === "hook" && (
+            <motion.div
+              key="hook"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              {/* Hook Header */}
+              <div className="text-center mb-8">
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.1 }}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-medium mb-4"
+                >
+                  <AlertTriangle className="w-4 h-4" />
+                  {language === "th" ? "แผนประกันเก่าอาจมีปัญหา" : "Your old plan may have issues"}
+                </motion.div>
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+                  {language === "th" ? (
+                    <>แผนประกันของคุณ <span className="text-orange-500">เก่าไปมั้ย?</span></>
+                  ) : (
+                    <>Is your insurance plan <span className="text-orange-500">outdated?</span></>
+                  )}
+                </h1>
+                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                  {language === "th"
+                    ? "อัปโหลดแผนประกันปัจจุบัน แล้ว AI จะวิเคราะห์ข้อเสียให้อัตโนมัติ"
+                    : "Upload your current plan and let AI automatically analyze potential issues"}
+                </p>
+              </div>
+
+              {/* Upload Card - Primary CTA */}
+              <Card className="mb-8 border-2 border-dashed border-blue-300 bg-blue-50/50 hover:border-blue-400 transition-colors">
+                <CardContent className="p-8 text-center">
+                  <label className="cursor-pointer block">
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept=".pdf,.jpg,.png"
+                      onChange={handleFileUpload}
+                    />
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                      <Upload className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      {language === "th" ? "อัปโหลดแผนประกันปัจจุบัน" : "Upload Your Current Plan"}
+                    </h3>
+                    <p className="text-gray-600 mb-4">
+                      {language === "th"
+                        ? "รองรับ PDF, รูปภาพ หรือ ใบเสนอราคา"
+                        : "Supports PDF, images, or quotation documents"}
+                    </p>
+                    <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:shadow-lg transition-shadow">
+                      <Sparkles className="w-5 h-5" />
+                      {language === "th" ? "เลือกไฟล์เพื่อวิเคราะห์" : "Choose File to Analyze"}
+                    </div>
+                  </label>
+                </CardContent>
+              </Card>
+
+              {/* Alternative: Manual Entry */}
+              <div className="text-center mb-8">
+                <button
+                  onClick={() => setStep("input")}
+                  className="text-gray-500 hover:text-gray-700 text-sm underline"
+                >
+                  {language === "th" ? "หรือ กรอกข้อมูลแผนด้วยตัวเอง" : "Or enter plan details manually"}
+                </button>
+              </div>
+
+              {/* Common Problems Section */}
+              <div className="mb-8">
+                <h2 className="text-xl font-bold text-gray-900 text-center mb-6">
+                  {language === "th" ? "ปัญหาที่พบบ่อยในแผนเก่า" : "Common Issues in Old Plans"}
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {problems.map((problem, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 + index * 0.1 }}
+                    >
+                      <Card className="h-full border-red-100 bg-red-50/30 hover:shadow-md transition-shadow">
+                        <CardContent className="p-5">
+                          <div className="flex items-start gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
+                              <problem.icon className="w-5 h-5 text-red-600" />
+                            </div>
+                            <div>
+                              <h3 className="font-bold text-gray-900 mb-1">{problem.title}</h3>
+                              <p className="text-sm text-gray-600">{problem.desc}</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Example Comparison Preview */}
+              <Card className="overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-gray-800 to-gray-900 py-4">
+                  <CardTitle className="text-white text-center flex items-center justify-center gap-2">
+                    <Unlock className="w-5 h-5 text-green-400" />
+                    {language === "th" ? "ตัวอย่าง: แผนเก่า vs แผนปลดล็อคใหม่" : "Example: Old Plan vs New Unlocked Plan"}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b bg-gray-50">
+                          <th className="text-left p-3 font-semibold text-gray-900">
+                            {language === "th" ? "ความคุ้มครอง" : "Coverage"}
+                          </th>
+                          <th className="text-center p-3 font-semibold text-red-600">
+                            {language === "th" ? "แผนเก่า" : "Old Plan"}
+                          </th>
+                          <th className="text-center p-3 font-semibold text-green-600">
+                            {language === "th" ? "แผนใหม่ (ปลดล็อค)" : "New Plan (Unlocked)"}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-b">
+                          <td className="p-3 font-medium">{language === "th" ? "ค่าห้อง ICU" : "ICU Room"}</td>
+                          <td className="p-3 text-center text-red-600">
+                            <div className="flex items-center justify-center gap-1">
+                              <Lock className="w-4 h-4" /> 5,000 บาท/วัน
+                            </div>
+                          </td>
+                          <td className="p-3 text-center text-green-600 font-bold">
+                            <div className="flex items-center justify-center gap-1">
+                              <Unlock className="w-4 h-4" /> ไม่จำกัด
+                            </div>
+                          </td>
+                        </tr>
+                        <tr className="border-b">
+                          <td className="p-3 font-medium">{language === "th" ? "วงเงินต่อปี" : "Annual Limit"}</td>
+                          <td className="p-3 text-center text-red-600">5 ล้านบาท</td>
+                          <td className="p-3 text-center text-green-600 font-bold">80-100 ล้านบาท</td>
+                        </tr>
+                        <tr className="border-b">
+                          <td className="p-3 font-medium">{language === "th" ? "ผู้ป่วยนอก (OPD)" : "Outpatient"}</td>
+                          <td className="p-3 text-center text-red-600">
+                            <X className="w-4 h-4 mx-auto" />
+                          </td>
+                          <td className="p-3 text-center text-green-600">
+                            <Check className="w-4 h-4 mx-auto" />
+                          </td>
+                        </tr>
+                        <tr className="border-b">
+                          <td className="p-3 font-medium">{language === "th" ? "ค่ายา/อุปกรณ์" : "Medicine/Equipment"}</td>
+                          <td className="p-3 text-center text-red-600">
+                            <div className="flex items-center justify-center gap-1">
+                              <Lock className="w-4 h-4" /> ตามจริง แต่ไม่เกิน
+                            </div>
+                          </td>
+                          <td className="p-3 text-center text-green-600 font-bold">เหมาจ่าย 100%</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="p-4 bg-green-50 border-t border-green-200">
+                    <p className="text-center text-green-700 font-medium">
+                      {language === "th"
+                        ? "แผนใหม่ไม่ล็อควงเงิน จ่ายตามจริง ไม่ต้องกังวลเรื่องค่าใช้จ่ายส่วนเกิน"
+                        : "New plans are unlocked - pay as actual, no worrying about excess costs"}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Infographic Section */}
+              <Card className="mt-8 overflow-hidden">
+                <CardHeader className="py-4 bg-blue-50">
+                  <CardTitle className="text-center text-blue-800">
+                    {language === "th" ? "ทำความเข้าใจแผนปลดล็อค Double Care" : "Understanding Unlocked Double Care Plans"}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="relative w-full">
+                    <Image
+                      src="/images/health.jpg"
+                      alt={language === "th" ? "อินโฟกราฟิกแผนสุขภาพ" : "Health Plan Infographic"}
+                      width={1200}
+                      height={800}
+                      className="w-full h-auto"
+                      priority
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Final CTA */}
+              <div className="mt-8 text-center">
+                <Button
+                  size="lg"
+                  variant="gradient"
+                  onClick={() => setStep("input")}
+                  className="gap-2"
+                >
+                  {language === "th" ? "เริ่มวิเคราะห์แผนของฉัน" : "Start Analyzing My Plan"}
+                  <ChevronRight className="w-5 h-5" />
+                </Button>
+              </div>
+            </motion.div>
+          )}
+
           {/* Input Step */}
           {step === "input" && (
             <motion.div
@@ -200,6 +439,13 @@ export function CompareContent() {
               exit={{ opacity: 0, y: -20 }}
             >
               <div className="text-center mb-10">
+                <button
+                  onClick={() => setStep("hook")}
+                  className="text-gray-500 hover:text-gray-700 text-sm mb-4 inline-flex items-center gap-1"
+                >
+                  <ChevronRight className="w-4 h-4 rotate-180" />
+                  {language === "th" ? "กลับ" : "Back"}
+                </button>
                 <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-5">
                   {t("compare.title")}
                 </h1>
@@ -207,6 +453,22 @@ export function CompareContent() {
                   {t("compare.fullSubtitle")}
                 </p>
               </div>
+
+              {/* Show uploaded file if any */}
+              {uploadedFile && (
+                <Card className="mb-6 border-green-200 bg-green-50">
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <FileText className="w-6 h-6 text-green-600" />
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">{uploadedFile.name}</p>
+                      <p className="text-sm text-gray-600">
+                        {language === "th" ? "ไฟล์พร้อมวิเคราะห์" : "File ready for analysis"}
+                      </p>
+                    </div>
+                    <Check className="w-5 h-5 text-green-600" />
+                  </CardContent>
+                </Card>
+              )}
 
               <Card className="mb-10">
                 <CardHeader className="pb-4">
@@ -292,22 +554,29 @@ export function CompareContent() {
                     </div>
                   </div>
 
-                  <div className="pt-6 border-t mt-2">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-                      <div className="flex-1">
-                        <p className="text-sm text-gray-600">
-                          {t("compare.uploadDescription")}
-                        </p>
-                      </div>
-                      <label className="cursor-pointer w-full sm:w-auto">
-                        <input type="file" className="hidden" accept=".pdf,.jpg,.png" />
-                        <div className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
-                          <Upload className="w-4 h-4" />
-                          <span className="text-sm font-medium">{t("compare.uploadPdf")}</span>
+                  {!uploadedFile && (
+                    <div className="pt-6 border-t mt-2">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+                        <div className="flex-1">
+                          <p className="text-sm text-gray-600">
+                            {t("compare.uploadDescription")}
+                          </p>
                         </div>
-                      </label>
+                        <label className="cursor-pointer w-full sm:w-auto">
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept=".pdf,.jpg,.png"
+                            onChange={handleFileUpload}
+                          />
+                          <div className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
+                            <Upload className="w-4 h-4" />
+                            <span className="text-sm font-medium">{t("compare.uploadPdf")}</span>
+                          </div>
+                        </label>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -316,9 +585,10 @@ export function CompareContent() {
                   size="lg"
                   variant="gradient"
                   onClick={handleAnalyze}
-                  disabled={!planDetails.provider}
+                  disabled={!planDetails.provider && !uploadedFile}
                   className="w-full sm:w-auto gap-2 py-3"
                 >
+                  <Sparkles className="w-5 h-5" />
                   {t("compare.analyzeMyPlan")}
                   <ArrowRight className="w-5 h-5" />
                 </Button>
@@ -401,7 +671,7 @@ export function CompareContent() {
                 <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200">
                   <CardContent className="p-7 sm:p-8 text-center">
                     <AlertTriangle className="w-10 h-10 text-orange-600 mx-auto mb-4" />
-                    <div className="text-3xl font-bold text-orange-600">2</div>
+                    <div className="text-3xl font-bold text-orange-600">3</div>
                     <p className="text-sm text-gray-600 mt-1">{t("compare.coverageGaps")}</p>
                   </CardContent>
                 </Card>
@@ -418,11 +688,12 @@ export function CompareContent() {
                       <thead>
                         <tr className="border-b bg-gray-100">
                           <th className="text-left p-4 font-semibold text-gray-900">{t("compare.category")}</th>
-                          <th className="text-center p-4 font-semibold text-gray-900">{t("compare.yourPlan")}</th>
-                          <th className="text-center p-4 font-semibold text-blue-700">
-                            {selectedRecommendedPlan.name}
+                          <th className="text-center p-4 font-semibold text-red-600">
+                            {language === "th" ? "แผนปัจจุบัน (ล็อค)" : "Current (Locked)"}
                           </th>
-                          <th className="text-center p-4 font-semibold text-gray-900">{t("compare.winner")}</th>
+                          <th className="text-center p-4 font-semibold text-green-600">
+                            {language === "th" ? "แผนแนะนำ (ปลดล็อค)" : "Recommended (Unlocked)"}
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -445,24 +716,19 @@ export function CompareContent() {
                                 )}
                               </div>
                             </td>
-                            <td className="p-4 text-center text-gray-700 font-medium">{item.yourPlan}</td>
-                            <td className="p-4 text-center font-semibold text-blue-700">
-                              {item.recommendedPlan}
+                            <td className="p-4 text-center text-red-600 font-medium">
+                              <div className="flex items-center justify-center gap-1">
+                                {item.yourPlan === t("compare.notIncluded") || item.yourPlan === "ไม่คุ้มครอง" ? (
+                                  <X className="w-4 h-4" />
+                                ) : null}
+                                {item.yourPlan}
+                              </div>
                             </td>
-                            <td className="p-4 text-center">
-                              {item.winner === "recommended" ? (
-                                <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-sm rounded-full">
-                                  <Check className="w-3 h-3" /> {t("compare.allianz")}
-                                </span>
-                              ) : item.winner === "yours" ? (
-                                <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">
-                                  <Check className="w-3 h-3" /> {t("compare.yours")}
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-500 text-sm rounded-full">
-                                  <Minus className="w-3 h-3" /> {t("compare.tie")}
-                                </span>
-                              )}
+                            <td className="p-4 text-center font-semibold text-green-600">
+                              <div className="flex items-center justify-center gap-1">
+                                <Check className="w-4 h-4" />
+                                {item.recommendedPlan}
+                              </div>
                             </td>
                           </motion.tr>
                         ))}
@@ -485,7 +751,7 @@ export function CompareContent() {
                     {t("compare.getMyUpgrade")}
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
-                  <Button size="lg" variant="outline" onClick={() => setStep("input")} className="w-full sm:w-auto">
+                  <Button size="lg" variant="outline" onClick={() => setStep("hook")} className="w-full sm:w-auto">
                     {t("compare.compareAnother")}
                   </Button>
                 </div>
