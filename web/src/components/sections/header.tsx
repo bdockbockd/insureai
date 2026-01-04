@@ -29,7 +29,7 @@ export function Header() {
     { href: "/", labelKey: "nav.home" },
     { href: "/wizard", labelKey: "nav.findPlan", resetOnClick: true },
     { href: "/compare", labelKey: "nav.analyze" },
-    { href: "/learn/compare", labelKey: "nav.compareTypes" },
+    { href: "/community", labelKey: "nav.community" },
     { href: "/ai-assist", labelKey: "nav.aiAssist" },
     { href: "/blog", labelKey: "nav.blog" },
   ];

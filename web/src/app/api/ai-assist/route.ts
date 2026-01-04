@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
 import { getPlanById } from "@/data/plans-config";
-import { logChatConversation } from "@/lib/mongodb";
+import { logChatConversation, checkGuestRateLimit, incrementGuestUsage } from "@/lib/mongodb";
 
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
 
@@ -291,6 +291,38 @@ export async function POST(request: NextRequest) {
     // Extract metadata for logging
     const metadata = extractMetadata(request);
 
+    // Rate limiting for guest users (non-logged-in)
+    // If userId is provided, user is logged in and has unlimited access
+    if (!userId && metadata.ip && metadata.ip !== "unknown") {
+      try {
+        const rateLimit = await checkGuestRateLimit(metadata.ip);
+
+        if (!rateLimit.allowed) {
+          return new Response(
+            JSON.stringify({
+              error: "rate_limit_exceeded",
+              message: "คุณใช้ AI ครบ 3 ครั้งแล้ววันนี้ สมัครสมาชิกฟรีเพื่อใช้งานไม่จำกัด!",
+              messageEn: "You've used your 3 free AI chats today. Sign up free for unlimited access!",
+              remaining: rateLimit.remaining,
+              total: rateLimit.total,
+              shouldLogin: true,
+            }),
+            {
+              status: 429,
+              headers: {
+                "Content-Type": "application/json",
+                "X-RateLimit-Remaining": rateLimit.remaining.toString(),
+                "X-RateLimit-Total": rateLimit.total.toString(),
+              }
+            }
+          );
+        }
+      } catch (rateLimitError) {
+        // If rate limit check fails, allow the request (fail open)
+        console.error("Rate limit check failed:", rateLimitError);
+      }
+    }
+
     // Check if any API key is configured
     const apiKeys = getApiKeys();
     if (apiKeys.length === 0) {
@@ -532,6 +564,15 @@ ${truncatedMarkdown}
               model: usedModel,
             },
           }).catch((err) => console.error("Failed to log chat:", err));
+        }
+
+        // Increment guest usage after successful response (for rate limiting)
+        if (!userId && metadata.ip && metadata.ip !== "unknown") {
+          incrementGuestUsage(metadata.ip, {
+            country: metadata.country,
+            city: metadata.city,
+            userAgent: metadata.userAgent,
+          }).catch((err) => console.error("Failed to increment guest usage:", err));
         }
       },
     });

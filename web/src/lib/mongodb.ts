@@ -425,4 +425,326 @@ export async function getChatStats() {
   };
 }
 
+// ==================== IP-Based Rate Limiting ====================
+const FREE_CHAT_LIMIT = 3; // Number of free chats for guests
+
+export interface GuestUsage {
+  ip: string;
+  chatCount: number;
+  firstChatAt: Date;
+  lastChatAt: Date;
+  metadata?: {
+    country?: string;
+    city?: string;
+    userAgent?: string;
+  };
+}
+
+// Check if IP has remaining free chats
+export async function checkGuestRateLimit(ip: string): Promise<{
+  allowed: boolean;
+  remaining: number;
+  total: number;
+}> {
+  const collection = await getCollection("guest_usage");
+  if (!collection) {
+    // If no DB, allow usage
+    return { allowed: true, remaining: FREE_CHAT_LIMIT, total: FREE_CHAT_LIMIT };
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Find usage for this IP today
+  const usage = await collection.findOne({
+    ip,
+    firstChatAt: { $gte: today },
+  });
+
+  if (!usage) {
+    return { allowed: true, remaining: FREE_CHAT_LIMIT, total: FREE_CHAT_LIMIT };
+  }
+
+  const remaining = Math.max(0, FREE_CHAT_LIMIT - usage.chatCount);
+  return {
+    allowed: remaining > 0,
+    remaining,
+    total: FREE_CHAT_LIMIT,
+  };
+}
+
+// Increment guest chat count
+export async function incrementGuestUsage(
+  ip: string,
+  metadata?: { country?: string; city?: string; userAgent?: string }
+): Promise<{ chatCount: number }> {
+  const collection = await getCollection("guest_usage");
+  if (!collection) {
+    return { chatCount: 1 };
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const now = new Date();
+
+  // Try to update existing record for today
+  const result = await collection.findOneAndUpdate(
+    {
+      ip,
+      firstChatAt: { $gte: today },
+    },
+    {
+      $inc: { chatCount: 1 },
+      $set: { lastChatAt: now, metadata },
+    },
+    { returnDocument: "after" }
+  );
+
+  if (result) {
+    return { chatCount: result.chatCount };
+  }
+
+  // Create new record for today
+  await collection.insertOne({
+    ip,
+    chatCount: 1,
+    firstChatAt: now,
+    lastChatAt: now,
+    metadata,
+  });
+
+  return { chatCount: 1 };
+}
+
+// ==================== Community Posts ====================
+export interface CommunityPost {
+  _id?: string;
+  title: string;
+  content: string;
+  summary: string;
+  category: "knowledge" | "story" | "question" | "tip" | "news";
+  tags: string[];
+  authorId?: string;
+  authorName: string;
+  authorImage?: string;
+  likes: number;
+  views: number;
+  commentsCount: number;
+  isVerified: boolean; // Expert-verified post
+  isPinned: boolean;
+  relatedBlogSlugs?: string[]; // Links to related blog posts
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CommunityComment {
+  _id?: string;
+  postId: string;
+  content: string;
+  authorId?: string;
+  authorName: string;
+  authorImage?: string;
+  isExpert: boolean;
+  likes: number;
+  createdAt: Date;
+}
+
+// Get community posts with filters
+export async function getCommunityPosts(options: {
+  category?: string;
+  search?: string;
+  limit?: number;
+  offset?: number;
+  sortBy?: "recent" | "popular" | "trending";
+}) {
+  const collection = await getCollection("community_posts");
+  if (!collection) {
+    return { posts: [], total: 0 };
+  }
+
+  const query: Record<string, unknown> = {};
+
+  if (options.category && options.category !== "all") {
+    query.category = options.category;
+  }
+
+  if (options.search) {
+    query.$or = [
+      { title: { $regex: options.search, $options: "i" } },
+      { content: { $regex: options.search, $options: "i" } },
+      { tags: { $in: [new RegExp(options.search, "i")] } },
+    ];
+  }
+
+  let sortField: Record<string, 1 | -1> = { createdAt: -1 };
+  if (options.sortBy === "popular") {
+    sortField = { likes: -1, views: -1 };
+  } else if (options.sortBy === "trending") {
+    // Trending = recent + popular
+    sortField = { views: -1, createdAt: -1 };
+  }
+
+  const limit = options.limit || 20;
+  const offset = options.offset || 0;
+
+  const [posts, total] = await Promise.all([
+    collection
+      .find(query)
+      .sort({ isPinned: -1, ...sortField })
+      .skip(offset)
+      .limit(limit)
+      .toArray(),
+    collection.countDocuments(query),
+  ]);
+
+  return { posts, total };
+}
+
+// Create a community post
+export async function createCommunityPost(
+  post: Omit<CommunityPost, "_id" | "createdAt" | "updatedAt" | "likes" | "views" | "commentsCount">
+) {
+  const collection = await getCollection("community_posts");
+  if (!collection) {
+    return { success: false, error: "Database not connected" };
+  }
+
+  const now = new Date();
+  const result = await collection.insertOne({
+    ...post,
+    likes: 0,
+    views: 0,
+    commentsCount: 0,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  return { success: true, postId: result.insertedId.toString() };
+}
+
+// Get single post and increment views
+export async function getCommunityPostById(postId: string) {
+  const collection = await getCollection("community_posts");
+  if (!collection) {
+    return null;
+  }
+
+  const { ObjectId } = await import("mongodb");
+
+  // Increment view count
+  await collection.updateOne(
+    { _id: new ObjectId(postId) },
+    { $inc: { views: 1 } }
+  );
+
+  return collection.findOne({ _id: new ObjectId(postId) });
+}
+
+// Like a post
+export async function likeCommunityPost(postId: string, userId: string) {
+  const likesCollection = await getCollection("community_likes");
+  const postsCollection = await getCollection("community_posts");
+  if (!likesCollection || !postsCollection) {
+    return { success: false };
+  }
+
+  const { ObjectId } = await import("mongodb");
+
+  // Check if already liked
+  const existingLike = await likesCollection.findOne({
+    postId,
+    userId,
+  });
+
+  if (existingLike) {
+    // Unlike
+    await likesCollection.deleteOne({ postId, userId });
+    await postsCollection.updateOne(
+      { _id: new ObjectId(postId) },
+      { $inc: { likes: -1 } }
+    );
+    return { success: true, liked: false };
+  }
+
+  // Like
+  await likesCollection.insertOne({
+    postId,
+    userId,
+    createdAt: new Date(),
+  });
+  await postsCollection.updateOne(
+    { _id: new ObjectId(postId) },
+    { $inc: { likes: 1 } }
+  );
+
+  return { success: true, liked: true };
+}
+
+// Add comment to post
+export async function addCommunityComment(comment: Omit<CommunityComment, "_id" | "createdAt" | "likes">) {
+  const commentsCollection = await getCollection("community_comments");
+  const postsCollection = await getCollection("community_posts");
+  if (!commentsCollection || !postsCollection) {
+    return { success: false };
+  }
+
+  const { ObjectId } = await import("mongodb");
+
+  await commentsCollection.insertOne({
+    ...comment,
+    likes: 0,
+    createdAt: new Date(),
+  });
+
+  await postsCollection.updateOne(
+    { _id: new ObjectId(comment.postId) },
+    { $inc: { commentsCount: 1 } }
+  );
+
+  return { success: true };
+}
+
+// Get comments for a post
+export async function getPostComments(postId: string) {
+  const collection = await getCollection("community_comments");
+  if (!collection) {
+    return [];
+  }
+
+  return collection
+    .find({ postId })
+    .sort({ createdAt: -1 })
+    .toArray();
+}
+
+// Search posts with AI context (for AI to reference)
+export async function searchCommunityForAI(query: string, limit: number = 5) {
+  const collection = await getCollection("community_posts");
+  if (!collection) {
+    return [];
+  }
+
+  // Search in title, content, and tags
+  const posts = await collection
+    .find({
+      $or: [
+        { title: { $regex: query, $options: "i" } },
+        { content: { $regex: query, $options: "i" } },
+        { tags: { $in: [new RegExp(query, "i")] } },
+      ],
+      isVerified: true, // Only return verified posts for AI
+    })
+    .sort({ likes: -1, views: -1 })
+    .limit(limit)
+    .toArray();
+
+  return posts.map((p) => ({
+    title: p.title,
+    summary: p.summary,
+    category: p.category,
+    authorName: p.authorName,
+    isVerified: p.isVerified,
+  }));
+}
+
 export default clientPromise;

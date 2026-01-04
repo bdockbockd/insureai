@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Send,
@@ -18,6 +19,8 @@ import {
   UserCheck,
   CheckCircle,
   User,
+  LogIn,
+  Lock,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
@@ -38,6 +41,12 @@ interface Message {
   // CTA trigger info
   shouldTriggerCta?: boolean;
   ctaReason?: string;
+}
+
+interface RateLimitInfo {
+  exceeded: boolean;
+  remaining: number;
+  total: number;
 }
 
 interface PresetQuestion {
@@ -106,6 +115,7 @@ function generateSessionId() {
 export default function AIAssistPage() {
   const { language, t } = useLanguage();
   const { data: session } = useSession();
+  const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -113,6 +123,7 @@ export default function AIAssistPage() {
   const [sessionId] = useState(() => generateSessionId()); // Persist session ID for this chat
   const [agentRequested, setAgentRequested] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
+  const [rateLimit, setRateLimit] = useState<RateLimitInfo>({ exceeded: false, remaining: 3, total: 3 });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -189,10 +200,24 @@ export default function AIAssistPage() {
         signal: abortControllerRef.current.signal,
       });
 
-      // Check if response is JSON (demo mode or error)
+      // Check if response is JSON (demo mode, error, or rate limit)
       const contentType = response.headers.get("content-type");
       if (contentType?.includes("application/json")) {
         const data = await response.json();
+
+        // Handle rate limit exceeded
+        if (response.status === 429 && data.error === "rate_limit_exceeded") {
+          setRateLimit({
+            exceeded: true,
+            remaining: data.remaining || 0,
+            total: data.total || 3,
+          });
+          // Remove the assistant message placeholder
+          setMessages((prev) => prev.filter((m) => m.id !== assistantMessageId));
+          setIsLoading(false);
+          return;
+        }
+
         setMessages((prev) =>
           prev.map((m) =>
             m.id === assistantMessageId
@@ -202,6 +227,15 @@ export default function AIAssistPage() {
         );
         setIsLoading(false);
         return;
+      }
+
+      // Update rate limit info from response headers (if available)
+      const remainingHeader = response.headers.get("X-RateLimit-Remaining");
+      if (remainingHeader && !session?.user) {
+        setRateLimit(prev => ({
+          ...prev,
+          remaining: parseInt(remainingHeader, 10),
+        }));
       }
 
       // Handle streaming SSE response
@@ -518,17 +552,78 @@ export default function AIAssistPage() {
         </div>
       </div>
 
+      {/* Rate Limit Exceeded Banner */}
+      <AnimatePresence>
+        {rateLimit.exceeded && !session?.user && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="shrink-0 bg-gradient-to-r from-orange-500 to-red-500 text-white"
+          >
+            <div className="max-w-4xl mx-auto px-4 py-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                    <Lock className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">
+                      {language === "th"
+                        ? "คุณใช้ AI ครบ 3 ครั้งแล้ววันนี้"
+                        : "You've used your 3 free AI chats today"}
+                    </p>
+                    <p className="text-sm text-white/80">
+                      {language === "th"
+                        ? "สมัครสมาชิกฟรีเพื่อใช้งานไม่จำกัด!"
+                        : "Sign up free for unlimited access!"}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => router.push("/login")}
+                  className="bg-white text-orange-600 hover:bg-white/90 gap-2"
+                >
+                  <LogIn className="w-4 h-4" />
+                  {language === "th" ? "เข้าสู่ระบบ" : "Login"}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Guest Usage Counter */}
+      {!session?.user && !rateLimit.exceeded && messages.length > 0 && (
+        <div className="shrink-0 bg-blue-50 border-t border-blue-100">
+          <div className="max-w-4xl mx-auto px-4 py-2 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-blue-700">
+              <MessageCircle className="w-4 h-4" />
+              <span>
+                {language === "th"
+                  ? `เหลือ ${rateLimit.remaining} ครั้งวันนี้`
+                  : `${rateLimit.remaining} free chats remaining today`}
+              </span>
+            </div>
+            <Link href="/login" className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
+              <LogIn className="w-3 h-3" />
+              {language === "th" ? "เข้าสู่ระบบเพื่อใช้ไม่จำกัด" : "Login for unlimited"}
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Input Area - Fixed at bottom */}
       <div className="shrink-0 border-t border-gray-200 bg-white/95 backdrop-blur-sm">
         <div className="max-w-4xl mx-auto px-4 py-3">
-          <Card className="border-2 border-gray-200 shadow-lg">
+          <Card className={`border-2 shadow-lg ${rateLimit.exceeded && !session?.user ? 'border-gray-300 opacity-60' : 'border-gray-200'}`}>
             <CardContent className="p-3">
               {/* Plan Selector Row */}
               <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-100">
                 <PlanSelector
                   selectedPlan={selectedPlan}
                   onSelectPlan={setSelectedPlan}
-                  disabled={isLoading}
+                  disabled={isLoading || (rateLimit.exceeded && !session?.user)}
                 />
                 {selectedPlan && (
                   <span className="text-xs text-gray-500">
@@ -548,26 +643,32 @@ export default function AIAssistPage() {
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder={
-                      selectedPlan
+                      rateLimit.exceeded && !session?.user
                         ? (language === "th"
-                            ? `ถามเกี่ยวกับ ${selectedPlan.short_name_th}...`
-                            : `Ask about ${selectedPlan.short_name_en}...`)
-                        : (language === "th" ? "พิมพ์คำถามของคุณ..." : "Type your question...")
+                            ? "เข้าสู่ระบบเพื่อถามต่อ..."
+                            : "Login to continue chatting...")
+                        : selectedPlan
+                          ? (language === "th"
+                              ? `ถามเกี่ยวกับ ${selectedPlan.short_name_th}...`
+                              : `Ask about ${selectedPlan.short_name_en}...`)
+                          : (language === "th" ? "พิมพ์คำถามของคุณ..." : "Type your question...")
                     }
                     className="w-full resize-none border-0 focus:ring-0 focus:outline-none bg-transparent text-gray-800 placeholder-gray-400 text-sm min-h-[44px] max-h-[120px] py-2"
                     rows={1}
-                    disabled={isLoading}
+                    disabled={isLoading || (rateLimit.exceeded && !session?.user)}
                   />
                 </div>
                 <Button
-                  onClick={() => handleSendMessage(inputValue)}
-                  disabled={!inputValue.trim() || isLoading}
+                  onClick={() => rateLimit.exceeded && !session?.user ? router.push("/login") : handleSendMessage(inputValue)}
+                  disabled={(!inputValue.trim() || isLoading) && !(rateLimit.exceeded && !session?.user)}
                   variant="gradient"
                   size="icon"
                   className="flex-shrink-0"
                 >
                   {isLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : rateLimit.exceeded && !session?.user ? (
+                    <LogIn className="w-4 h-4" />
                   ) : (
                     <Send className="w-4 h-4" />
                   )}
