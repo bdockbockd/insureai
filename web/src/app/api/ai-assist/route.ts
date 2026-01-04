@@ -292,8 +292,14 @@ export async function POST(request: NextRequest) {
     const metadata = extractMetadata(request);
 
     // Rate limiting for guest users (non-logged-in)
-    // If userId is provided, user is logged in and has unlimited access
-    if (!userId && metadata.ip && metadata.ip !== "unknown") {
+    // Feature flags:
+    // - RATE_LIMIT_MODE=unlimited: All users get unlimited access (promo mode)
+    // - RATE_LIMIT_MODE=login_required: Logged in = unlimited, guests = limited
+    // - Default (no env): Same as login_required
+    const rateLimitMode = process.env.RATE_LIMIT_MODE || "unlimited"; // Default to unlimited for promo
+
+    // Skip rate limiting if in unlimited promo mode
+    if (rateLimitMode !== "unlimited" && !userId && metadata.ip && metadata.ip !== "unknown") {
       try {
         const rateLimit = await checkGuestRateLimit(metadata.ip);
 

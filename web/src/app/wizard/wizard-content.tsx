@@ -175,24 +175,28 @@ export function WizardContent() {
                   <p className="text-gray-600">{t("wizard.step0.subtitle")}</p>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                   {insuranceTypeData.map(({ type, icon: Icon, labelKey, descKey, color }) => (
                     <Card
                       key={type}
                       hover
-                      onClick={() => setInsuranceType(type)}
+                      onClick={() => {
+                        setInsuranceType(type);
+                        // Auto-advance after selection
+                        setTimeout(() => nextStep(), 200);
+                      }}
                       className={`cursor-pointer transition-all border-2 ${
                         insuranceType === type
                           ? "ring-2 ring-blue-500 border-blue-300 bg-blue-50/50"
                           : "border-gray-100"
                       }`}
                     >
-                      <CardContent className="p-5 sm:p-6 text-center">
-                        <div className={`w-14 h-14 mx-auto mb-4 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg`}>
-                          <Icon className="w-7 h-7 text-white" />
+                      <CardContent className="p-4 sm:p-5 text-center">
+                        <div className={`w-12 h-12 mx-auto mb-3 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg`}>
+                          <Icon className="w-6 h-6 text-white" />
                         </div>
-                        <h3 className="font-semibold text-gray-900 text-base">{t(labelKey)}</h3>
-                        <p className="text-xs text-gray-500 mt-2 leading-relaxed">{t(descKey)}</p>
+                        <h3 className="font-semibold text-gray-900 text-sm">{t(labelKey)}</h3>
+                        <p className="text-xs text-gray-500 mt-1 leading-relaxed line-clamp-2">{t(descKey)}</p>
                       </CardContent>
                     </Card>
                   ))}
@@ -202,34 +206,35 @@ export function WizardContent() {
 
             {/* Step 1: Who is this for? */}
             {currentStep === 1 && (
-              <div className="space-y-8">
-                <div className="text-center mb-10">
-                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+              <div className="space-y-6">
+                <div className="text-center mb-6">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                     {t("wizard.step1.title")}
                   </h1>
-                  <p className="text-gray-600">{t("wizard.step1.subtitle")}</p>
+                  <p className="text-gray-600 text-sm">{t("wizard.step1.subtitle")}</p>
                 </div>
 
-                <div className="space-y-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {insuredForData.map(({ type, icon: Icon, labelKey }) => (
                     <Card
                       key={type}
                       hover
-                      onClick={() => setInsuranceFor(type)}
+                      onClick={() => {
+                        setInsuranceFor(type);
+                        // Auto-advance after selection
+                        setTimeout(() => nextStep(), 200);
+                      }}
                       className={`cursor-pointer transition-all border-2 ${
                         insuranceFor === type
                           ? "ring-2 ring-blue-500 border-blue-300 bg-blue-50/50"
                           : "border-gray-100"
                       }`}
                     >
-                      <CardContent className="p-5 flex items-center gap-5">
-                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-                          <Icon className="w-7 h-7 text-blue-600" />
+                      <CardContent className="p-4 text-center">
+                        <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+                          <Icon className="w-5 h-5 text-blue-600" />
                         </div>
-                        <span className="font-semibold text-gray-900 text-lg">{t(labelKey)}</span>
-                        {insuranceFor === type && (
-                          <Check className="w-6 h-6 text-blue-600 ml-auto" />
-                        )}
+                        <span className="font-medium text-gray-900 text-sm">{t(labelKey)}</span>
                       </CardContent>
                     </Card>
                   ))}
@@ -293,26 +298,30 @@ export function WizardContent() {
 
             {/* Step 3: Occupation */}
             {currentStep === 3 && (
-              <div className="space-y-8">
-                <div className="text-center mb-10">
-                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+              <div className="space-y-6">
+                <div className="text-center mb-4">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                     {insuranceFor === "self" ? t("wizard.step3.titleSelf") : t("wizard.step3.titleOther")}
                   </h1>
-                  <p className="text-gray-600">{t("wizard.step3.subtitle")}</p>
+                  <p className="text-gray-600 text-sm">{t("wizard.step3.subtitle")}</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                   {occupationKeys.map((occKey) => (
                     <Card
                       key={occKey}
                       hover
-                      onClick={() => setOccupation(occKey)}
+                      onClick={() => {
+                        setOccupation(occKey);
+                        // Auto-advance after selection
+                        setTimeout(() => nextStep(), 200);
+                      }}
                       className={`cursor-pointer border-2 ${
                         occupation === occKey ? "ring-2 ring-blue-500 border-blue-300 bg-blue-50/50" : "border-gray-100"
                       }`}
                     >
-                      <CardContent className="p-5 text-center">
-                        <span className="font-semibold text-gray-900">{t(occKey)}</span>
+                      <CardContent className="p-3 sm:p-4 text-center">
+                        <span className="font-medium text-gray-900 text-sm">{t(occKey)}</span>
                       </CardContent>
                     </Card>
                   ))}
@@ -377,15 +386,15 @@ export function WizardContent() {
 
             {/* Step 5: Health Conditions */}
             {currentStep === 5 && (
-              <div className="space-y-8">
-                <div className="text-center mb-10">
-                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+              <div className="space-y-6">
+                <div className="text-center mb-4">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                     {t("wizard.step5.title")}
                   </h1>
-                  <p className="text-gray-600">{t("wizard.step5.subtitle")}</p>
+                  <p className="text-gray-600 text-sm">{t("wizard.step5.subtitle")}</p>
                 </div>
 
-                <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
                   {healthConditionKeys.map((conditionKey) => (
                     <Card
                       key={conditionKey}
@@ -397,17 +406,17 @@ export function WizardContent() {
                           : "border-gray-100"
                       }`}
                     >
-                      <CardContent className="p-5 flex items-center gap-5">
-                        <div className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-colors ${
+                      <CardContent className="p-3 sm:p-4 flex items-center gap-3">
+                        <div className={`w-5 h-5 rounded flex-shrink-0 border-2 flex items-center justify-center transition-colors ${
                           selectedConditions.includes(conditionKey)
                             ? "bg-blue-500 border-blue-500"
                             : "border-gray-300"
                         }`}>
                           {selectedConditions.includes(conditionKey) && (
-                            <Check className="w-5 h-5 text-white" />
+                            <Check className="w-3.5 h-3.5 text-white" />
                           )}
                         </div>
-                        <span className="font-semibold text-gray-900 text-base">{t(conditionKey)}</span>
+                        <span className="font-medium text-gray-900 text-sm">{t(conditionKey)}</span>
                       </CardContent>
                     </Card>
                   ))}
@@ -417,42 +426,17 @@ export function WizardContent() {
 
             {/* Step 6: Budget */}
             {currentStep === 6 && (
-              <div className="space-y-8">
-                <div className="text-center mb-10">
-                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+              <div className="space-y-6">
+                <div className="text-center mb-4">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                     {t("wizard.step6.title")}
                   </h1>
-                  <p className="text-gray-600">{t("wizard.step6.subtitle")}</p>
+                  <p className="text-gray-600 text-sm">{t("wizard.step6.subtitle")}</p>
                 </div>
 
-                <div className="space-y-8">
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1">
-                      <label className="block text-sm font-semibold text-gray-700 mb-3">{t("wizard.budget.minimum")}</label>
-                      <Input
-                        type="number"
-                        value={budgetMin}
-                        onChange={(e) => setBudget(parseInt(e.target.value) || 0, budgetMax)}
-                        min={0}
-                        step={100}
-                        className="text-lg"
-                      />
-                    </div>
-                    <span className="text-gray-400 mt-8 font-medium">{language === "th" ? "ถึง" : "to"}</span>
-                    <div className="flex-1">
-                      <label className="block text-sm font-semibold text-gray-700 mb-3">{t("wizard.budget.maximum")}</label>
-                      <Input
-                        type="number"
-                        value={budgetMax}
-                        onChange={(e) => setBudget(budgetMin, parseInt(e.target.value) || 0)}
-                        min={budgetMin}
-                        step={100}
-                        className="text-lg"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-3 sm:gap-5">
+                <div className="space-y-5">
+                  {/* Quick select budget presets */}
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3">
                     {[
                       { labelKey: "wizard.budget.basic", min: 500, max: 2000 },
                       { labelKey: "wizard.budget.standard", min: 2000, max: 5000 },
@@ -464,22 +448,48 @@ export function WizardContent() {
                           key={labelKey}
                           hover
                           onClick={() => setBudget(min, max)}
-                          className={`cursor-pointer border-2 shadow-sm hover:shadow-md transition-all ${
+                          className={`cursor-pointer border-2 transition-all ${
                             budgetMin === min && budgetMax === max
                               ? "ring-2 ring-blue-500 border-blue-300 bg-blue-50"
                               : "border-gray-200 bg-white"
                           }`}
                         >
-                          <CardContent className="p-4 sm:p-6 text-center">
-                            <span className="font-bold text-gray-900 text-base sm:text-lg block mb-1">{t(labelKey)}</span>
-                            <p className="text-xs sm:text-sm text-gray-500">
-                              <span className="block">{formatK(min)}-{formatK(max)}</span>
-                              <span className="block">{t("wizard.budget.currency")}</span>
+                          <CardContent className="p-3 sm:p-4 text-center">
+                            <span className="font-bold text-gray-900 text-sm sm:text-base block">{t(labelKey)}</span>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {formatK(min)}-{formatK(max)} {t("wizard.budget.currency")}
                             </p>
                           </CardContent>
                         </Card>
                       );
                     })}
+                  </div>
+
+                  {/* Custom budget inputs */}
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <label className="block text-xs font-medium text-gray-600 mb-1">{t("wizard.budget.minimum")}</label>
+                      <Input
+                        type="number"
+                        value={budgetMin}
+                        onChange={(e) => setBudget(parseInt(e.target.value) || 0, budgetMax)}
+                        min={0}
+                        step={100}
+                        className="text-sm h-10"
+                      />
+                    </div>
+                    <span className="text-gray-400 mt-5 text-sm">{language === "th" ? "ถึง" : "to"}</span>
+                    <div className="flex-1">
+                      <label className="block text-xs font-medium text-gray-600 mb-1">{t("wizard.budget.maximum")}</label>
+                      <Input
+                        type="number"
+                        value={budgetMax}
+                        onChange={(e) => setBudget(budgetMin, parseInt(e.target.value) || 0)}
+                        min={budgetMin}
+                        step={100}
+                        className="text-sm h-10"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

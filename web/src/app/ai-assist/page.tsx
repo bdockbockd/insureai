@@ -685,74 +685,201 @@ export default function AIAssistPage() {
       </div>
 
       {/* Contact Agent Modal */}
-      <AnimatePresence>
-        {showContactModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50"
-            onClick={() => setShowContactModal(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
-                {language === "th" ? "ติดต่อตัวแทนประกัน" : "Contact Insurance Agent"}
-              </h3>
-              <p className="text-gray-600 mb-6">
+      <ContactAgentModal
+        isOpen={showContactModal}
+        onClose={() => setShowContactModal(false)}
+        language={language}
+        sessionId={sessionId}
+      />
+    </div>
+  );
+}
+
+// Contact Agent Modal Component with Phone Callback
+function ContactAgentModal({
+  isOpen,
+  onClose,
+  language,
+  sessionId,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  language: string;
+  sessionId: string;
+}) {
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handlePhoneSubmit = async () => {
+    if (!phoneNumber.trim()) return;
+
+    setIsSubmitting(true);
+    try {
+      // Submit callback request
+      await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: "Callback Request",
+          phone: phoneNumber,
+          preferredContact: "phone",
+          source: "ai-assist-callback",
+          userProfile: { sessionId },
+        }),
+      });
+      setSubmitted(true);
+    } catch (error) {
+      console.error("Failed to submit callback:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleClose = () => {
+    setPhoneNumber("");
+    setSubmitted(false);
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50"
+        onClick={handleClose}
+      >
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.95, opacity: 0 }}
+          className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h3 className="text-xl font-bold text-gray-900 mb-4">
+            {language === "th" ? "ติดต่อตัวแทนประกัน" : "Contact Insurance Agent"}
+          </h3>
+
+          {submitted ? (
+            <div className="text-center py-6">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-green-600" />
+              </div>
+              <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                {language === "th" ? "ส่งคำขอเรียบร้อย!" : "Request Submitted!"}
+              </h4>
+              <p className="text-gray-600 text-sm">
+                {language === "th"
+                  ? "เราจะโทรกลับหาคุณในเร็วๆ นี้"
+                  : "We'll call you back shortly"}
+              </p>
+            </div>
+          ) : (
+            <>
+              <p className="text-gray-600 mb-4 text-sm">
                 {language === "th"
                   ? "เลือกช่องทางที่สะดวกเพื่อติดต่อตัวแทนประกันของเรา"
                   : "Choose your preferred channel to contact our insurance agent"}
               </p>
 
-              <div className="space-y-3">
+              {/* Phone Callback Option */}
+              <div className="mb-4 p-4 rounded-xl border-2 border-blue-200 bg-blue-50">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
+                    <Phone className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 text-sm">
+                      {language === "th" ? "ให้เราโทรกลับ" : "Request Callback"}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {language === "th" ? "ใส่เบอร์โทรแล้วเราโทรหา" : "Enter your number, we'll call you"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value.replace(/[^0-9-]/g, ""))}
+                    placeholder={language === "th" ? "08x-xxx-xxxx" : "08x-xxx-xxxx"}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    maxLength={12}
+                  />
+                  <Button
+                    onClick={handlePhoneSubmit}
+                    disabled={!phoneNumber.trim() || isSubmitting}
+                    size="sm"
+                    className="px-4"
+                  >
+                    {isSubmitting ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      language === "th" ? "ส่ง" : "Send"
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200"></div>
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="px-2 bg-white text-gray-500">
+                    {language === "th" ? "หรือ" : "or"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Other contact options */}
+              <div className="space-y-2">
                 <a
                   href="https://line.me/R/ti/p/@insureai"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-4 rounded-xl border-2 border-green-200 hover:bg-green-50 transition-colors"
+                  className="flex items-center gap-3 p-3 rounded-xl border-2 border-green-200 hover:bg-green-50 transition-colors"
                 >
-                  <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center">
-                    <MessageCircle className="w-6 h-6 text-white" />
+                  <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
+                    <MessageCircle className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">LINE</p>
-                    <p className="text-sm text-gray-500">@insureai</p>
+                    <p className="font-medium text-gray-900 text-sm">LINE</p>
+                    <p className="text-xs text-gray-500">@insureai</p>
                   </div>
                 </a>
 
                 <a
                   href="tel:+66812345678"
-                  className="flex items-center gap-4 p-4 rounded-xl border-2 border-blue-200 hover:bg-blue-50 transition-colors"
+                  className="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 hover:bg-gray-50 transition-colors"
                 >
-                  <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center">
-                    <Phone className="w-6 h-6 text-white" />
+                  <div className="w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center">
+                    <Phone className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">
-                      {language === "th" ? "โทรศัพท์" : "Phone"}
+                    <p className="font-medium text-gray-900 text-sm">
+                      {language === "th" ? "โทรหาเราเลย" : "Call Us Now"}
                     </p>
-                    <p className="text-sm text-gray-500">081-234-5678</p>
+                    <p className="text-xs text-gray-500">081-234-5678</p>
                   </div>
                 </a>
               </div>
+            </>
+          )}
 
-              <Button
-                variant="ghost"
-                className="w-full mt-4"
-                onClick={() => setShowContactModal(false)}
-              >
-                {language === "th" ? "ปิด" : "Close"}
-              </Button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+          <Button
+            variant="ghost"
+            className="w-full mt-4"
+            onClick={handleClose}
+          >
+            {language === "th" ? "ปิด" : "Close"}
+          </Button>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 }

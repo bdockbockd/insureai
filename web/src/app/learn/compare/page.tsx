@@ -157,9 +157,10 @@ export default function CompareInsurancePage() {
                     </div>
 
                     <div className="flex gap-2 mt-4">
-                      <Link href={`/wizard/${product.type}`}>
-                        <Button size="icon" variant="outline" title={language === "th" ? "ค้นหาแผน" : "Find Plan"}>
+                      <Link href={`/wizard/${product.type}`} className="flex-1">
+                        <Button variant="outline" className="w-full gap-2">
                           <Search className="w-4 h-4" />
+                          {language === "th" ? "ค้นหาแผน" : "Find Plan"}
                         </Button>
                       </Link>
                       <Link href="/ai-assist" className="flex-1">
@@ -233,13 +234,14 @@ export default function CompareInsurancePage() {
                       <td key={product.type} className="p-4 text-center">
                         <div className="flex gap-2 justify-center">
                           <Link href={`/wizard/${product.type}`}>
-                            <Button size="icon" variant="outline" title={language === "th" ? "ค้นหาแผน" : "Find Plan"}>
-                              <Search className="w-4 h-4" />
+                            <Button variant="outline" size="sm" className="gap-1.5">
+                              <Search className="w-3.5 h-3.5" />
+                              {language === "th" ? "ค้นหา" : "Find"}
                             </Button>
                           </Link>
                           <Link href="/ai-assist">
-                            <Button variant="gradient" className="gap-2">
-                              <Sparkles className="w-4 h-4" />
+                            <Button variant="gradient" size="sm" className="gap-1.5">
+                              <Sparkles className="w-3.5 h-3.5" />
                               {language === "th" ? "ถาม AI" : "Ask AI"}
                             </Button>
                           </Link>
