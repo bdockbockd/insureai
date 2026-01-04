@@ -74,9 +74,9 @@ export function PlanSelector({ selectedPlan, onSelectPlan, disabled }: PlanSelec
         )}
       </button>
 
-      {/* Dropdown Menu */}
+      {/* Dropdown Menu - Opens upward since it's at bottom of screen */}
       {isOpen && (
-        <div className="absolute z-50 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
+        <div className="absolute z-50 bottom-full mb-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
           <div className="p-2 bg-gray-50 border-b">
             <p className="text-xs text-gray-500 font-medium">
               {language === "th" ? "เลือกแผนเพื่อถามคำถามเฉพาะแผน" : "Select a plan for plan-specific questions"}

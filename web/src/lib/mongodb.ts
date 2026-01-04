@@ -149,4 +149,136 @@ export async function getInsurancePlans(filters?: {
   return collection.find(query).sort({ rating: -1 }).toArray();
 }
 
+// Chat conversation operations
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+  timestamp: Date;
+}
+
+export interface ChatConversation {
+  sessionId: string;
+  messages: ChatMessage[];
+  planId?: string;
+  planName?: string;
+  metadata: {
+    ip?: string;
+    country?: string;
+    city?: string;
+    userAgent?: string;
+    language?: string;
+    model?: string;
+  };
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export async function logChatConversation(data: {
+  sessionId: string;
+  userMessage: string;
+  assistantResponse: string;
+  planId?: string;
+  planName?: string;
+  metadata: {
+    ip?: string;
+    country?: string;
+    city?: string;
+    userAgent?: string;
+    language?: string;
+    model?: string;
+  };
+}) {
+  const collection = await getCollection("chat_conversations");
+  if (!collection) {
+    console.log("Chat logged (in-memory):", data.sessionId);
+    return null;
+  }
+
+  const now = new Date();
+
+  // Try to find existing conversation by sessionId
+  const existing = await collection.findOne({ sessionId: data.sessionId });
+
+  if (existing) {
+    // Append to existing conversation
+    await collection.updateOne(
+      { sessionId: data.sessionId },
+      {
+        $push: {
+          messages: {
+            $each: [
+              { role: "user", content: data.userMessage, timestamp: now },
+              { role: "assistant", content: data.assistantResponse, timestamp: now },
+            ],
+          },
+        } as any,
+        $set: {
+          updatedAt: now,
+          "metadata.model": data.metadata.model,
+        },
+      }
+    );
+  } else {
+    // Create new conversation
+    await collection.insertOne({
+      sessionId: data.sessionId,
+      messages: [
+        { role: "user", content: data.userMessage, timestamp: now },
+        { role: "assistant", content: data.assistantResponse, timestamp: now },
+      ],
+      planId: data.planId,
+      planName: data.planName,
+      metadata: data.metadata,
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
+
+  return { success: true };
+}
+
+export async function getChatConversations(limit: number = 100) {
+  const collection = await getCollection("chat_conversations");
+  if (!collection) {
+    return [];
+  }
+
+  return collection
+    .find({})
+    .sort({ updatedAt: -1 })
+    .limit(limit)
+    .toArray();
+}
+
+export async function getChatStats() {
+  const collection = await getCollection("chat_conversations");
+  if (!collection) {
+    return null;
+  }
+
+  const totalConversations = await collection.countDocuments();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayConversations = await collection.countDocuments({
+    createdAt: { $gte: today },
+  });
+
+  // Get top questions (aggregate by first user message)
+  const topQuestions = await collection
+    .aggregate([
+      { $unwind: "$messages" },
+      { $match: { "messages.role": "user" } },
+      { $group: { _id: "$messages.content", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 },
+    ])
+    .toArray();
+
+  return {
+    totalConversations,
+    todayConversations,
+    topQuestions,
+  };
+}
+
 export default clientPromise;

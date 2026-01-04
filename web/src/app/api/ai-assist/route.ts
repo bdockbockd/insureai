@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
 import { getPlanById } from "@/data/plans-config";
+import { logChatConversation } from "@/lib/mongodb";
 
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
 
@@ -193,10 +194,29 @@ async function tryGeminiModel(
   }
 }
 
+// Extract metadata from request headers
+function extractMetadata(request: NextRequest) {
+  // Get IP from various headers (Vercel, Cloudflare, etc.)
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    request.headers.get("cf-connecting-ip") ||
+    "unknown";
+
+  // Vercel provides geo info
+  const country = request.headers.get("x-vercel-ip-country") || undefined;
+  const city = request.headers.get("x-vercel-ip-city") || undefined;
+
+  const userAgent = request.headers.get("user-agent") || undefined;
+  const language = request.headers.get("accept-language")?.split(",")[0] || undefined;
+
+  return { ip, country, city, userAgent, language };
+}
+
 // Streaming response handler
 export async function POST(request: NextRequest) {
   try {
-    const { message, history, planId } = await request.json();
+    const { message, history, planId, sessionId } = await request.json();
 
     if (!message) {
       return new Response(JSON.stringify({ error: "Message is required" }), {
@@ -204,6 +224,9 @@ export async function POST(request: NextRequest) {
         headers: { "Content-Type": "application/json" },
       });
     }
+
+    // Extract metadata for logging
+    const metadata = extractMetadata(request);
 
     // Check if any API key is configured
     const apiKeys = getApiKeys();
@@ -351,6 +374,10 @@ ${truncatedMarkdown}
     const decoder = new TextDecoder();
 
     let buffer = "";
+    let fullResponse = ""; // Collect full response for logging
+
+    // Get plan info for logging
+    const plan = planId ? getPlanById(planId) : null;
 
     const transformStream = new TransformStream({
       async transform(chunk, controller) {
@@ -374,6 +401,7 @@ ${truncatedMarkdown}
                 const data = JSON.parse(jsonStr);
                 const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (text) {
+                  fullResponse += text; // Collect for logging
                   controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text, model: usedModel })}\n\n`));
                 }
               } catch {
@@ -383,7 +411,7 @@ ${truncatedMarkdown}
           }
         }
       },
-      flush(controller) {
+      async flush(controller) {
         // Process any remaining data in buffer
         if (buffer.trim()) {
           const lines = buffer.split("\n");
@@ -396,6 +424,7 @@ ${truncatedMarkdown}
                 const data = JSON.parse(jsonStr);
                 const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (text) {
+                  fullResponse += text; // Collect for logging
                   controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text, model: usedModel })}\n\n`));
                 }
               } catch {
@@ -405,6 +434,21 @@ ${truncatedMarkdown}
           }
         }
         controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+
+        // Log conversation to MongoDB (async, don't block response)
+        if (sessionId && fullResponse) {
+          logChatConversation({
+            sessionId,
+            userMessage: message,
+            assistantResponse: fullResponse,
+            planId: planId || undefined,
+            planName: plan ? plan.name_en : undefined,
+            metadata: {
+              ...metadata,
+              model: usedModel,
+            },
+          }).catch((err) => console.error("Failed to log chat:", err));
+        }
       },
     });
 

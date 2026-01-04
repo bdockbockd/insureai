@@ -89,12 +89,18 @@ const presetQuestions: PresetQuestion[] = [
   },
 ];
 
+// Generate a unique session ID for conversation tracking
+function generateSessionId() {
+  return `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+}
+
 export default function AIAssistPage() {
   const { language } = useLanguage();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<InsurancePlan | null>(null);
+  const [sessionId] = useState(() => generateSessionId()); // Persist session ID for this chat
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -149,6 +155,7 @@ export default function AIAssistPage() {
           message: content,
           history: messages.map((m) => ({ role: m.role, content: m.content })),
           planId: selectedPlan?.id || null,
+          sessionId, // Include session ID for conversation tracking
         }),
         signal: abortControllerRef.current.signal,
       });
