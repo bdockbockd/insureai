@@ -161,6 +161,15 @@ export interface ChatConversation {
   messages: ChatMessage[];
   planId?: string;
   planName?: string;
+  // CTA tracking
+  ctaTriggered?: boolean;
+  ctaReason?: string;
+  agentRequested?: boolean;
+  agentRequestedAt?: Date;
+  // Admin response tracking
+  adminResponded?: boolean;
+  adminRespondedAt?: Date;
+  adminResponse?: string;
   metadata: {
     ip?: string;
     country?: string;
@@ -179,6 +188,9 @@ export async function logChatConversation(data: {
   assistantResponse: string;
   planId?: string;
   planName?: string;
+  shouldTriggerCta?: boolean;
+  ctaReason?: string;
+  reasoning?: string;
   metadata: {
     ip?: string;
     country?: string;
@@ -201,6 +213,17 @@ export async function logChatConversation(data: {
 
   if (existing) {
     // Append to existing conversation
+    const updateData: Record<string, unknown> = {
+      updatedAt: now,
+      "metadata.model": data.metadata.model,
+    };
+
+    // Update CTA trigger status if this message triggered it
+    if (data.shouldTriggerCta) {
+      updateData.ctaTriggered = true;
+      updateData.ctaReason = data.ctaReason;
+    }
+
     await collection.updateOne(
       { sessionId: data.sessionId },
       {
@@ -208,14 +231,18 @@ export async function logChatConversation(data: {
           messages: {
             $each: [
               { role: "user", content: data.userMessage, timestamp: now },
-              { role: "assistant", content: data.assistantResponse, timestamp: now },
+              {
+                role: "assistant",
+                content: data.assistantResponse,
+                timestamp: now,
+                ctaTriggered: data.shouldTriggerCta,
+                ctaReason: data.ctaReason,
+                reasoning: data.reasoning,
+              },
             ],
           },
         } as any,
-        $set: {
-          updatedAt: now,
-          "metadata.model": data.metadata.model,
-        },
+        $set: updateData,
       }
     );
   } else {
@@ -224,10 +251,19 @@ export async function logChatConversation(data: {
       sessionId: data.sessionId,
       messages: [
         { role: "user", content: data.userMessage, timestamp: now },
-        { role: "assistant", content: data.assistantResponse, timestamp: now },
+        {
+          role: "assistant",
+          content: data.assistantResponse,
+          timestamp: now,
+          ctaTriggered: data.shouldTriggerCta,
+          ctaReason: data.ctaReason,
+          reasoning: data.reasoning,
+        },
       ],
       planId: data.planId,
       planName: data.planName,
+      ctaTriggered: data.shouldTriggerCta,
+      ctaReason: data.ctaReason,
       metadata: data.metadata,
       createdAt: now,
       updatedAt: now,
@@ -235,6 +271,72 @@ export async function logChatConversation(data: {
   }
 
   return { success: true };
+}
+
+// Request agent help for a conversation
+export async function requestAgentHelp(sessionId: string) {
+  const collection = await getCollection("chat_conversations");
+  if (!collection) {
+    return { success: false, error: "MongoDB not connected" };
+  }
+
+  const result = await collection.updateOne(
+    { sessionId },
+    {
+      $set: {
+        agentRequested: true,
+        agentRequestedAt: new Date(),
+        updatedAt: new Date(),
+      },
+    }
+  );
+
+  return { success: result.modifiedCount > 0 };
+}
+
+// Get conversations that need agent attention
+export async function getAgentRequestedConversations(limit: number = 50) {
+  const collection = await getCollection("chat_conversations");
+  if (!collection) {
+    return [];
+  }
+
+  return collection
+    .find({ agentRequested: true, adminResponded: { $ne: true } })
+    .sort({ agentRequestedAt: -1 })
+    .limit(limit)
+    .toArray();
+}
+
+// Admin responds to a conversation
+export async function adminRespondToConversation(sessionId: string, response: string) {
+  const collection = await getCollection("chat_conversations");
+  if (!collection) {
+    return { success: false, error: "MongoDB not connected" };
+  }
+
+  const now = new Date();
+
+  const result = await collection.updateOne(
+    { sessionId },
+    {
+      $set: {
+        adminResponded: true,
+        adminRespondedAt: now,
+        adminResponse: response,
+        updatedAt: now,
+      },
+      $push: {
+        messages: {
+          role: "admin",
+          content: response,
+          timestamp: now,
+        },
+      } as any,
+    }
+  );
+
+  return { success: result.modifiedCount > 0 };
 }
 
 export async function getChatConversations(limit: number = 100) {

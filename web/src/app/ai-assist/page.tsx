@@ -13,6 +13,10 @@ import {
   AlertCircle,
   Stethoscope,
   HelpCircle,
+  MessageCircle,
+  Phone,
+  UserCheck,
+  CheckCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,6 +33,9 @@ interface Message {
   timestamp: Date;
   isStreaming?: boolean;
   planContext?: string;
+  // CTA trigger info
+  shouldTriggerCta?: boolean;
+  ctaReason?: string;
 }
 
 interface PresetQuestion {
@@ -101,9 +108,27 @@ export default function AIAssistPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<InsurancePlan | null>(null);
   const [sessionId] = useState(() => generateSessionId()); // Persist session ID for this chat
+  const [agentRequested, setAgentRequested] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Handle requesting an agent
+  const handleRequestAgent = async () => {
+    try {
+      const response = await fetch("/api/ai-assist/request-agent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId }),
+      });
+      if (response.ok) {
+        setAgentRequested(true);
+      }
+    } catch (error) {
+      console.error("Failed to request agent:", error);
+    }
+  };
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -184,6 +209,7 @@ export default function AIAssistPage() {
       }
 
       let fullContent = "";
+      let structuredResponse: { answer?: string; shouldTriggerCta?: boolean; ctaReason?: string } | null = null;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -199,9 +225,27 @@ export default function AIAssistPage() {
 
             try {
               const parsed = JSON.parse(data);
-              if (parsed.text) {
+
+              // Check if this is the final structured response
+              if (parsed.done && parsed.structured) {
+                structuredResponse = parsed.structured;
+                // Update with the clean parsed answer
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantMessageId
+                      ? {
+                          ...m,
+                          content: parsed.structured.answer || fullContent,
+                          shouldTriggerCta: parsed.structured.shouldTriggerCta,
+                          ctaReason: parsed.structured.ctaReason,
+                          isStreaming: false,
+                        }
+                      : m
+                  )
+                );
+              } else if (parsed.text) {
                 fullContent += parsed.text;
-                // Update message with accumulated content
+                // Update message with accumulated content (raw streaming)
                 setMessages((prev) =>
                   prev.map((m) =>
                     m.id === assistantMessageId
@@ -217,14 +261,16 @@ export default function AIAssistPage() {
         }
       }
 
-      // Mark streaming as complete
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === assistantMessageId
-            ? { ...m, isStreaming: false }
-            : m
-        )
-      );
+      // Mark streaming as complete if structured response wasn't received
+      if (!structuredResponse) {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantMessageId
+              ? { ...m, isStreaming: false }
+              : m
+          )
+        );
+      }
     } catch (error) {
       if ((error as Error).name === "AbortError") {
         // Request was cancelled, clean up
@@ -392,9 +438,61 @@ export default function AIAssistPage() {
                       )}
                       {message.role === "assistant" ? (
                         message.content ? (
-                          <div className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-headings:font-semibold prose-headings:mt-4 prose-headings:mb-2 prose-p:text-gray-700 prose-p:my-2 prose-li:text-gray-700 prose-li:my-0.5 prose-strong:text-gray-900 prose-ul:my-2 prose-ol:my-2">
-                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
-                          </div>
+                          <>
+                            <div className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-headings:font-semibold prose-headings:mt-4 prose-headings:mb-2 prose-p:text-gray-700 prose-p:my-2 prose-li:text-gray-700 prose-li:my-0.5 prose-strong:text-gray-900 prose-ul:my-2 prose-ol:my-2">
+                              <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+                            </div>
+
+                            {/* CTA Buttons - Show when AI triggers */}
+                            {message.shouldTriggerCta && !message.isStreaming && (
+                              <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="mt-4 pt-4 border-t border-gray-200"
+                              >
+                                <p className="text-sm text-gray-600 mb-3">
+                                  {language === "th"
+                                    ? "ต้องการความช่วยเหลือเพิ่มเติม?"
+                                    : "Need more help?"}
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                  {agentRequested ? (
+                                    <div className="flex items-center gap-2 text-green-600 bg-green-50 px-4 py-2 rounded-lg">
+                                      <CheckCircle className="w-4 h-4" />
+                                      <span className="text-sm font-medium">
+                                        {language === "th"
+                                          ? "ตัวแทนได้รับแจ้งแล้ว จะติดต่อกลับเร็วๆ นี้"
+                                          : "Agent notified. They will contact you soon."}
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="gap-2 border-blue-200 text-blue-700 hover:bg-blue-50"
+                                      onClick={handleRequestAgent}
+                                    >
+                                      <UserCheck className="w-4 h-4" />
+                                      {language === "th"
+                                        ? "ขอให้ตัวแทนช่วยตอบ"
+                                        : "Request Agent Help"}
+                                    </Button>
+                                  )}
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="gap-2 border-green-200 text-green-700 hover:bg-green-50"
+                                    onClick={() => setShowContactModal(true)}
+                                  >
+                                    <MessageCircle className="w-4 h-4" />
+                                    {language === "th"
+                                      ? "ติดต่อตัวแทนโดยตรง"
+                                      : "Contact Agent Directly"}
+                                  </Button>
+                                </div>
+                              </motion.div>
+                            )}
+                          </>
                         ) : (
                           <span className="flex items-center gap-2 text-gray-400">
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -480,6 +578,76 @@ export default function AIAssistPage() {
           </p>
         </div>
       </div>
+
+      {/* Contact Agent Modal */}
+      <AnimatePresence>
+        {showContactModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50"
+            onClick={() => setShowContactModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-xl font-bold text-gray-900 mb-4">
+                {language === "th" ? "ติดต่อตัวแทนประกัน" : "Contact Insurance Agent"}
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {language === "th"
+                  ? "เลือกช่องทางที่สะดวกเพื่อติดต่อตัวแทนประกันของเรา"
+                  : "Choose your preferred channel to contact our insurance agent"}
+              </p>
+
+              <div className="space-y-3">
+                <a
+                  href="https://line.me/R/ti/p/@insureai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-4 p-4 rounded-xl border-2 border-green-200 hover:bg-green-50 transition-colors"
+                >
+                  <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center">
+                    <MessageCircle className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">LINE</p>
+                    <p className="text-sm text-gray-500">@insureai</p>
+                  </div>
+                </a>
+
+                <a
+                  href="tel:+66812345678"
+                  className="flex items-center gap-4 p-4 rounded-xl border-2 border-blue-200 hover:bg-blue-50 transition-colors"
+                >
+                  <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center">
+                    <Phone className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">
+                      {language === "th" ? "โทรศัพท์" : "Phone"}
+                    </p>
+                    <p className="text-sm text-gray-500">081-234-5678</p>
+                  </div>
+                </a>
+              </div>
+
+              <Button
+                variant="ghost"
+                className="w-full mt-4"
+                onClick={() => setShowContactModal(false)}
+              >
+                {language === "th" ? "ปิด" : "Close"}
+              </Button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

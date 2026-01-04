@@ -111,7 +111,70 @@ const SYSTEM_PROMPT = `คุณคือผู้เชี่ยวชาญด
 4. ไม่ให้คำแนะนำทางการแพทย์หรือกฎหมาย
 5. ตอบกระชับ ตรงประเด็น ไม่ยาวเกินไป
 6. ใช้ emoji บ้างเพื่อให้อ่านง่าย 😊
-7. ถ้าเป็นคำถามซับซ้อน แนะนำให้ลงทะเบียนรับคำปรึกษาฟรี`;
+7. ถ้าเป็นคำถามซับซ้อน แนะนำให้ลงทะเบียนรับคำปรึกษาฟรี
+
+**สำคัญมาก - รูปแบบการตอบ:**
+คุณต้องตอบเป็น JSON เท่านั้น ในรูปแบบนี้:
+\`\`\`json
+{
+  "reasoning_step_thought": "ขั้นตอนความคิดภายในของคุณ อธิบายว่าคุณเข้าใจคำถามอย่างไร และจะตอบอย่างไร",
+  "answer_to_user": "คำตอบที่จะแสดงให้ผู้ใช้ (รองรับ markdown)",
+  "should_trigger_cta": false,
+  "should_trigger_cta_reason": "เหตุผลถ้าต้อง trigger CTA"
+}
+\`\`\`
+
+**เมื่อไหร่ต้องตั้ง should_trigger_cta = true:**
+1. เมื่อผู้ใช้แสดงความไม่พอใจ ไม่พอใจกับคำตอบ หรือบ่น
+2. เมื่อคุณไม่สามารถตอบคำถามได้อย่างมั่นใจ (เช่น ถามเรื่องราคาเฉพาะบุคคล, เงื่อนไขพิเศษ)
+3. เมื่อผู้ใช้ต้องการสมัครประกัน หรือติดต่อตัวแทน
+4. เมื่อคำถามซับซ้อนเกินกว่าจะตอบได้ เช่น กรณีสุขภาพเฉพาะ
+5. เมื่อผู้ใช้ถามซ้ำหลายครั้งโดยไม่ได้รับคำตอบที่ต้องการ
+6. เมื่อผู้ใช้พูดว่า "ไม่เข้าใจ", "งง", "ตอบไม่ตรงประเด็น" หรือคำที่คล้ายกัน
+
+ตอบเป็น JSON เท่านั้น ห้ามมีข้อความอื่นก่อนหรือหลัง JSON`;
+
+// Structured AI response type
+interface AIStructuredResponse {
+  reasoning_step_thought: string;
+  answer_to_user: string;
+  should_trigger_cta: boolean;
+  should_trigger_cta_reason: string;
+}
+
+// Parse AI response - handles both JSON and plain text
+function parseAIResponse(text: string): AIStructuredResponse {
+  try {
+    // Try to extract JSON from the response (may be wrapped in markdown code blocks)
+    let jsonStr = text;
+    const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
+    if (jsonMatch) {
+      jsonStr = jsonMatch[1];
+    } else {
+      // Try to find raw JSON object
+      const rawJsonMatch = text.match(/\{[\s\S]*"answer_to_user"[\s\S]*\}/);
+      if (rawJsonMatch) {
+        jsonStr = rawJsonMatch[0];
+      }
+    }
+
+    const parsed = JSON.parse(jsonStr);
+    return {
+      reasoning_step_thought: parsed.reasoning_step_thought || "",
+      answer_to_user: parsed.answer_to_user || text,
+      should_trigger_cta: parsed.should_trigger_cta === true,
+      should_trigger_cta_reason: parsed.should_trigger_cta_reason || "",
+    };
+  } catch {
+    // If parsing fails, return the raw text as the answer
+    return {
+      reasoning_step_thought: "",
+      answer_to_user: text,
+      should_trigger_cta: false,
+      should_trigger_cta_reason: "",
+    };
+  }
+}
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -374,7 +437,7 @@ ${truncatedMarkdown}
     const decoder = new TextDecoder();
 
     let buffer = "";
-    let fullResponse = ""; // Collect full response for logging
+    let fullResponse = ""; // Collect full response for parsing
 
     // Get plan info for logging
     const plan = planId ? getPlanById(planId) : null;
@@ -401,7 +464,8 @@ ${truncatedMarkdown}
                 const data = JSON.parse(jsonStr);
                 const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (text) {
-                  fullResponse += text; // Collect for logging
+                  fullResponse += text; // Collect for parsing
+                  // Stream raw chunks - frontend will handle JSON parsing
                   controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text, model: usedModel })}\n\n`));
                 }
               } catch {
@@ -424,7 +488,7 @@ ${truncatedMarkdown}
                 const data = JSON.parse(jsonStr);
                 const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (text) {
-                  fullResponse += text; // Collect for logging
+                  fullResponse += text;
                   controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text, model: usedModel })}\n\n`));
                 }
               } catch {
@@ -433,16 +497,35 @@ ${truncatedMarkdown}
             }
           }
         }
+
+        // Parse the full response as structured JSON
+        const parsed = parseAIResponse(fullResponse);
+
+        // Send the parsed structured response at the end
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+          done: true,
+          structured: {
+            answer: parsed.answer_to_user,
+            shouldTriggerCta: parsed.should_trigger_cta,
+            ctaReason: parsed.should_trigger_cta_reason,
+            reasoning: parsed.reasoning_step_thought,
+          },
+          model: usedModel,
+        })}\n\n`));
+
         controller.enqueue(encoder.encode("data: [DONE]\n\n"));
 
         // Log conversation to MongoDB (async, don't block response)
-        if (sessionId && fullResponse) {
+        if (sessionId) {
           logChatConversation({
             sessionId,
             userMessage: message,
-            assistantResponse: fullResponse,
+            assistantResponse: parsed.answer_to_user,
             planId: planId || undefined,
             planName: plan ? plan.name_en : undefined,
+            shouldTriggerCta: parsed.should_trigger_cta,
+            ctaReason: parsed.should_trigger_cta_reason,
+            reasoning: parsed.reasoning_step_thought,
             metadata: {
               ...metadata,
               model: usedModel,
