@@ -2,9 +2,23 @@ import { NextRequest } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
 import { getPlanById } from "@/data/plans-config";
-import { logChatConversation, checkGuestRateLimit, incrementGuestUsage } from "@/lib/mongodb";
+import {
+  logChatConversation,
+  checkGuestRateLimit,
+  incrementGuestUsage,
+} from "@/lib/mongodb";
+import {
+  getApiKeys,
+  getNextAvailableKey,
+  markKeyExhausted,
+  resetExhaustedKeys,
+  MODEL_FALLBACK_CHAIN,
+  DEFAULT_SAFETY_SETTINGS,
+  GeminiContent,
+} from "@/lib/gemini";
 
-const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
+const GEMINI_BASE_URL =
+  "https://generativelanguage.googleapis.com/v1beta/models";
 
 // Load plan markdown content from file system
 async function loadPlanMarkdown(planId: string): Promise<string | null> {
@@ -28,57 +42,6 @@ async function loadPlanMarkdown(planId: string): Promise<string | null> {
     return null;
   }
 }
-
-// API Key management with rotation support
-// Primary key + reserve keys for when daily limits are hit
-function getApiKeys(): string[] {
-  const keys: string[] = [];
-
-  // Primary key
-  if (process.env.GEMINI_API_KEY) {
-    keys.push(process.env.GEMINI_API_KEY);
-  }
-
-  // Reserve keys (comma-separated)
-  if (process.env.GEMINI_KEY_RESERVES) {
-    const reserves = process.env.GEMINI_KEY_RESERVES.split(",")
-      .map((k) => k.trim())
-      .filter((k) => k.length > 0);
-    keys.push(...reserves);
-  }
-
-  return keys;
-}
-
-// Track failed keys in memory (resets on server restart)
-// In production, consider using Redis or similar for persistence
-const exhaustedKeys = new Set<string>();
-
-// Get the next available key that hasn't been exhausted
-function getNextAvailableKey(): string | null {
-  const keys = getApiKeys();
-  for (const key of keys) {
-    if (!exhaustedKeys.has(key)) {
-      return key;
-    }
-  }
-  // All keys exhausted, reset and try again (maybe limits reset)
-  exhaustedKeys.clear();
-  return keys[0] || null;
-}
-
-// Mark a key as exhausted (hit rate limit)
-function markKeyExhausted(key: string) {
-  exhaustedKeys.add(key);
-  console.log(`API key exhausted: ${key.slice(0, 10)}... (${exhaustedKeys.size} keys exhausted)`);
-}
-
-// Model fallback chain: Gemini 2.5+ models (1.5 retired April 2025)
-const MODEL_FALLBACK_CHAIN = [
-  "gemini-2.5-flash-lite",    // Cheapest, fastest - best for free tier
-  "gemini-2.5-flash",         // Balanced speed & intelligence
-  "gemini-2.0-flash",         // Fallback if 2.5 unavailable
-];
 
 const SYSTEM_PROMPT = `คุณคือผู้เชี่ยวชาญด้านประกันภัยของ InsureAI ประเทศไทย ชื่อ "ไอ้หนูประกัน" (Insurance AI Assistant)
 
@@ -184,22 +147,17 @@ interface ChatMessage {
 // Result type for tryGeminiModel
 interface GeminiResult {
   response: Response | null;
-  keyExhausted: boolean;  // True if 429 rate limit hit
+  keyExhausted: boolean; // True if 429 rate limit hit
   contextTooLong: boolean; // True if context length exceeded
 }
 
-// Try calling Gemini with a specific model and API key
+// Try calling Gemini with a specific model and API key (for streaming)
 async function tryGeminiModel(
   model: string,
   apiKey: string,
-  contents: Array<{ role: string; parts: Array<{ text: string }> }>,
-  stream: boolean = false
+  contents: GeminiContent[]
 ): Promise<GeminiResult> {
-  const endpoint = stream ? "streamGenerateContent" : "generateContent";
-  // For streaming, add alt=sse to get Server-Sent Events format
-  const url = stream
-    ? `${GEMINI_BASE_URL}/${model}:${endpoint}?alt=sse&key=${apiKey}`
-    : `${GEMINI_BASE_URL}/${model}:${endpoint}?key=${apiKey}`;
+  const url = `${GEMINI_BASE_URL}/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;
 
   try {
     const response = await fetch(url, {
@@ -213,12 +171,7 @@ async function tryGeminiModel(
           topP: 0.95,
           maxOutputTokens: 8192,
         },
-        safetySettings: [
-          { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-          { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-          { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-          { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-        ],
+        safetySettings: DEFAULT_SAFETY_SETTINGS,
       }),
     });
 
@@ -231,18 +184,28 @@ async function tryGeminiModel(
 
     // Check for rate limit / quota exhausted
     if (response.status === 429 || response.status === 403) {
-      // Check if it's a quota/rate limit issue
-      if (errorMessage.includes("quota") || errorMessage.includes("rate") || errorMessage.includes("limit")) {
-        console.log(`API key ${apiKey.slice(0, 10)}... hit rate limit for model ${model}`);
+      if (
+        errorMessage.includes("quota") ||
+        errorMessage.includes("rate") ||
+        errorMessage.includes("limit")
+      ) {
+        console.log(
+          `API key ${apiKey.slice(0, 10)}... hit rate limit for model ${model}`
+        );
         return { response: null, keyExhausted: true, contextTooLong: false };
       }
     }
 
     // Check for context length / token limit errors
     if (response.status === 400) {
-      if (errorMessage.includes("token") || errorMessage.includes("context") ||
-          errorMessage.includes("length") || errorMessage.includes("too long") ||
-          errorMessage.includes("maximum") || errorMessage.includes("exceed")) {
+      if (
+        errorMessage.includes("token") ||
+        errorMessage.includes("context") ||
+        errorMessage.includes("length") ||
+        errorMessage.includes("too long") ||
+        errorMessage.includes("maximum") ||
+        errorMessage.includes("exceed")
+      ) {
         console.log(`Model ${model} context too long`);
         return { response: null, keyExhausted: false, contextTooLong: true };
       }
@@ -271,7 +234,8 @@ function extractMetadata(request: NextRequest) {
   const city = request.headers.get("x-vercel-ip-city") || undefined;
 
   const userAgent = request.headers.get("user-agent") || undefined;
-  const language = request.headers.get("accept-language")?.split(",")[0] || undefined;
+  const language =
+    request.headers.get("accept-language")?.split(",")[0] || undefined;
 
   return { ip, country, city, userAgent, language };
 }
@@ -279,7 +243,8 @@ function extractMetadata(request: NextRequest) {
 // Streaming response handler
 export async function POST(request: NextRequest) {
   try {
-    const { message, history, planId, sessionId, userId } = await request.json();
+    const { message, history, planId, sessionId, userId } =
+      await request.json();
 
     if (!message) {
       return new Response(JSON.stringify({ error: "Message is required" }), {
@@ -299,7 +264,12 @@ export async function POST(request: NextRequest) {
     const rateLimitMode = process.env.RATE_LIMIT_MODE || "unlimited"; // Default to unlimited for promo
 
     // Skip rate limiting if in unlimited promo mode
-    if (rateLimitMode !== "unlimited" && !userId && metadata.ip && metadata.ip !== "unknown") {
+    if (
+      rateLimitMode !== "unlimited" &&
+      !userId &&
+      metadata.ip &&
+      metadata.ip !== "unknown"
+    ) {
       try {
         const rateLimit = await checkGuestRateLimit(metadata.ip);
 
@@ -307,8 +277,10 @@ export async function POST(request: NextRequest) {
           return new Response(
             JSON.stringify({
               error: "rate_limit_exceeded",
-              message: "คุณใช้ AI ครบ 3 ครั้งแล้ววันนี้ สมัครสมาชิกฟรีเพื่อใช้งานไม่จำกัด!",
-              messageEn: "You've used your 3 free AI chats today. Sign up free for unlimited access!",
+              message:
+                "คุณใช้ AI ครบ 3 ครั้งแล้ววันนี้ สมัครสมาชิกฟรีเพื่อใช้งานไม่จำกัด!",
+              messageEn:
+                "You've used your 3 free AI chats today. Sign up free for unlimited access!",
               remaining: rateLimit.remaining,
               total: rateLimit.total,
               shouldLogin: true,
@@ -319,7 +291,7 @@ export async function POST(request: NextRequest) {
                 "Content-Type": "application/json",
                 "X-RateLimit-Remaining": rateLimit.remaining.toString(),
                 "X-RateLimit-Total": rateLimit.total.toString(),
-              }
+              },
             }
           );
         }
@@ -329,12 +301,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Check if any API key is configured
+    // Check if any API key is configured (using centralized service)
     const apiKeys = getApiKeys();
     if (apiKeys.length === 0) {
-      return new Response(JSON.stringify({ response: getDemoResponse(message), demo: true }), {
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ response: getDemoResponse(message), demo: true }),
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
     // Build system prompt with plan context if a plan is selected
@@ -356,9 +331,11 @@ export async function POST(request: NextRequest) {
         if (planMarkdown) {
           // Truncate if too long to avoid context limits
           const maxLength = 8000;
-          const truncatedMarkdown = planMarkdown.length > maxLength
-            ? planMarkdown.substring(0, maxLength) + "\n\n... (ข้อมูลเพิ่มเติมถูกตัดออก)"
-            : planMarkdown;
+          const truncatedMarkdown =
+            planMarkdown.length > maxLength
+              ? planMarkdown.substring(0, maxLength) +
+                "\n\n... (ข้อมูลเพิ่มเติมถูกตัดออก)"
+              : planMarkdown;
 
           systemPrompt += `\n\n===== รายละเอียดแผนประกันจากเอกสาร =====
 ${truncatedMarkdown}
@@ -368,13 +345,20 @@ ${truncatedMarkdown}
     }
 
     // Build base context (system prompt + acknowledgment)
-    const baseContext = [
+    const baseContext: GeminiContent[] = [
       { role: "user", parts: [{ text: systemPrompt }] },
-      { role: "model", parts: [{ text: "เข้าใจแล้วครับ ผมพร้อมให้คำปรึกษาเรื่องประกันภัยแล้ว 😊 ถามมาได้เลยครับ!" }] },
+      {
+        role: "model",
+        parts: [
+          {
+            text: "เข้าใจแล้วครับ ผมพร้อมให้คำปรึกษาเรื่องประกันภัยแล้ว 😊 ถามมาได้เลยครับ!",
+          },
+        ],
+      },
     ];
 
     // Build conversation history array
-    const historyMessages: Array<{ role: string; parts: Array<{ text: string }> }> = [];
+    const historyMessages: GeminiContent[] = [];
     if (history && Array.isArray(history)) {
       for (const msg of history as ChatMessage[]) {
         historyMessages.push({
@@ -385,7 +369,10 @@ ${truncatedMarkdown}
     }
 
     // Current message (always included)
-    const currentMessage = { role: "user", parts: [{ text: message }] };
+    const currentMessage: GeminiContent = {
+      role: "user",
+      parts: [{ text: message }],
+    };
 
     // Try with full context first, then progressively reduce if context too long
     let geminiResponse: Response | null = null;
@@ -398,17 +385,23 @@ ${truncatedMarkdown}
     for (let contextTry = 0; contextTry < maxRetries; contextTry++) {
       // Build contents with current window of history
       const windowedHistory = historyMessages.slice(historyStartIndex);
-      const contents = [...baseContext, ...windowedHistory, currentMessage];
+      const contents: GeminiContent[] = [
+        ...baseContext,
+        ...windowedHistory,
+        currentMessage,
+      ];
 
       if (contextTry > 0) {
-        console.log(`Retrying with reduced context: removed ${historyStartIndex} oldest messages`);
+        console.log(
+          `Retrying with reduced context: removed ${historyStartIndex} oldest messages`
+        );
         contextReduced = true;
       }
 
       let allKeysExhausted = false;
       let contextTooLong = false;
 
-      // Outer loop: try each API key
+      // Outer loop: try each API key (using centralized service)
       keyLoop: while (!allKeysExhausted) {
         const currentKey = getNextAvailableKey();
         if (!currentKey) {
@@ -416,9 +409,9 @@ ${truncatedMarkdown}
           break;
         }
 
-        // Inner loop: try each model with current key
+        // Inner loop: try each model with current key (pro first from centralized chain)
         for (const model of MODEL_FALLBACK_CHAIN) {
-          const result = await tryGeminiModel(model, currentKey, contents, true);
+          const result = await tryGeminiModel(model, currentKey, contents);
 
           if (result.contextTooLong) {
             contextTooLong = true;
@@ -435,7 +428,9 @@ ${truncatedMarkdown}
             geminiResponse = result.response;
             usedModel = model;
             usedKey = currentKey;
-            console.log(`Using model: ${model} with key: ${currentKey.slice(0, 10)}...`);
+            console.log(
+              `Using model: ${model} with key: ${currentKey.slice(0, 10)}...`
+            );
             break keyLoop;
           }
           // Model failed but not due to rate limit, try next model
@@ -455,7 +450,7 @@ ${truncatedMarkdown}
         // Remove 2 messages (1 user-model pair) from the beginning
         historyStartIndex += 2;
         // Reset exhausted keys for retry with smaller context
-        exhaustedKeys.clear();
+        resetExhaustedKeys();
         continue;
       }
 
@@ -504,7 +499,11 @@ ${truncatedMarkdown}
                 if (text) {
                   fullResponse += text; // Collect for parsing
                   // Stream raw chunks - frontend will handle JSON parsing
-                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text, model: usedModel })}\n\n`));
+                  controller.enqueue(
+                    encoder.encode(
+                      `data: ${JSON.stringify({ text, model: usedModel })}\n\n`
+                    )
+                  );
                 }
               } catch {
                 // Skip invalid JSON
@@ -527,7 +526,11 @@ ${truncatedMarkdown}
                 const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (text) {
                   fullResponse += text;
-                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text, model: usedModel })}\n\n`));
+                  controller.enqueue(
+                    encoder.encode(
+                      `data: ${JSON.stringify({ text, model: usedModel })}\n\n`
+                    )
+                  );
                 }
               } catch {
                 // Skip invalid JSON
@@ -540,16 +543,20 @@ ${truncatedMarkdown}
         const parsed = parseAIResponse(fullResponse);
 
         // Send the parsed structured response at the end
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({
-          done: true,
-          structured: {
-            answer: parsed.answer_to_user,
-            shouldTriggerCta: parsed.should_trigger_cta,
-            ctaReason: parsed.should_trigger_cta_reason,
-            reasoning: parsed.reasoning_step_thought,
-          },
-          model: usedModel,
-        })}\n\n`));
+        controller.enqueue(
+          encoder.encode(
+            `data: ${JSON.stringify({
+              done: true,
+              structured: {
+                answer: parsed.answer_to_user,
+                shouldTriggerCta: parsed.should_trigger_cta,
+                ctaReason: parsed.should_trigger_cta_reason,
+                reasoning: parsed.reasoning_step_thought,
+              },
+              model: usedModel,
+            })}\n\n`
+          )
+        );
 
         controller.enqueue(encoder.encode("data: [DONE]\n\n"));
 
@@ -578,7 +585,9 @@ ${truncatedMarkdown}
             country: metadata.country,
             city: metadata.city,
             userAgent: metadata.userAgent,
-          }).catch((err) => console.error("Failed to increment guest usage:", err));
+          }).catch((err) =>
+            console.error("Failed to increment guest usage:", err)
+          );
         }
       },
     });
@@ -593,11 +602,12 @@ ${truncatedMarkdown}
       headers: {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
-        "Connection": "keep-alive",
+        Connection: "keep-alive",
         "X-Model-Used": usedModel,
         "X-Key-Index": `${keyIndex}/${apiKeys.length}`,
         "X-Context-Reduced": contextReduced ? "true" : "false",
-        "X-History-Trimmed": historyStartIndex > 0 ? `${historyStartIndex}` : "0",
+        "X-History-Trimmed":
+          historyStartIndex > 0 ? `${historyStartIndex}` : "0",
       },
     });
   } catch (error) {
@@ -605,7 +615,8 @@ ${truncatedMarkdown}
     return new Response(
       JSON.stringify({
         error: "Failed to process request",
-        response: "ขออภัยครับ เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง หรือติดต่อเราทาง LINE: @insureai",
+        response:
+          "ขออภัยครับ เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง หรือติดต่อเราทาง LINE: @insureai",
       }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
@@ -696,7 +707,11 @@ OPD = Out-Patient Department = แผนกผู้ป่วยนอก
 ต้องการรายละเอียดเพิ่มเติมไหมครับ? 😊`;
   }
 
-  if (lowerMessage.includes("เก่า") || lowerMessage.includes("อัพเดต") || lowerMessage.includes("update")) {
+  if (
+    lowerMessage.includes("เก่า") ||
+    lowerMessage.includes("อัพเดต") ||
+    lowerMessage.includes("update")
+  ) {
     return `🔄 **ทำไมต้องอัพเดตแผนประกันเก่า?**
 
 **เหตุผลที่ควรรีบอัพเดต:**

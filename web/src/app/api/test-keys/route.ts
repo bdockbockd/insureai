@@ -1,14 +1,11 @@
-import { NextRequest } from "next/server";
+import { MODEL_FALLBACK_CHAIN, getApiKeys } from "@/lib/gemini";
 
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
 
-// Models to test (aligned with ai-assist fallback chain + extras)
+// Models to test - using centralized chain plus extras for diagnostics
 const MODELS = [
-  "gemini-2.0-flash-lite",    // Cheapest/fastest 2.0
-  "gemini-2.0-flash",         // Stable 2.0 baseline
-  "gemini-2.5-flash-lite",    // Newer lite version
-  "gemini-2.5-flash",         // Balanced 2.5
-  "gemini-3-flash-preview",   // Newest preview
+  ...MODEL_FALLBACK_CHAIN,    // Pro first, then flash variants (from centralized service)
+  "gemini-3-flash-preview",   // Preview model for testing availability
 ];
 
 interface KeyTestResult {
@@ -78,20 +75,9 @@ async function testKey(apiKey: string, keyIndex: number): Promise<KeyTestResult>
   };
 }
 
-export async function GET(request: NextRequest) {
-  // Collect all API keys
-  const keys: string[] = [];
-
-  if (process.env.GEMINI_API_KEY) {
-    keys.push(process.env.GEMINI_API_KEY);
-  }
-
-  if (process.env.GEMINI_KEY_RESERVES) {
-    const reserves = process.env.GEMINI_KEY_RESERVES.split(",")
-      .map(k => k.trim())
-      .filter(k => k.length > 0);
-    keys.push(...reserves);
-  }
+export async function GET() {
+  // Use centralized API key management
+  const keys = getApiKeys();
 
   if (keys.length === 0) {
     return Response.json({

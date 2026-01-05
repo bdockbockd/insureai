@@ -1,13 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { insurancePlans } from "@/data/plans-config";
-
-// Gemini API configuration
-const GEMINI_API_KEYS = [
-  process.env.GEMINI_API_KEY,
-  ...(process.env.GEMINI_KEY_RESERVES?.split(",") || []),
-].filter(Boolean) as string[];
-const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
-const GEMINI_MODEL = "gemini-2.5-flash";
+import { generateJSON, getApiKeys } from "@/lib/gemini";
 
 // Extracted plan structure from PDF/text
 interface ExtractedPlan {
@@ -77,9 +70,9 @@ async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   }
 }
 
-// Use Gemini to extract structured plan data from text
+// Use centralized Gemini service to extract structured plan data from text
 async function extractPlanWithGemini(text: string): Promise<ExtractedPlan> {
-  if (GEMINI_API_KEYS.length === 0) {
+  if (getApiKeys().length === 0) {
     throw new Error("Gemini API key not configured");
   }
 
@@ -131,86 +124,22 @@ Notes:
 - If a value cannot be determined, use null
 - Return ONLY the JSON object, no other text`;
 
-  // Try each API key until one works
-  let lastError: Error | null = null;
+  // Use centralized Gemini service with pro-first fallback
+  const result = await generateJSON<ExtractedPlan>(prompt, {
+    temperature: 0.1,
+    maxOutputTokens: 8192,
+  });
 
-  for (const apiKey of GEMINI_API_KEYS) {
-    try {
-      const response = await fetch(
-        `${GEMINI_BASE_URL}/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.1,
-              maxOutputTokens: 8192,
-              responseMimeType: "application/json",
-            },
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        // If rate limited (429), try next key
-        if (response.status === 429) {
-          console.log("Gemini API rate limited, trying next key...");
-          lastError = new Error("Rate limited");
-          continue;
-        }
-        throw new Error(`Gemini API error: ${response.status} - ${JSON.stringify(errorData)}`);
-      }
-
-      const data = await response.json();
-      const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-      // Extract JSON from response (handle markdown code blocks)
-      let jsonStr = responseText;
-
-      // Try to extract JSON from code block
-      const codeBlockMatch = responseText.match(/```(?:json)?\n?([\s\S]*?)\n?```/);
-      if (codeBlockMatch && codeBlockMatch[1]) {
-        jsonStr = codeBlockMatch[1];
-      } else {
-        // Try to find raw JSON object
-        const jsonObjMatch = responseText.match(/\{[\s\S]*\}/);
-        if (jsonObjMatch) {
-          jsonStr = jsonObjMatch[0];
-        }
-      }
-
-      // Clean up and parse
-      jsonStr = jsonStr.trim();
-
-      // Try to fix common JSON issues from LLM responses
-      // Remove trailing commas before } or ]
-      jsonStr = jsonStr.replace(/,(\s*[}\]])/g, "$1");
-      // Remove comments
-      jsonStr = jsonStr.replace(/\/\/.*$/gm, "");
-      // Ensure the JSON ends properly
-      const lastBrace = jsonStr.lastIndexOf("}");
-      if (lastBrace > 0) {
-        jsonStr = jsonStr.substring(0, lastBrace + 1);
-      }
-
-      console.log("Parsed JSON string (first 500 chars):", jsonStr.substring(0, 500));
-      const extracted = JSON.parse(jsonStr);
-
-      return {
-        ...extracted,
-        rawText: text.slice(0, 500), // Store preview of original text
-      };
-    } catch (error) {
-      console.error("Gemini extraction error:", error);
-      lastError = error instanceof Error ? error : new Error(String(error));
-      // Continue to try next key
-    }
+  if (result) {
+    console.log(`Plan extracted using model: ${result.model}`);
+    return {
+      ...result.data,
+      rawText: text.slice(0, 500), // Store preview of original text
+    };
   }
 
-  // All keys failed, return default structure
-  console.error("All Gemini API keys failed:", lastError);
+  // Fallback to default structure if extraction fails
+  console.error("Gemini extraction failed, returning default structure");
   return {
     provider: "Unknown",
     planName: "Unknown Plan",
@@ -232,10 +161,10 @@ Notes:
 // Compare extracted plan with our recommended plans
 function compareWithOurPlans(extracted: ExtractedPlan): ComparisonResult {
   // Find best matching plans from our catalog
-  const healthPlans = insurancePlans.filter(p => p.category === "health");
+  const healthPlans = insurancePlans.filter((p) => p.category === "health");
 
   // Score each plan based on how much better it is
-  const scoredPlans = healthPlans.map(plan => {
+  const scoredPlans = healthPlans.map((plan) => {
     let score = 0;
     const advantages: string[] = [];
     const disadvantages: string[] = [];
@@ -253,7 +182,10 @@ function compareWithOurPlans(extracted: ExtractedPlan): ComparisonResult {
     }
 
     // Check annual limit
-    if (extracted.ipdCoverage.annualLimit && extracted.ipdCoverage.annualLimit < 50000000) {
+    if (
+      extracted.ipdCoverage.annualLimit &&
+      extracted.ipdCoverage.annualLimit < 50000000
+    ) {
       score += 25;
       advantages.push("วงเงินสูงกว่า 80-100 ล้าน (Higher limit 80-100M)");
     }
@@ -303,8 +235,11 @@ function compareWithOurPlans(extracted: ExtractedPlan): ComparisonResult {
         ? `${(extracted.ipdCoverage.annualLimit / 1000000).toFixed(0)} ล้านบาท`
         : "ไม่ระบุ",
       recommended: "80-100 ล้านบาท",
-      winner: (extracted.ipdCoverage.annualLimit && extracted.ipdCoverage.annualLimit >= 80000000)
-        ? "tie" : "recommended",
+      winner:
+        extracted.ipdCoverage.annualLimit &&
+        extracted.ipdCoverage.annualLimit >= 80000000
+          ? "tie"
+          : "recommended",
       importance: "high",
     },
     {
@@ -323,7 +258,9 @@ function compareWithOurPlans(extracted: ExtractedPlan): ComparisonResult {
     },
     {
       category: "ระยะรอคอย / Waiting Period",
-      yourPlan: extracted.waitingPeriod ? `${extracted.waitingPeriod} วัน` : "30 วัน",
+      yourPlan: extracted.waitingPeriod
+        ? `${extracted.waitingPeriod} วัน`
+        : "30 วัน",
       recommended: "30 วัน",
       winner: "tie",
       importance: "medium",
@@ -348,12 +285,17 @@ function compareWithOurPlans(extracted: ExtractedPlan): ComparisonResult {
   if (!extracted.criticalIllness.covered) {
     gaps.push("ไม่ครอบคลุมโรคร้ายแรง มะเร็ง หัวใจ");
   }
-  if (extracted.ipdCoverage.annualLimit && extracted.ipdCoverage.annualLimit < 20000000) {
+  if (
+    extracted.ipdCoverage.annualLimit &&
+    extracted.ipdCoverage.annualLimit < 20000000
+  ) {
     gaps.push("วงเงินต่อปีต่ำ อาจไม่พอสำหรับการรักษาพยาบาลระยะยาว");
   }
 
   // Calculate potential savings (estimate)
-  const winsForRecommended = comparisonTable.filter(c => c.winner === "recommended").length;
+  const winsForRecommended = comparisonTable.filter(
+    (c) => c.winner === "recommended"
+  ).length;
   const savingsPercentage = Math.min(winsForRecommended * 5 + 5, 25); // 5-25%
 
   return {
@@ -363,7 +305,7 @@ function compareWithOurPlans(extracted: ExtractedPlan): ComparisonResult {
     savings: {
       percentage: savingsPercentage,
       annualAmount: extracted.annualPremium
-        ? Math.round(extracted.annualPremium * savingsPercentage / 100)
+        ? Math.round((extracted.annualPremium * savingsPercentage) / 100)
         : null,
     },
     gaps,
@@ -388,7 +330,10 @@ export async function POST(request: NextRequest) {
         // For images, we could use Gemini's vision API in the future
         // For now, return an error
         return NextResponse.json(
-          { error: "Image analysis not yet supported. Please upload a PDF or enter text manually." },
+          {
+            error:
+              "Image analysis not yet supported. Please upload a PDF or enter text manually.",
+          },
           { status: 400 }
         );
       } else {
@@ -423,7 +368,6 @@ export async function POST(request: NextRequest) {
       success: true,
       ...comparison,
     });
-
   } catch (error) {
     console.error("Compare analyze error:", error);
     return NextResponse.json(
