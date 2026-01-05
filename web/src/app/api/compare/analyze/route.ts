@@ -7,7 +7,7 @@ const GEMINI_API_KEYS = [
   ...(process.env.GEMINI_KEY_RESERVES?.split(",") || []),
 ].filter(Boolean) as string[];
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
-const GEMINI_MODEL = "gemini-2.0-flash";
+const GEMINI_MODEL = "gemini-2.5-flash";
 
 // Extracted plan structure from PDF/text
 interface ExtractedPlan {
@@ -145,7 +145,8 @@ Notes:
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: {
               temperature: 0.1,
-              maxOutputTokens: 2000,
+              maxOutputTokens: 4096,
+              responseMimeType: "application/json",
             },
           }),
         }
@@ -167,13 +168,34 @@ Notes:
 
       // Extract JSON from response (handle markdown code blocks)
       let jsonStr = responseText;
-      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/);
-      if (jsonMatch) {
-        jsonStr = jsonMatch[1];
+
+      // Try to extract JSON from code block
+      const codeBlockMatch = responseText.match(/```(?:json)?\n?([\s\S]*?)\n?```/);
+      if (codeBlockMatch && codeBlockMatch[1]) {
+        jsonStr = codeBlockMatch[1];
+      } else {
+        // Try to find raw JSON object
+        const jsonObjMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonObjMatch) {
+          jsonStr = jsonObjMatch[0];
+        }
       }
 
       // Clean up and parse
       jsonStr = jsonStr.trim();
+
+      // Try to fix common JSON issues from LLM responses
+      // Remove trailing commas before } or ]
+      jsonStr = jsonStr.replace(/,(\s*[}\]])/g, "$1");
+      // Remove comments
+      jsonStr = jsonStr.replace(/\/\/.*$/gm, "");
+      // Ensure the JSON ends properly
+      const lastBrace = jsonStr.lastIndexOf("}");
+      if (lastBrace > 0) {
+        jsonStr = jsonStr.substring(0, lastBrace + 1);
+      }
+
+      console.log("Parsed JSON string (first 500 chars):", jsonStr.substring(0, 500));
       const extracted = JSON.parse(jsonStr);
 
       return {
