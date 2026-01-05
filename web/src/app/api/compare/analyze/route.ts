@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { insurancePlans } from "@/data/plans-config";
 
 // Gemini API configuration
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+const GEMINI_API_KEYS = [
+  process.env.GEMINI_API_KEY,
+  ...(process.env.GEMINI_KEY_RESERVES?.split(",") || []),
+].filter(Boolean) as string[];
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
+const GEMINI_MODEL = "gemini-2.0-flash";
 
 // Extracted plan structure from PDF/text
 interface ExtractedPlan {
@@ -60,16 +64,13 @@ interface ComparisonResult {
   gaps: string[];
 }
 
-// Extract text from PDF using pdf-parse v2
+// Extract text from PDF using unpdf (server-compatible)
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   try {
-    const { PDFParse } = await import("pdf-parse");
-    // Convert Buffer to Uint8Array for pdf-parse
+    const { extractText } = await import("unpdf");
     const data = new Uint8Array(buffer);
-    const parser = new PDFParse({ data });
-    const textResult = await parser.getText();
-    await parser.destroy();
-    return textResult.text;
+    const result = await extractText(data, { mergePages: true });
+    return result.text || "";
   } catch (error) {
     console.error("PDF parsing error:", error);
     throw new Error("Failed to parse PDF file");
@@ -78,7 +79,7 @@ async function extractTextFromPDF(buffer: Buffer): Promise<string> {
 
 // Use Gemini to extract structured plan data from text
 async function extractPlanWithGemini(text: string): Promise<ExtractedPlan> {
-  if (!GEMINI_API_KEY) {
+  if (GEMINI_API_KEYS.length === 0) {
     throw new Error("Gemini API key not configured");
   }
 
@@ -94,7 +95,7 @@ ${text.slice(0, 15000)}
 Extract the following information and return as a valid JSON object:
 
 {
-  "provider": "Insurance company name (e.g., AIA, Bangkok Life, Muang Thai)",
+  "provider": "Insurance company name (e.g., AIA, Bangkok Life, Muang Thai, Allianz)",
   "planName": "Plan/Product name",
   "planType": "health" | "critical-illness" | "savings" | "life" | "unknown",
   "annualPremium": number or null,
@@ -130,64 +131,80 @@ Notes:
 - If a value cannot be determined, use null
 - Return ONLY the JSON object, no other text`;
 
-  try {
-    const response = await fetch(
-      `${GEMINI_BASE_URL}/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.1,
-            maxOutputTokens: 2000,
-          },
-        }),
+  // Try each API key until one works
+  let lastError: Error | null = null;
+
+  for (const apiKey of GEMINI_API_KEYS) {
+    try {
+      const response = await fetch(
+        `${GEMINI_BASE_URL}/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.1,
+              maxOutputTokens: 2000,
+            },
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        // If rate limited (429), try next key
+        if (response.status === 429) {
+          console.log("Gemini API rate limited, trying next key...");
+          lastError = new Error("Rate limited");
+          continue;
+        }
+        throw new Error(`Gemini API error: ${response.status} - ${JSON.stringify(errorData)}`);
       }
-    );
 
-    if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.status}`);
+      const data = await response.json();
+      const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+      // Extract JSON from response (handle markdown code blocks)
+      let jsonStr = responseText;
+      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (jsonMatch) {
+        jsonStr = jsonMatch[1];
+      }
+
+      // Clean up and parse
+      jsonStr = jsonStr.trim();
+      const extracted = JSON.parse(jsonStr);
+
+      return {
+        ...extracted,
+        rawText: text.slice(0, 500), // Store preview of original text
+      };
+    } catch (error) {
+      console.error("Gemini extraction error:", error);
+      lastError = error instanceof Error ? error : new Error(String(error));
+      // Continue to try next key
     }
-
-    const data = await response.json();
-    const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-    // Extract JSON from response (handle markdown code blocks)
-    let jsonStr = responseText;
-    const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (jsonMatch) {
-      jsonStr = jsonMatch[1];
-    }
-
-    // Clean up and parse
-    jsonStr = jsonStr.trim();
-    const extracted = JSON.parse(jsonStr);
-
-    return {
-      ...extracted,
-      rawText: text.slice(0, 500), // Store preview of original text
-    };
-  } catch (error) {
-    console.error("Gemini extraction error:", error);
-    // Return a default structure if extraction fails
-    return {
-      provider: "Unknown",
-      planName: "Unknown Plan",
-      planType: "unknown",
-      annualPremium: null,
-      roomAndBoard: { limit: null, isUnlimited: false },
-      opdCoverage: { covered: false, limit: null },
-      ipdCoverage: { covered: true, annualLimit: null },
-      criticalIllness: { covered: false, conditions: [], sumInsured: null },
-      waitingPeriod: null,
-      coPayment: null,
-      deductible: null,
-      keyBenefits: [],
-      limitations: [],
-      rawText: text.slice(0, 500),
-    };
   }
+
+  // All keys failed, return default structure
+  console.error("All Gemini API keys failed:", lastError);
+  return {
+    provider: "Unknown",
+    planName: "Unknown Plan",
+    planType: "unknown",
+    annualPremium: null,
+    roomAndBoard: { limit: null, isUnlimited: false },
+    opdCoverage: { covered: false, limit: null },
+    ipdCoverage: { covered: true, annualLimit: null },
+    criticalIllness: { covered: false, conditions: [], sumInsured: null },
+    waitingPeriod: null,
+    coPayment: null,
+    deductible: null,
+    keyBenefits: [],
+    limitations: [],
+    rawText: text.slice(0, 500),
+  };
 }
 
 // Compare extracted plan with our recommended plans
