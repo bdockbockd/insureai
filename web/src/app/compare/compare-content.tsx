@@ -40,6 +40,28 @@ interface ComparisonItem {
   importance: "high" | "medium" | "low";
 }
 
+interface ExtractedPlan {
+  provider: string;
+  planName: string;
+  planType: string;
+  annualPremium: number | null;
+  roomAndBoard: { limit: number | null; isUnlimited: boolean };
+  opdCoverage: { covered: boolean; limit: number | null };
+  ipdCoverage: { covered: boolean; annualLimit: number | null };
+  criticalIllness: { covered: boolean; conditions: string[]; sumInsured: number | null };
+  keyBenefits: string[];
+  limitations: string[];
+}
+
+interface AnalysisResult {
+  success: boolean;
+  extractedPlan: ExtractedPlan;
+  recommendedPlans: { planId: string; planName: string; matchScore: number; advantages: string[] }[];
+  comparisonTable: { category: string; yourPlan: string; recommended: string; winner: string; importance: string }[];
+  savings: { percentage: number; annualAmount: number | null };
+  gaps: string[];
+}
+
 // Our actual plans from insureai/data folder
 const ourPlans = {
   health: [
@@ -183,6 +205,8 @@ export function CompareContent() {
   });
   const [showLeadModal, setShowLeadModal] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   // Get plans for the selected provider
   const selectedProvider = insuranceProviders.find(p => p.name === planDetails.provider);
@@ -200,16 +224,53 @@ export function CompareContent() {
     }
   };
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     setStep("analyzing");
-    // Simulate AI analysis
-    setTimeout(() => {
+    setAnalysisError(null);
+
+    try {
+      const formData = new FormData();
+
+      if (uploadedFile) {
+        formData.append("file", uploadedFile);
+      } else if (planDetails.provider || planDetails.planName) {
+        // Build text description from manual input
+        const manualText = `
+Insurance Provider: ${planDetails.provider}
+Plan Name: ${planDetails.planName === "custom" ? planDetails.customPlanName : planDetails.planName}
+Monthly Premium: ${planDetails.monthlyPremium} THB
+Room and Board Limit: ${planDetails.roomBoard} THB per day
+Outpatient Coverage: ${planDetails.outpatient ? `${planDetails.outpatient} THB` : "Not covered"}
+        `.trim();
+        formData.append("text", manualText);
+      }
+
+      const response = await fetch("/api/compare/analyze", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Analysis failed");
+      }
+
+      setAnalysisResult(data);
       setStep("results");
-    }, 2500);
+    } catch (error) {
+      console.error("Analysis error:", error);
+      setAnalysisError(error instanceof Error ? error.message : "Analysis failed");
+      // Fall back to mock results if API fails
+      setStep("results");
+    }
   };
 
-  const recommendedWins = mockComparison.filter(c => c.winner === "recommended").length;
-  const savingsPercent = 12;
+  // Use real analysis data if available, otherwise use mock
+  const comparisonData = analysisResult?.comparisonTable || mockComparison;
+  const recommendedWins = comparisonData.filter(c => c.winner === "recommended").length;
+  const savingsPercent = analysisResult?.savings?.percentage || 12;
+  const coverageGaps = analysisResult?.gaps || [];
 
   const problems = language === "th" ? oldPlanProblems.th : oldPlanProblems.en;
 
@@ -652,6 +713,52 @@ export function CompareContent() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
+              {/* Extracted Plan Info (if available) */}
+              {analysisResult?.extractedPlan && (
+                <Card className="mb-6 border-blue-200 bg-blue-50/50">
+                  <CardContent className="p-5">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center flex-shrink-0">
+                        <FileText className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-bold text-gray-900 text-lg">
+                          {analysisResult.extractedPlan.planName || "Your Plan"}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {analysisResult.extractedPlan.provider || "Unknown Provider"}
+                        </p>
+                        {analysisResult.extractedPlan.annualPremium && (
+                          <p className="text-sm text-blue-600 mt-1">
+                            {language === "th" ? "เบี้ยประกัน: " : "Premium: "}
+                            {analysisResult.extractedPlan.annualPremium.toLocaleString()} {language === "th" ? "บาท/ปี" : "THB/year"}
+                          </p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                          {language === "th" ? "วิเคราะห์แล้ว" : "Analyzed"}
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Error Message */}
+              {analysisError && (
+                <Card className="mb-6 border-orange-200 bg-orange-50">
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <AlertCircle className="w-5 h-5 text-orange-600" />
+                    <p className="text-sm text-orange-800">
+                      {language === "th"
+                        ? `ไม่สามารถวิเคราะห์ได้: ${analysisError} (แสดงตัวอย่างผลลัพธ์)`
+                        : `Analysis failed: ${analysisError} (showing sample results)`}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* Summary Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6 mb-12">
                 <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
@@ -664,18 +771,40 @@ export function CompareContent() {
                 <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
                   <CardContent className="p-7 sm:p-8 text-center">
                     <Shield className="w-10 h-10 text-blue-600 mx-auto mb-4" />
-                    <div className="text-3xl font-bold text-blue-600">{recommendedWins}/{mockComparison.length}</div>
+                    <div className="text-3xl font-bold text-blue-600">{recommendedWins}/{comparisonData.length}</div>
                     <p className="text-sm text-gray-600 mt-1">{t("compare.categoriesBetter")}</p>
                   </CardContent>
                 </Card>
                 <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200">
                   <CardContent className="p-7 sm:p-8 text-center">
                     <AlertTriangle className="w-10 h-10 text-orange-600 mx-auto mb-4" />
-                    <div className="text-3xl font-bold text-orange-600">3</div>
+                    <div className="text-3xl font-bold text-orange-600">{coverageGaps.length || 3}</div>
                     <p className="text-sm text-gray-600 mt-1">{t("compare.coverageGaps")}</p>
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Coverage Gaps (if available) */}
+              {coverageGaps.length > 0 && (
+                <Card className="mb-8 border-orange-200">
+                  <CardHeader className="bg-orange-50 py-4">
+                    <CardTitle className="text-orange-800 flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5" />
+                      {language === "th" ? "ช่องว่างความคุ้มครองที่พบ" : "Coverage Gaps Found"}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <ul className="space-y-2">
+                      {coverageGaps.map((gap, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <X className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm text-gray-700">{gap}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Comparison Table */}
               <Card className="mb-12 overflow-hidden">
@@ -697,46 +826,98 @@ export function CompareContent() {
                         </tr>
                       </thead>
                       <tbody>
-                        {mockComparison.map((item, index) => (
-                          <motion.tr
-                            key={item.category}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                            className="border-b hover:bg-gray-50"
-                          >
-                            <td className="p-4">
-                              <div className="flex items-center gap-2">
-                                <item.icon className="w-4 h-4 text-gray-500" />
-                                <span className="font-medium text-gray-900">{item.category}</span>
-                                {item.importance === "high" && (
-                                  <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full">
-                                    {t("compare.important")}
-                                  </span>
-                                )}
-                              </div>
-                            </td>
-                            <td className="p-4 text-center text-red-600 font-medium">
-                              <div className="flex items-center justify-center gap-1">
-                                {item.yourPlan === t("compare.notIncluded") || item.yourPlan === "ไม่คุ้มครอง" ? (
-                                  <X className="w-4 h-4" />
-                                ) : null}
-                                {item.yourPlan}
-                              </div>
-                            </td>
-                            <td className="p-4 text-center font-semibold text-green-600">
-                              <div className="flex items-center justify-center gap-1">
-                                <Check className="w-4 h-4" />
-                                {item.recommendedPlan}
-                              </div>
-                            </td>
-                          </motion.tr>
-                        ))}
+                        {comparisonData.map((item, index) => {
+                          // Handle both mock and real data structure
+                          const category = "category" in item ? item.category : "";
+                          const yourPlan = "yourPlan" in item ? String(item.yourPlan) : "";
+                          const recommended = "recommendedPlan" in item ? String(item.recommendedPlan) : ("recommended" in item ? String(item.recommended) : "");
+                          const winner = item.winner;
+                          const importance = item.importance;
+                          const Icon = "icon" in item ? item.icon : Shield;
+
+                          return (
+                            <motion.tr
+                              key={category}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.05 }}
+                              className="border-b hover:bg-gray-50"
+                            >
+                              <td className="p-4">
+                                <div className="flex items-center gap-2">
+                                  {typeof Icon === "function" && <Icon className="w-4 h-4 text-gray-500" />}
+                                  <span className="font-medium text-gray-900">{category}</span>
+                                  {importance === "high" && (
+                                    <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full">
+                                      {t("compare.important")}
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+                              <td className={`p-4 text-center font-medium ${winner === "recommended" ? "text-red-600" : winner === "yours" ? "text-green-600" : "text-gray-600"}`}>
+                                <div className="flex items-center justify-center gap-1">
+                                  {(yourPlan === t("compare.notIncluded") || yourPlan === "ไม่คุ้มครอง" || yourPlan.includes("ไม่")) && (
+                                    <X className="w-4 h-4" />
+                                  )}
+                                  {yourPlan}
+                                </div>
+                              </td>
+                              <td className={`p-4 text-center font-semibold ${winner === "recommended" ? "text-green-600" : winner === "yours" ? "text-red-600" : "text-gray-600"}`}>
+                                <div className="flex items-center justify-center gap-1">
+                                  {winner === "recommended" && <Check className="w-4 h-4" />}
+                                  {winner === "tie" && <Minus className="w-4 h-4" />}
+                                  {recommended}
+                                </div>
+                              </td>
+                            </motion.tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Recommended Plans (if available) */}
+              {analysisResult?.recommendedPlans && analysisResult.recommendedPlans.length > 0 && (
+                <Card className="mb-8">
+                  <CardHeader className="bg-green-50 py-4">
+                    <CardTitle className="text-green-800 flex items-center gap-2">
+                      <Shield className="w-5 h-5" />
+                      {language === "th" ? "แผนที่แนะนำสำหรับคุณ" : "Recommended Plans for You"}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <div className="space-y-4">
+                      {analysisResult.recommendedPlans.slice(0, 3).map((plan, index) => (
+                        <div key={plan.planId} className="flex items-start gap-4 p-4 rounded-xl bg-gray-50">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${index === 0 ? "bg-green-500" : "bg-blue-500"}`}>
+                            {index + 1}
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-bold text-gray-900">{plan.planName}</h4>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-sm text-green-600 font-medium">
+                                {language === "th" ? "คะแนน: " : "Score: "}{plan.matchScore}%
+                              </span>
+                            </div>
+                            {plan.advantages.length > 0 && (
+                              <ul className="mt-2 space-y-1">
+                                {plan.advantages.slice(0, 3).map((adv, i) => (
+                                  <li key={i} className="flex items-center gap-2 text-sm text-gray-600">
+                                    <Check className="w-3 h-3 text-green-500" />
+                                    {adv}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* CTA */}
               <div className="text-center space-y-5">
