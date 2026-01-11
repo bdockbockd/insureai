@@ -18,18 +18,24 @@ export async function GET(
       );
     }
 
-    // Get comments for this post
-    const comments = await getPostComments(id);
+    // Get comments - first check embedded comments in post, then fallback to collection
+    let comments = post.comments || [];
+
+    // If no embedded comments, try the separate collection
+    if (comments.length === 0) {
+      const collectionComments = await getPostComments(id);
+      comments = collectionComments.map((c) => ({
+        ...c,
+        _id: c._id?.toString(),
+      }));
+    }
 
     return NextResponse.json({
       post: {
         ...post,
         _id: post._id?.toString(),
       },
-      comments: comments.map((c) => ({
-        ...c,
-        _id: c._id?.toString(),
-      })),
+      comments,
     });
   } catch (error) {
     console.error("Get community post error:", error);
