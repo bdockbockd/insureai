@@ -24,10 +24,18 @@ import {
   Lightbulb,
   Newspaper,
   BadgeCheck,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/language-context";
+
+interface Comment {
+  authorName: string;
+  content: string;
+  timestamp: string;
+  likes: number;
+}
 
 interface CommunityPost {
   _id: string;
@@ -44,6 +52,7 @@ interface CommunityPost {
   isVerified: boolean;
   isPinned: boolean;
   createdAt: string;
+  comments?: Comment[];
 }
 
 const categories = [
@@ -96,6 +105,26 @@ export default function CommunityPage() {
   const [isSearching, setIsSearching] = useState(false);
   const [aiSearchResults, setAiSearchResults] = useState<CommunityPost[]>([]);
   const [isAISearch, setIsAISearch] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<CommunityPost | null>(null);
+  const [isLoadingPost, setIsLoadingPost] = useState(false);
+
+  // Fetch single post with comments
+  const fetchPostDetail = async (postId: string) => {
+    setIsLoadingPost(true);
+    try {
+      const response = await fetch(`/api/community/posts/${postId}`);
+      const data = await response.json();
+      // Combine post data with comments
+      setSelectedPost({
+        ...data.post,
+        comments: data.comments || [],
+      });
+    } catch (error) {
+      console.error("Failed to fetch post:", error);
+    } finally {
+      setIsLoadingPost(false);
+    }
+  };
 
   // Fetch posts
   useEffect(() => {
@@ -235,7 +264,7 @@ export default function CommunityPage() {
                     ? "ค้นหาด้วย AI... เช่น 'วิธีเคลมประกัน' หรือ 'ประกันสุขภาพที่ดี'"
                     : "Search with AI... e.g. 'how to claim insurance' or 'best health plans'"
                 }
-                className="w-full pl-12 pr-28 py-4 rounded-full text-gray-900 placeholder-gray-400 shadow-lg focus:ring-2 focus:ring-green-300 focus:outline-none"
+                className="w-full pl-12 pr-28 py-4 rounded-full text-gray-900 placeholder-gray-500 shadow-lg focus:ring-2 focus:ring-green-300 focus:outline-none"
               />
               <Button
                 type="submit"
@@ -382,7 +411,10 @@ export default function CommunityPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
+                  <Card
+                    className="h-full hover:shadow-lg transition-shadow cursor-pointer group"
+                    onClick={() => fetchPostDetail(post._id)}
+                  >
                     <CardContent className="p-6">
                       {/* Header */}
                       <div className="flex items-start justify-between mb-3">
@@ -516,6 +548,126 @@ export default function CommunityPage() {
           </motion.div>
         )}
       </div>
+
+      {/* Post Detail Modal */}
+      {selectedPost && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setSelectedPost(null)}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white border-b border-gray-100 p-4 flex items-center justify-between">
+              <h2 className="font-semibold text-gray-900 line-clamp-1">
+                {selectedPost.title}
+              </h2>
+              <button
+                onClick={() => setSelectedPost(null)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
+              {/* Post Content */}
+              <div className="p-6 border-b border-gray-100">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center">
+                    <span className="text-sm text-white font-medium">
+                      {selectedPost.authorName.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">{selectedPost.authorName}</p>
+                    <p className="text-xs text-gray-500">{formatDate(selectedPost.createdAt)}</p>
+                  </div>
+                </div>
+                <p className="text-gray-700 whitespace-pre-wrap">{selectedPost.content}</p>
+
+                {/* Tags */}
+                {selectedPost.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {selectedPost.tags.map((tag, i) => (
+                      <span key={i} className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Stats */}
+                <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-100 text-sm text-gray-500">
+                  <span className="flex items-center gap-1">
+                    <Heart className="w-4 h-4" /> {selectedPost.likes}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <MessageCircle className="w-4 h-4" /> {selectedPost.commentsCount}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Eye className="w-4 h-4" /> {selectedPost.views}
+                  </span>
+                </div>
+              </div>
+
+              {/* Comments Section */}
+              <div className="p-6">
+                <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <MessageCircle className="w-5 h-5" />
+                  {language === "th" ? "ความคิดเห็น" : "Comments"} ({selectedPost.comments?.length || 0})
+                </h3>
+
+                {isLoadingPost ? (
+                  <div className="space-y-4">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="animate-pulse">
+                        <div className="flex gap-3">
+                          <div className="w-8 h-8 bg-gray-200 rounded-full" />
+                          <div className="flex-1">
+                            <div className="h-4 bg-gray-200 rounded w-24 mb-2" />
+                            <div className="h-3 bg-gray-200 rounded w-full" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : selectedPost.comments && selectedPost.comments.length > 0 ? (
+                  <div className="space-y-4">
+                    {selectedPost.comments.map((comment, index) => (
+                      <div key={index} className="flex gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center flex-shrink-0">
+                          <span className="text-xs text-white font-medium">
+                            {comment.authorName.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="flex-1 bg-gray-50 rounded-lg p-3">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-medium text-sm text-gray-900">{comment.authorName}</span>
+                            <span className="text-xs text-gray-400">{comment.timestamp}</span>
+                          </div>
+                          <p className="text-sm text-gray-700">{comment.content}</p>
+                          {comment.likes > 0 && (
+                            <div className="flex items-center gap-1 mt-2 text-xs text-gray-400">
+                              <Heart className="w-3 h-3" /> {comment.likes}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-center py-8">
+                    {language === "th" ? "ยังไม่มีความคิดเห็น" : "No comments yet"}
+                  </p>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
