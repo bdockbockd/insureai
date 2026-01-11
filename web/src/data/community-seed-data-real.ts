@@ -17,6 +17,7 @@ export interface CommunityPost {
   category: "knowledge" | "story" | "question" | "tip" | "news";
   tags: string[];
   authorName: string;
+  sourceUrl?: string;
   likes: number;
   views: number;
   commentsCount: number;
