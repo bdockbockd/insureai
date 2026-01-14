@@ -87,4 +87,30 @@ npm run dev
 
 ---
 
+## Bug Fixes Log
+
+### 2026-01-14: Gemini Model Fallback Fix
+**Issue:** When `gemini-2.5-pro` hit rate limit, code would skip to next API key instead of trying fallback models (`gemini-2.5-flash`, `gemini-2.5-flash-lite`).
+
+**Root Cause:** In `ai-assist/route.ts`, the code used `continue keyLoop` which jumped to the next API key, bypassing the model fallback chain.
+
+**Fix:** Changed to `continue` (model loop) so it tries all models in the fallback chain before marking the key exhausted.
+
+**Model Fallback Chain:**
+1. `gemini-2.5-pro` - Best quality (but strict rate limits on free tier)
+2. `gemini-2.5-flash` - Balanced speed & quality
+3. `gemini-2.5-flash-lite` - Fastest, cheapest fallback
+
+**Files Modified:**
+- `web/src/app/api/ai-assist/route.ts`
+- `web/src/lib/gemini.ts`
+
+---
+
+## GitHub Account Note
+
+Use `gh auth switch --user bdockbockd` before pushing to this repo.
+
+---
+
 *Last updated: 2026-01-14*
