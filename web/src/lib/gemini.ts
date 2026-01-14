@@ -291,7 +291,9 @@ export async function callGemini(
     }
 
     // Inner loop: try each model with current key
+    let allModelsRateLimited = true;
     for (const model of MODEL_FALLBACK_CHAIN) {
+      console.log(`[FALLBACK] Trying model: ${model} with key: ${currentKey.slice(0, 10)}...`);
       const result = await tryGeminiModel(model, currentKey, options);
       lastResult = result;
 
@@ -303,9 +305,11 @@ export async function callGemini(
       }
 
       if (result.keyExhausted) {
-        // Key hit rate limit, mark it and try next key
-        markKeyExhausted(currentKey);
-        break; // Exit model loop, try next key
+        // Model hit rate limit, try next model in fallback chain
+        console.log(
+          `API key ${currentKey.slice(0, 10)}... hit rate limit for model ${model}`
+        );
+        continue; // Try next model instead of breaking
       }
 
       if (result.contextTooLong) {
@@ -313,11 +317,13 @@ export async function callGemini(
         return result;
       }
 
-      // Model failed but not due to rate limit, try next model
+      // Model failed but not due to rate limit
+      allModelsRateLimited = false;
     }
 
-    // If we broke out of the model loop due to rate limit, continue to next key
-    if (lastResult?.keyExhausted) {
+    // If all models in the chain hit rate limits for this key, mark key exhausted
+    if (allModelsRateLimited) {
+      markKeyExhausted(currentKey);
       continue;
     }
 

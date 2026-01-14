@@ -410,7 +410,9 @@ ${truncatedMarkdown}
         }
 
         // Inner loop: try each model with current key (pro first from centralized chain)
+        let allModelsRateLimited = true;
         for (const model of MODEL_FALLBACK_CHAIN) {
+          console.log(`[FALLBACK] Trying model: ${model} with key: ${currentKey.slice(0, 10)}...`);
           const result = await tryGeminiModel(model, currentKey, contents);
 
           if (result.contextTooLong) {
@@ -419,9 +421,9 @@ ${truncatedMarkdown}
           }
 
           if (result.keyExhausted) {
-            // Key hit rate limit, mark it and try next key
-            markKeyExhausted(currentKey);
-            continue keyLoop;
+            // Model hit rate limit, try next model in fallback chain
+            console.log(`Model ${model} rate limited, trying next model...`);
+            continue; // Try next model instead of skipping to next key
           }
 
           if (result.response) {
@@ -433,11 +435,14 @@ ${truncatedMarkdown}
             );
             break keyLoop;
           }
-          // Model failed but not due to rate limit, try next model
+          // Model failed but not due to rate limit
+          allModelsRateLimited = false;
         }
 
-        // All models failed for this key (not rate limit), try next key
-        markKeyExhausted(currentKey);
+        // Only mark key exhausted if all models hit rate limits for this key
+        if (allModelsRateLimited) {
+          markKeyExhausted(currentKey);
+        }
       }
 
       // If we got a response, we're done
