@@ -6,7 +6,6 @@ import {
   Scale,
   Clock,
   Shield,
-  Smartphone,
   HeadphonesIcon,
   FileCheck
 } from "lucide-react";
@@ -36,12 +35,6 @@ const featureKeys = [
     titleKey: "features.allianzBacked",
     descKey: "features.allianzBackedDesc",
     color: "from-orange-500 to-red-500",
-  },
-  {
-    icon: Smartphone,
-    titleKey: "features.easyClaims",
-    descKey: "features.easyClaimsDesc",
-    color: "from-pink-500 to-rose-500",
   },
   {
     icon: HeadphonesIcon,
